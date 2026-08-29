@@ -27,7 +27,7 @@ def fetch(url):
 
 
 def parse_closures(html):
-    """暫停開放公告: 2026/08/29 06:30 - 2026/08/29 14:15 | 跳水池... | 救生員不足"""
+    """暫停開放公告 (Chinese): 2026/08/29 06:30 - 2026/08/29 14:15 | 跳水池... | 救生員不足"""
     closures = []
     date_re = re.compile(
         r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*\d{4}/\d{2}/\d{2}\s+(\d{2}:\d{2})"
@@ -53,6 +53,36 @@ def parse_closures(html):
             })
     today = date.today().strftime("%Y/%m/%d")
     return [c for c in closures if c["date"] >= today]
+def parse_closures_en(html):
+    """English closures: same date format, English pool names and reasons"""
+    closures = []
+    date_re = re.compile(
+        r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*\d{4}/\d{2}/\d{2}\s+(\d{2}:\d{2})"
+    )
+    for m in date_re.finditer(html):
+        d, t_start, t_end = m.group(1), m.group(2), m.group(3)
+        after = html[m.end():m.end() + 600]
+        pools_match = re.search(
+            r"<td>\s*([^<]{2,60}(?:pool|stand|area|slide)[^<]*)</td>",
+            after, re.IGNORECASE,
+        )
+        reason = ""
+        if pools_match:
+            after_pools = after[pools_match.end():]
+            reason_match = re.search(r"<td>\s*([^<]{2,40}?)\s*</td>", after_pools)
+            if reason_match:
+                reason = reason_match.group(1).strip()
+        if pools_match:
+            pools = pools_match.group(1).strip().strip(",，")
+            closures.append({
+                "date": d,
+                "time": f"{t_start} - {t_end}",
+                "pools": pools,
+                "reason": reason or "Notice",
+            })
+    today = date.today().strftime("%Y/%m/%d")
+    return [c for c in closures if c["date"] >= today]
+
 
 
 def parse_maintenance(html):
@@ -107,12 +137,26 @@ def parse_cleaning(html):
 
 
 def pool_data(swp_id):
-    url = f"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId={swp_id}"
-    html = fetch(url)
+    url_tc = f"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId={swp_id}"
+    url_en = f"https://www.lcsd.gov.hk/clpss/en/webApp/Swimming.do?swpId={swp_id}"
+    html_tc = fetch(url_tc)
+    html_en = fetch(url_en)
+    closures_tc = parse_closures(html_tc)
+    closures_en = parse_closures_en(html_en)
+    # Merge: match by (date, time) to add English fields
+    en_map = {(c["date"], c["time"]): c for c in closures_en}
+    for c in closures_tc:
+        key = (c["date"], c["time"])
+        if key in en_map:
+            c["poolsEn"] = en_map[key]["pools"]
+            c["reasonEn"] = en_map[key]["reason"]
+        else:
+            c["poolsEn"] = c["pools"]
+            c["reasonEn"] = c["reason"]
     return {
-        "closures": parse_closures(html),
-        "maintenance": parse_maintenance(html),
-        "cleaning": parse_cleaning(html),
+        "closures": closures_tc,
+        "maintenance": parse_maintenance(html_tc),
+        "cleaning": parse_cleaning(html_tc),
     }
 
 
