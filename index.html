@@ -88,16 +88,28 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 
 <script>
 // 天氣模組 — HKO 官方 Open Data API (CORS enabled)
+let severeWarnings=[]; // 八號風球以上 / 黑雨 — 由天氣模組更新，renderLibraries 讀取
 (function(){
   const API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
+  const WARN_API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
   const ICON_BASE='https://d28gfsrd1pujc.cloudfront.net/frontend_images/mod_sp_weather/images/';
+  function parseSevere(wd){
+    const out=[];
+    const warns=wd&&wd.warnings?wd.warnings:{};
+    for(const k in warns){
+      const w=warns[k]; if(!w) continue;
+      if(w.status && w.status.includes('取消')) continue;
+      const name=w.name||'';
+      if(/八號|九號|十號/.test(name) || name.includes('黑色暴雨')) out.push(name);
+    }
+    return out;
+  }
   async function fetchWeather(){
     try{
       const r=await fetch(API);
       const d=await r.json();
       const temps=(d.temperature?.data)||[];
       const hums=(d.humidity?.data)||[];
-      // 優先顯示香港天文台讀數，否則第一個
       const t=(temps.find(x=>x.place==='香港天文台')||temps[0]||{}).value;
       const h=(hums.find(x=>x.place==='香港天文台')||hums[0]||{}).value;
       const icon=(d.icon&&d.icon[0])||'50';
@@ -111,6 +123,17 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
     }catch(e){
       const el=document.getElementById('topWeather');
       if(el) el.textContent='天氣資料暫不可用';
+    }
+    // 惡劣天氣警示（黑雨 / 八號風球以上）
+    try{
+      const w=await fetch(WARN_API);
+      const wd=await w.json();
+      severeWarnings=parseSevere(wd);
+    }catch(e){ severeWarnings=[]; }
+    // 警示更新後重繪圖書館（顯示/隱藏閉館提示）
+    if(typeof renderLibraries==='function'){
+      const lb=document.getElementById('libraries');
+      if(lb) lb.innerHTML=renderLibraries();
     }
   }
   fetchWeather();
@@ -143,9 +166,9 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 <script>
 // ponytail: 單檔無框架，硬編碼數據，lightweight
 const I18N={
- zh:{title:"西貢區康樂設施運作情況",pools:"🏊 游泳池",playrooms:"🎮 兒童遊戲室",library:"📚 圖書館",rvm:"♻️ 塑膠樽回收機",open:"營運中",soon:"即將開始",done:"已結束",closed:"休館",partial:"部分開放",maint:"維修中",closed_today:"暫停開放",rvm_open:"提供服務",rvm_soon:"即將開放",rvm_closed:"非服務時間",hours:"開放時段",hours45:"開放時段 (每節 45-60分)",libhours:"開放時間",today:"今日",lastUpd:"最後更新",src:"數據來源：康文署 · 環保署",view:"查看康文署官網 →",viewLib:"查看公共圖書館官網 →",expand:"[展開 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暫停開放公告",closureReason:"因",upcoming:"即將開放",mainPool:"主池",closedNote:"今日暫停",cleaningDay:"今日為每周大清潔日",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公眾假期"},
- en:{title:"Sai Kung Leisure Facilities Status",pools:"🏊 Swimming Pools",playrooms:"🎮 Children's Playrooms",library:"📚 Library",rvm:"♻️ Bottle Recycling Machines",open:"Open",soon:"Opening Soon",done:"Closed",closed:"Closed",partial:"Partially Open",maint:"Maintenance",closed_today:"Suspended",rvm_open:"In Service",rvm_soon:"Opening Soon",rvm_closed:"Out of Hours",hours:"Opening Sessions",hours45:"Sessions (45-60 min each)",libhours:"Opening Hours",today:"Today",lastUpd:"Last updated",src:"Data: LCSD · EPD",view:"View LCSD official page →",viewLib:"View library official page →",expand:"[Expand +]",collapse:"[Collapse −]",sync:"Last synced",closure:"Closure Notice",closureReason:"due to",upcoming:"Opens Soon",closedNote:"Suspended today",cleaningDay:"Weekly cleaning day",sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",holiday:"Public Holiday"},
- cn:{title:"西贡区康乐设施运作情况",pools:"🏊 游泳池",playrooms:"🎮 儿童游戏室",library:"📚 图书馆",rvm:"♻️ 塑胶瓶回收机",open:"营运中",soon:"即将开始",done:"已结束",closed:"休馆",partial:"部分开放",maint:"维修中",closed_today:"暂停开放",rvm_open:"提供服务",rvm_soon:"即将开放",rvm_closed:"非服务时间",hours:"开放时段",hours45:"开放时段 (每节 45-60分)",libhours:"开放时间",today:"今日",lastUpd:"最后更新",src:"数据来源：康文署 · 环保署",view:"查看康文署官网 →",viewLib:"查看公共图书馆官网 →",expand:"[展开 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暂停开放公告",closureReason:"因",upcoming:"即将开放",mainPool:"主池",closedNote:"今日暂停",cleaningDay:"今日为每周大清洁日",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公众假期"}
+ zh:{title:"西貢區康樂設施運作情況",pools:"🏊 游泳池",playrooms:"🎮 兒童遊戲室",library:"📚 圖書館",rvm:"♻️ 塑膠樽回收機",open:"營運中",soon:"即將開始",done:"已結束",closed:"休館",partial:"部分開放",maint:"維修中",closed_today:"暫停開放",rvm_open:"提供服務",rvm_soon:"即將開放",rvm_closed:"非服務時間",hours:"開放時段",hours45:"開放時段 (每節 45-60分)",libhours:"開放時間",today:"今日",lastUpd:"最後更新",src:"數據來源：康文署 · 環保署",view:"查看康文署官網 →",viewLib:"查看公共圖書館官網 →",expand:"[展開 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暫停開放公告",closureReason:"因",upcoming:"即將開放",mainPool:"主池",closedNote:"今日暫停",cleaningDay:"今日為每周大清潔日",weatherWarn:"天氣警示",libMayClose:"圖書館可能暫停開放，請留意官方公告",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公眾假期"},
+ en:{title:"Sai Kung Leisure Facilities Status",pools:"🏊 Swimming Pools",playrooms:"🎮 Children's Playrooms",library:"📚 Library",rvm:"♻️ Bottle Recycling Machines",open:"Open",soon:"Opening Soon",done:"Closed",closed:"Closed",partial:"Partially Open",maint:"Maintenance",closed_today:"Suspended",rvm_open:"In Service",rvm_soon:"Opening Soon",rvm_closed:"Out of Hours",hours:"Opening Sessions",hours45:"Sessions (45-60 min each)",libhours:"Opening Hours",today:"Today",lastUpd:"Last updated",src:"Data: LCSD · EPD",view:"View LCSD official page →",viewLib:"View library official page →",expand:"[Expand +]",collapse:"[Collapse −]",sync:"Last synced",closure:"Closure Notice",closureReason:"due to",upcoming:"Opens Soon",closedNote:"Suspended today",cleaningDay:"Weekly cleaning day",weatherWarn:"Weather Warning",libMayClose:"Libraries may be closed — check official notices",sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",holiday:"Public Holiday"},
+ cn:{title:"西贡区康乐设施运作情况",pools:"🏊 游泳池",playrooms:"🎮 儿童游戏室",library:"📚 图书馆",rvm:"♻️ 塑胶瓶回收机",open:"营运中",soon:"即将开始",done:"已结束",closed:"休馆",partial:"部分开放",maint:"维修中",closed_today:"暂停开放",rvm_open:"提供服务",rvm_soon:"即将开放",rvm_closed:"非服务时间",hours:"开放时段",hours45:"开放时段 (每节 45-60分)",libhours:"开放时间",today:"今日",lastUpd:"最后更新",src:"数据来源：康文署 · 环保署",view:"查看康文署官网 →",viewLib:"查看公共图书馆官网 →",expand:"[展开 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暂停开放公告",closureReason:"因",upcoming:"即将开放",mainPool:"主池",closedNote:"今日暂停",cleaningDay:"今日为每周大清洁日",weatherWarn:"天气警示",libMayClose:"图书馆可能暂停开放，请留意官方公告",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公众假期"}
 };
 const NAME_L10N={
  tkoswim:{zh:"將軍澳游泳池",en:"Tseung Kwan O Swimming Pool",cn:"将军澳游泳池"},
@@ -402,7 +425,11 @@ function renderLibraries(){
      return `<div class="session" style="${isToday?'background:#f0fdf4;border-radius:6px;padding:6px 8px':''}"><span class="session-time">${trDay(w.day,currentLang)} ${w.time}${isToday?' ← '+t('today'):''}</span><span class="session-status ${isToday?st.cls:'done'}">${isToday?badgeText:''}</span></div>`
    }).join("");
    let official=officialLink(l.officialUrl,'viewLib');
-   return `<div class="card collapsed" id="${l.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(l.id)}</div><div class="facility-address">${addr(l)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${badgeCls}">${badgeText}</span><span class="expand-hint"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('libhours')}</div>${rows}</div>${official}</div></div>`
+   let warnHtml='';
+   if(severeWarnings.length){
+     warnHtml=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${severeWarnings.join('、')} — ${t('libMayClose')}</div>`;
+   }
+   return `<div class="card collapsed" id="${l.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(l.id)}</div><div class="facility-address">${addr(l)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${badgeCls}">${badgeText}</span><span class="expand-hint"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('libhours')}</div>${rows}</div>${warnHtml}${official}</div></div>`
  }).join("");
 }
 function renderRVM(){
