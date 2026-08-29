@@ -34,6 +34,7 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 .status-open{background:#dcfce7;color:#166534}
 .status-upcoming{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
 .status-closed{background:#f1f5f9;color:#64748b}
+.status-maint{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
 @keyframes breathe{0%,100%{opacity:1}50%{opacity:.4}}
 .status-partial{background:#fef3c7;color:#92400e}
 .status-suspended{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
@@ -50,6 +51,7 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 .session-status{padding:3px 8px;border-radius:999px;font-size:.7rem;font-weight:600}
 .session-status.soon{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
 .session-status.open{background:#166534;color:#fff}
+.session-status.maint{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
 .session-status.done{background:#f1f5f9;color:#94a3b8}
 .notice{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-top:12px;font-size:.78rem;color:#92400e}
 .section-title{font-size:1.1rem;font-weight:700;color:#1e293b;margin:12px 0 6px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
@@ -218,6 +220,24 @@ const RVM_FACILITIES=[
 function hkNow(){return new Date()} // server already HKT, no +8h
 function hkMinutes(d){return d.getHours()*60+d.getMinutes()}
 function parseRange(s){
+// parseMaintNote: 保養日(每月第N及第M個星期X HH:MM-HH:MM)首節改 HH:MM
+function parseMaintNote(note){
+  const m=note.match(/保養日\(每月(.+?)及(.+?)個(.+?) ([0-9:]+)-([0-9:]+)\)首節改 ([0-9:]+)/);
+  if(!m)return null;
+  const ord={第一:1,第二:2,第三:3,第四:4};
+  const wd={星期一:1,星期二:2,星期三:3,星期四:4,星期五:5,星期六:6,星期日:0};
+  const toMin=s=>{const[h,mm]=s.split(':').map(Number);return h*60+mm;};
+  return{weeks:[ord[m[1]],ord[m[2]]],weekday:wd[m[3]],winEnd:toMin(m[5]),shift:toMin(m[6])};
+}
+// isMaintDay: 今日係咪某個保養日（第N個星期X）？date預設今日
+function isMaintDay(obj,date){
+  if(!obj)return false;
+  const d=date||new Date();
+  if(d.getDay()!==obj.weekday)return false;
+  const off=(obj.weekday-new Date(d.getFullYear(),d.getMonth(),1).getDay()+7)%7;
+  const occ=1+Math.floor((d.getDate()-(1+off))/7);
+  return obj.weeks.includes(occ);
+}
 // s like "早上 9:00 - 9:45" or "下午 12:30 - 13:15" or "24小時" or "06:30 - 12:00"
 if(s.includes("24小時")) return {start:0,end:1440}
 let m=s.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
@@ -353,10 +373,13 @@ function renderPools(){
 function renderPlayrooms(){
  const now=hkNow(), nm=hkMinutes(now);
  return PLAYROOMS.map(p=>{
-   let st=facilityOverallStatus(p.sessions, nm);
+   let maint=parseMaintNote(p.note);
+   let isMaint=isMaintDay(maint);
+   let st=isMaint?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
    let html=p.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
+     if(isMaint){ss={text:t('maint'),cls:'maint'};}
      return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
    let official=officialLink(p.officialUrl,'view');
