@@ -32,8 +32,9 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 .facility-address{font-size:.75rem;color:#64748b;margin-top:2px}
 .status-badge{padding:5px 12px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
 .status-open{background:#dcfce7;color:#166534}
-.status-upcoming{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.status-upcoming{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
 .status-closed{background:#f1f5f9;color:#64748b}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.4}}
 .status-partial{background:#fef3c7;color:#92400e}
 .status-suspended{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
 .facility-body{padding:12px 16px}
@@ -47,7 +48,7 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 .session{display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;align-items:center}
 .session-time{color:#475569}
 .session-status{padding:3px 8px;border-radius:999px;font-size:.7rem;font-weight:600}
-.session-status.soon{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.session-status.soon{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
 .session-status.open{background:#166534;color:#fff}
 .session-status.done{background:#f1f5f9;color:#94a3b8}
 .notice{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-top:12px;font-size:.78rem;color:#92400e}
