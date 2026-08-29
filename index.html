@@ -426,8 +426,13 @@ function renderAll(){
 }
 function updateClock(){
  const now=hkNow();
- const fmt={timeZone:'Asia/Hong_Kong',hour12:false};
- document.getElementById('topDate').textContent=new Date().toLocaleDateString('zh-HK',{...fmt,month:'2-digit',day:'2-digit',weekday:'short'}).replace(/\//g,'-')+' '+new Date().toLocaleTimeString('zh-HK',{...fmt,hour:'2-digit',minute:'2-digit'});
+ const y=now.getFullYear();
+ const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+ const d=now.getDate();
+ const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()];
+ const hh=String(now.getHours()).padStart(2,'0');
+ const mm=String(now.getMinutes()).padStart(2,'0');
+ document.getElementById('topDate').textContent=`${y}-${mon}-${d} (${wd}) ${hh}:${mm}`;
 }
 function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
