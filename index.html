@@ -386,6 +386,10 @@ function renderPools(){
    const subClosed=subPools.filter(x=>x.status==='closed').length;
    if(subClosed>0 && subClosed<subPools.length) st={text:t('partial'),cls:"status-partial"};
    else if(subClosed===subPools.length) st={text:t('closed_today'),cls:"status-suspended"};
+   // ponytail: 如果整體設施已休館（所有時段已結束），子池都應顯示休館，唔好顯示營運中
+   if(st.cls==="status-closed"||st.cls==="status-suspended"){
+     subPools=subPools.map(x=>({...x, status:'closed', note:x.note||t('closedNote')}));
+   }
    let pools=subPools.map(x=>{
      let fs=FSTATUS[x.status]||FSTATUS.closed;
      return `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><span class="detail-label">${tl('pool',x.name)} <small style="color:#94a3b8">${x.spec}</small></span><span class="session-status ${fs.c}">${fs.t}</span></div>${x.note?`<small style="color:#92400e;font-size:.75rem;text-align:right;width:100%">${tl('note',x.note)}</small>`:''}</div>`
