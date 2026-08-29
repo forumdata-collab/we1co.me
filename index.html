@@ -375,11 +375,12 @@ function renderPlayrooms(){
  return PLAYROOMS.map(p=>{
    let maint=parseMaintNote(p.note);
    let isMaint=isMaintDay(maint);
-   let st=isMaint?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
+   let maintNow=isMaint && nm < maint.shift;
+   let st=maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
    let html=p.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
-     if(isMaint){ss={text:t('maint'),cls:'maint'};}
+     if(isMaint && r && r.start<maint.shift){ss={text:t('maint'),cls:'maint'};}
      return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
    let official=officialLink(p.officialUrl,'view');
