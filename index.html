@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="西貢區康樂設施即時運作狀態">
+<title>西貢區康樂設施運作情況 | we1co.me</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:#f5f5f5;color:#333;line-height:1.6;padding-top:80px}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+.top-bar{position:fixed;top:0;left:0;right:0;height:24px;background:#1e3a8a;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:.68rem;z-index:1002}
+.top-bar span{white-space:nowrap}
+.nav-bar{position:fixed;top:24px;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-bottom:1px solid #e5e7eb;z-index:1001;padding:6px 16px}
+.nav-inner{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nav-title{font-weight:700;color:#1e3a8a;font-size:.95rem;white-space:nowrap}
+.lang-switch{display:flex;gap:4px}
+.lang-btn{padding:4px 10px;border-radius:6px;font-size:.75rem;font-weight:500;text-decoration:none;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;cursor:pointer}
+.lang-btn.active{background:#1e3a8a;color:#fff;border-color:#1e3a8a}
+header{display:none}
+header p{color:#64748b;font-size:.85rem;margin-top:4px}
+
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin:8px 0;overflow:hidden;border:1px solid #e5e7eb}
+.card.collapsed .facility-body{display:none}
+.card .expand-hint{font-size:.72rem;color:#64748b;font-weight:500;margin-left:6px}
+.card.collapsed .expand-hint::after{content:"[展開 +]"}
+.card:not(.collapsed) .expand-hint::after{content:"[收合 −]"}
+.facility-header{padding:14px 16px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer}
+.facility-header:hover{background:#f1f5f9}
+.facility-name{font-size:1rem;font-weight:700;color:#1e293b}
+.facility-address{font-size:.75rem;color:#64748b;margin-top:2px}
+.status-badge{padding:5px 12px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.status-open{background:#dcfce7;color:#166534}
+.status-upcoming{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.status-closed{background:#f1f5f9;color:#64748b}
+.status-partial{background:#fef3c7;color:#92400e}
+.status-suspended{background:#fef3c7;color:#b45309;border:1px solid #fcd34d}
+.facility-body{padding:12px 16px}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.85rem}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:#64748b}
+.schedule-section{margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb}
+.schedule-title{font-weight:600;color:#374151;margin-bottom:8px;font-size:.9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.schedule-title::after{content:'▾';transition:transform .2s}
+.collapsed .schedule-title::after{transform:rotate(-90deg)}
+.session{display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;align-items:center}
+.session-time{color:#475569}
+.session-status{padding:3px 8px;border-radius:999px;font-size:.7rem;font-weight:600}
+.session-status.soon{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.session-status.open{background:#166534;color:#fff}
+.session-status.done{background:#f1f5f9;color:#94a3b8}
+.notice{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-top:12px;font-size:.78rem;color:#92400e}
+.section-title{font-size:1.1rem;font-weight:700;color:#1e293b;margin:12px 0 6px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.section-title .toggle{font-size:.9rem;color:#64748b}
+.collapsible .section-content{display:block}
+.collapsible.collapsed .section-content{display:none}
+.collapsible.collapsed .section-title .toggle::after{content:'展開 ▸'}
+.collapsible .section-title .toggle::after{content:'收合 ▾'}
+.index-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;position:sticky;top:88px;z-index:900;background:rgba(245,245,245,.95);backdrop-filter:blur(6px);padding:8px 0;border-radius:12px}
+.index-item{padding:10px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;font-size:.82rem;color:#1e3a8a;text-decoration:none;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.index-item:hover{background:#1e3a8a;color:#fff}
+.rvm-card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin:12px 0;padding:16px;border:1px solid #e5e7eb}
+.rvm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rvm-item{display:flex;flex-direction:column;justify-content:space-between;padding:12px;border:1px solid #f1f5f9;border-radius:10px;gap:8px;background:#fafafa}
+.rvm-info{flex:1}
+.rvm-name{font-weight:600;color:#1e293b;font-size:.85rem}
+.rvm-address{font-size:.7rem;color:#64748b;margin-top:2px;line-height:1.4}
+.rvm-hours{font-size:.7rem;color:#475569;margin-top:2px}
+.rvm-status{padding:4px 10px;border-radius:999px;font-size:.7rem;font-weight:600;white-space:nowrap;height:fit-content}
+.rvm-status-operating{background:#dcfce7;color:#166534}
+.rvm-status-nearly-full{background:#fef3c7;color:#92400e}
+.rvm-status-full{background:#fee2e2;color:#991b1b}
+.rvm-status-maintenance{background:#e0e7ff;color:#3730a3}
+.rvm-sync{text-align:right;font-size:.68rem;color:#94a3b8;margin-top:10px;padding-top:8px;border-top:1px solid #e5e7eb}
+.updated{text-align:center;color:#94a3b8;font-size:.7rem;margin:12px 0 16px}
+.back-to-top{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:#1e3a8a;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(30,58,138,.4);display:none;align-items:center;justify-content:center;z-index:999}
+.back-to-top.visible{display:flex}
+@media(max-width:640px){.index-grid{grid-template-columns:1fr 1fr;top:70px}.facility-header{padding:12px}.facility-body{padding:10px 12px}.rvm-item{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="top-bar"><span id="topDate"></span><span id="topWeather"></span></div>
+<nav class="nav-bar"><div class="nav-inner"><div class="nav-title" id="navTitle">西貢區康樂設施運作情況</div><div class="lang-switch"><a href="#" class="lang-btn active" data-lang="zh">繁體</a><a href="#" class="lang-btn" data-lang="en">EN</a><a href="#" class="lang-btn" data-lang="cn">简体</a></div></div></nav>
+
+<script>
+// 天氣模組 — HKO 官方 Open Data API (CORS enabled)
+(function(){
+  const API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
+  const ICON_BASE='https://d28gfsrd1pujc.cloudfront.net/frontend_images/mod_sp_weather/images/';
+  async function fetchWeather(){
+    try{
+      const r=await fetch(API);
+      const d=await r.json();
+      const temps=(d.temperature?.data)||[];
+      const hums=(d.humidity?.data)||[];
+      // 優先顯示香港天文台讀數，否則第一個
+      const t=(temps.find(x=>x.place==='香港天文台')||temps[0]||{}).value;
+      const h=(hums.find(x=>x.place==='香港天文台')||hums[0]||{}).value;
+      const icon=(d.icon&&d.icon[0])||'50';
+      const el=document.getElementById('topWeather');
+      if(el){
+        el.innerHTML=
+          `<img src="${ICON_BASE}weather_${icon}.png" alt="" style="height:16px;vertical-align:middle;margin-right:4px">`+
+          `<span style="font-weight:700">${t??'--'}°C</span>`+
+          `<span style="opacity:.8;margin-left:6px">💧${h??'--'}%</span>`;
+      }
+    }catch(e){
+      const el=document.getElementById('topWeather');
+      if(el) el.textContent='天氣資料暫不可用';
+    }
+  }
+  fetchWeather();
+  setInterval(fetchWeather,600000); // 10分鐘更新（HKO rhrread 每10分鐘更新）
+})();
+</script>
+
+<div class="container">
+<div class="index-grid" id="quickNav">
+<a href="#swim" class="index-item">🏊 泳池 (2)</a>
+<a href="#playroom" class="index-item">🎮 兒童遊戲室 (3)</a>
+<a href="#library" class="index-item">📚 圖書館 (1)</a>
+<a href="#rvm" class="index-item">♻️ 塑膠回收機 (8)</a>
+</div>
+
+<section id="swim" class="collapsible"><h2 class="section-title" onclick="toggleSection('swim')">🏊 游泳池 <span class="toggle"></span></h2><div class="section-content"><div id="facilities"></div></div></section>
+<section id="playroom" class="collapsible"><h2 class="section-title" onclick="toggleSection('playroom')">🎮 兒童遊戲室 <span class="toggle"></span></h2><div class="section-content"><div id="playrooms"></div></div></section>
+<section id="library" class="collapsible"><h2 class="section-title" onclick="toggleSection('library')">📚 圖書館 <span class="toggle"></span></h2><div class="section-content"><div id="libraries"></div></div></section>
+<section id="rvm" class="collapsible"><h2 class="section-title" onclick="toggleSection('rvm')">♻️ 塑膠樽回收機 <span class="toggle"></span></h2><div class="section-content"><div id="rvm-facilities"></div></div></section>
+
+<div class="updated">最後更新：<span id="lastUpdate">--</span> · 數據來源：康文署 · 環保署</div>
+<div style="text-align:center;margin:16px 0 8px;font-size:.75rem;color:#94a3b8">
+  <a href="https://ko-fi.com/forumdata" target="_blank" rel="noopener" style="color:#f59e0b;text-decoration:none">☕ 請我飲咖啡</a>
+  <span style="margin:0 6px">·</span>
+  <a href="mailto:youre@we1co.me" style="color:#64748b;text-decoration:none">✉️ 聯絡作者</a>
+</div>
+</div>
+<button class="back-to-top" id="backToTop" aria-label="返回頂部">↑</button>
+
+<script>
+// ponytail: 單檔無框架，硬編碼數據，lightweight
+const I18N={
+ zh:{title:"西貢區康樂設施運作情況",pools:"🏊 游泳池",playrooms:"🎮 兒童遊戲室",library:"📚 圖書館",rvm:"♻️ 塑膠樽回收機",open:"營運中",soon:"即將開始",done:"已結束",closed:"休館",partial:"部分開放",maint:"維修中",closed_today:"暫停開放",rvm_open:"提供服務",rvm_soon:"即將開放",rvm_closed:"非服務時間",hours:"開放時段",hours45:"開放時段 (每節 45-60分)",libhours:"開放時間",today:"今日",lastUpd:"最後更新",src:"數據來源：康文署 · 環保署",view:"查看康文署官網 →",viewLib:"查看公共圖書館官網 →",expand:"[展開 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暫停開放公告",closureReason:"因",upcoming:"即將開放",mainPool:"主池",closedNote:"今日暫停",cleaningDay:"今日為每周大清潔日",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公眾假期"},
+ en:{title:"Sai Kung Leisure Facilities Status",pools:"🏊 Swimming Pools",playrooms:"🎮 Children's Playrooms",library:"📚 Library",rvm:"♻️ Bottle Recycling Machines",open:"Open",soon:"Opening Soon",done:"Closed",closed:"Closed",partial:"Partially Open",maint:"Maintenance",closed_today:"Suspended",rvm_open:"In Service",rvm_soon:"Opening Soon",rvm_closed:"Out of Hours",hours:"Opening Sessions",hours45:"Sessions (45-60 min each)",libhours:"Opening Hours",today:"Today",lastUpd:"Last updated",src:"Data: LCSD · EPD",view:"View LCSD official page →",viewLib:"View library official page →",expand:"[Expand +]",collapse:"[Collapse −]",sync:"Last synced",closure:"Closure Notice",closureReason:"due to",upcoming:"Opens Soon",closedNote:"Suspended today",cleaningDay:"Weekly cleaning day",sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",holiday:"Public Holiday"},
+ cn:{title:"西贡区康乐设施运作情况",pools:"🏊 游泳池",playrooms:"🎮 儿童游戏室",library:"📚 图书馆",rvm:"♻️ 塑胶瓶回收机",open:"营运中",soon:"即将开始",done:"已结束",closed:"休馆",partial:"部分开放",maint:"维修中",closed_today:"暂停开放",rvm_open:"提供服务",rvm_soon:"即将开放",rvm_closed:"非服务时间",hours:"开放时段",hours45:"开放时段 (每节 45-60分)",libhours:"开放时间",today:"今日",lastUpd:"最后更新",src:"数据来源：康文署 · 环保署",view:"查看康文署官网 →",viewLib:"查看公共图书馆官网 →",expand:"[展开 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暂停开放公告",closureReason:"因",upcoming:"即将开放",mainPool:"主池",closedNote:"今日暂停",cleaningDay:"今日为每周大清洁日",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公众假期"}
+};
+const NAME_L10N={
+ tkoswim:{zh:"將軍澳游泳池",en:"Tseung Kwan O Swimming Pool",cn:"将军澳游泳池"},
+ ktswim:{zh:"觀塘游泳池",en:"Kwun Tong Swimming Pool",cn:"观塘游泳池"},
+ "playroom-tko1":{zh:"坑口體育館兒童遊戲室",en:"Hang Hau Sports Centre Playroom",cn:"坑口体育馆儿童游戏室"},
+ "playroom-tko2":{zh:"香港單車館兒童遊戲室",en:"Hong Kong Velodrome Playroom",cn:"香港单车馆儿童游戏室"},
+ "playroom-tko3":{zh:"調景嶺體育館兒童遊戲室",en:"Tiu Keng Leng Sports Centre Playroom",cn:"调景岭体育馆儿童游戏室"},
+ tkolib:{zh:"將軍澳公共圖書館",en:"Tseung Kwan O Public Library",cn:"将军澳公共图书馆"}
+};
+let currentLang='zh';
+const t=k=>I18N[currentLang][k]||I18N.zh[k]||k;
+const lname=id=>(NAME_L10N[id]&&NAME_L10N[id][currentLang])||id;
+// 子設施/RVM/備註翻譯（EN 模式用）
+const SUB_L10N={
+  pool:{主池:"Main Pool",訓練池:"Training Pool","習泳池 1":"Teaching Pool 1","習泳池 2":"Teaching Pool 2",跳水池:"Diving Pool",戲水池:"Splash Pool","嬉水池 1":"Children's Pool 1","嬉水池 2 (滑水梯)":"Children's Pool 2 (Water Slide)",日光浴場:"Sunbathing Area",副池:"Secondary Pool","習泳池 1&2":"Teaching Pools 1&2",奇妙水世界:"Wonder Water World",極限運動:"Extreme Sports",海洋世界:"Ocean World"},
+  rvm:{彩明商場:"Choi Ming Shopping Centre","新都城中心三期":"Metro City Plaza Phase 3",PopCorn:"PopCorn",寶林商場:"Po Lam Shopping Centre","The LOHAS":"The LOHAS","TKO Spot":"TKO Spot",怡明邨:"Yee Ming Estate","海悅豪園商場":"Marina Garden Shopping Arcade"},
+  note:{"保養日(每月第二及第四個星期二 07:00-13:00)首節改 13:30":"Maintenance day (2nd & 4th Tue 07:00-13:00): first session moves to 13:30","保養日(每月第一及第三個星期二 07:00-13:00)首節改 13:30":"Maintenance day (1st & 3rd Tue 07:00-13:00): first session moves to 13:30","保養日(每月第二及第四個星期一 07:00-13:00)首節改 14:15":"Maintenance day (2nd & 4th Mon 07:00-13:00): first session moves to 14:15"}
+};
+const tl=(cat,k)=>{if(currentLang==='zh')return k;const m=SUB_L10N[cat];return (m&&m[k])||k;};
+const LDAY={zh:["星期日","星期一","星期二","星期三","星期四","星期五","星期六","公眾假期"],en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Public Holiday"],cn:["星期日","星期一","星期二","星期三","星期四","星期五","星期六","公众假期"]};
+const LSESS={zh:["早上","中午","下午","晚上"],en:["AM","Noon","PM","PM"],cn:["早上","中午","下午","晚上"]};
+function trSession(s,lang){
+ // 翻譯時段前置詞："早上 9:00 - 9:45" → "9:00 - 9:45 AM"
+ if(lang==='zh') return s;
+ let m=s.match(/^(早上|中午|下午|晚上)\s*(.+)$/);
+ if(!m) return s;
+ let map={早上:'AM',中午:'12:00',下午:'PM',晚上:'PM'};
+ let pre=map[m[1]]||'';
+ return m[2]+(pre==='AM'||pre==='PM'?' '+pre:'');
+}
+function trDay(d,lang){
+ if(lang==='zh') return d;
+ let map={星期一:'Mon',星期二:'Tue',星期三:'Wed',星期四:'Thu',星期五:'Fri',星期六:'Sat',星期日:'Sun','公眾假期':'PH'};
+ return map[d]||d;
+}
+// 地址：多語言 + Google Maps 連結
+function addr(f){
+ const zh=f.address||'';
+ const en=f.addrEn||zh;
+ const a=currentLang==='en'?en:(currentLang==='cn'?(f.addrCn||zh):zh);
+ const q=encodeURIComponent(zh);
+ return `<a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dotted #94a3b8">${a} <small style="font-size:.6rem">📍</small></a>`;
+}
+function addrRVM(r){
+ const q=encodeURIComponent(r.addr);
+ const a=currentLang==='en'?(r.addrEn||r.addr):r.addr;
+ return `<a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dotted #94a3b8">${a}</a>`;
+}
+const FACILITIES=[
+{id:"tkoswim",name:"將軍澳游泳池",address:"將軍澳運隆路 9 號",addrEn:"9 Wan Lung Road, Tseung Kwan O",addrCn:"将军澳运隆路 9 号",phone:"2706 7646 / 2706 6767",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=35",closures:[{"date": "2026/08/29", "time": "14:15 - 22:00", "pools": "訓練池, 跳水池, 嬉水池 2 (滑水梯)", "reason": "救生員不足"}, {"date": "2026/09/18", "time": "07:30 - 17:00", "pools": "主池, 觀眾看台", "reason": "學校水運會"}, {"date": "2026/09/20", "time": "08:00 - 20:00", "pools": "主池, 習泳池 1, 跳水池, 觀眾看台", "reason": "游泳比賽"}, {"date": "2026/09/25", "time": "07:30 - 15:00", "pools": "主池, 觀眾看台", "reason": "學校水運會"}, {"date": "2026/09/27", "time": "08:00 - 20:00", "pools": "主池, 習泳池 1, 跳水池, 觀眾看台", "reason": "游泳比賽"}, {"date": "2026/09/30", "time": "07:30 - 15:00", "pools": "主池, 觀眾看台", "reason": "學校水運會"}],maintenance:[{"pool": "主池", "start": "5/4", "end": "6/23", "nextYear": false}, {"pool": "訓練池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "習泳池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "跳水池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "戲水池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "嬉水池", "start": "11/1", "end": "4/15", "nextYear": true}],cleaning:{"day": "一", "fallback": ""},maintenance:[{"pool": "主池", "start": "5/4", "end": "6/23", "nextYear": false}, {"pool": "訓練池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "習泳池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "跳水池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "戲水池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "嬉水池", "start": "11/1", "end": "4/15", "nextYear": true}],cleaning:{"day": "一", "fallback": ""},maintenance:[{"pool":"主池","start":"5/4","end":"6/23","nextYear":false},{"pool":"訓練池","start":"11/1","end":"4/15","nextYear":true},{"pool":"習泳池","start":"11/1","end":"4/15","nextYear":true},{"pool":"跳水池","start":"11/1","end":"4/15","nextYear":true},{"pool":"戲水池","start":"11/1","end":"4/15","nextYear":true},{"pool":"嬉水池","start":"11/1","end":"4/15","nextYear":true}],cleaning:{"day":"一","fallback":""},facilities:[{name:"主池",spec:"50米 x 25米，水深 2-2.2米",status:"open"},{name:"訓練池",spec:"25米 x 12米",status:"open"},{name:"習泳池 1",spec:"20米 x 12米",status:"open"},{name:"習泳池 2",spec:"20米 x 12米",status:"open"},{name:"跳水池",spec:"12米 x 11米，水深 4.4-4.5米",status:"open"},{name:"戲水池",spec:"不規則形狀，水深 0.1-0.3米",status:"open"},{name:"嬉水池 1",spec:"不規則形狀，水深 0-0.95米",status:"open"},{name:"嬉水池 2 (滑水梯)",spec:"不規則形狀，水深 0.9-1.1米",status:"open"},{name:"日光浴場",spec:"戶外",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"},status:"open"},
+{id:"ktswim",name:"觀塘游泳池",address:"九龍觀塘翠屏道 2 號",addrEn:"2 Tsui Ping Road, Kwun Tong, Kowloon",addrCn:"九龙观塘翠屏道 2 号",phone:"2717 9022 / 2347 8140",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=18",closures:[{"date": "2026/08/29", "time": "07:30 - 21:00", "pools": "主池", "reason": "游泳比賽"}, {"date": "2026/09/11", "time": "07:30 - 16:00", "pools": "主池", "reason": "學校水運會"}, {"date": "2026/09/12", "time": "07:30 - 15:00", "pools": "主池", "reason": "游泳比賽"}, {"date": "2026/09/15", "time": "07:30 - 15:00", "pools": "主池", "reason": "學校水運會"}, {"date": "2026/09/18", "time": "07:30 - 15:00", "pools": "主池", "reason": "學校水運會"}, {"date": "2026/09/19", "time": "07:30 - 15:00", "pools": "主池", "reason": "游泳比賽"}, {"date": "2026/09/22", "time": "07:30 - 15:00", "pools": "主池", "reason": "學校水運會"}, {"date": "2026/09/25", "time": "07:30 - 16:00", "pools": "主池", "reason": "學校水運會"}, {"date": "2026/09/28", "time": "07:30 - 16:00", "pools": "主池", "reason": "學校水運會"}, {"date": "2026/09/29", "time": "07:30 - 14:00", "pools": "主池", "reason": "學校水運會"}],maintenance:[{"pool": "戶外泳池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "室內泳池", "start": "1/2", "end": "2/21", "nextYear": false}],cleaning:{"day": "三", "fallback": ""},maintenance:[{"pool": "戶外泳池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "室內泳池", "start": "1/2", "end": "2/21", "nextYear": false}],cleaning:{"day": "三", "fallback": ""},maintenance:[{"pool":"戶外泳池","start":"11/1","end":"4/15","nextYear":true},{"pool":"室內泳池","start":"1/2","end":"2/21","nextYear":false}],cleaning:{"day":"三","fallback":""},facilities:[{name:"主池",spec:"50.03米 x 25米",status:"open"},{name:"訓練池",spec:"25米 x 30米",status:"open"},{name:"副池",spec:"50米 x 21米",status:"open"},{name:"習泳池 1&2",spec:"25米 x 12.5米",status:"open"},{name:"日光浴場",spec:"戶外",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"},status:"open"}
+];
+const PLAYROOMS=[
+{id:"playroom-tko1",name:"坑口體育館兒童遊戲室",address:"將軍澳培成路 38 號 西貢將軍澳政府綜合大樓 1 樓",addrEn:"1/F, Sai Kung Tseung Kwan O Government Complex, 38 Pui Shing Road, Tseung Kwan O",addrCn:"将军澳培成路 38 号 西贡将军澳政府综合大楼 1 楼",theme:"奇妙水世界",area:"226m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=8&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:30 - 12:15","下午 12:30 - 13:15","下午 13:30 - 14:15","下午 15:15 - 16:00","下午 16:15 - 17:00","下午 18:00 - 18:45","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第二及第四個星期二 07:00-13:00)首節改 13:30"},
+{id:"playroom-tko2",name:"香港單車館兒童遊戲室",address:"將軍澳寶康路 105-107 號",addrEn:"105-107 Po Hong Road, Tseung Kwan O",addrCn:"将军澳宝康路 105-107 号",theme:"極限運動",area:"286m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=8&fcid=",sessions:["早上 9:00 - 10:00","早上 10:15 - 11:15","中午 12:15 - 13:15","下午 13:30 - 14:15","下午 14:30 - 15:30","下午 16:30 - 17:15","下午 17:30 - 18:30","晚上 19:30 - 20:15","晚上 20:30 - 21:30"],note:"保養日(每月第一及第三個星期二 07:00-13:00)首節改 13:30"},
+{id:"playroom-tko3",name:"調景嶺體育館兒童遊戲室",address:"將軍澳翠嶺路 2 號",addrEn:"2 Tsui Ling Road, Tseung Kwan O",addrCn:"将军澳翠岭路 2 号",theme:"海洋世界",area:"226m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=8&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:30 - 12:15","下午 12:30 - 13:15","下午 14:15 - 15:00","下午 15:15 - 16:00","下午 16:15 - 17:00","晚上 18:00 - 18:45","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第二及第四個星期一 07:00-13:00)首節改 14:15"}
+];
+const LIBRARIES=[{id:"tkolib",name:"將軍澳公共圖書館",address:"將軍澳寶林運隆路 9 號",addrEn:"9 Wan Lung Road, Po Lam, Tseung Kwan O",addrCn:"将军澳宝林运隆路 9 号",phone:"2706 7646",officialUrl:"https://www.hkpl.gov.hk/tc/locations/sai-kung/library/tseung-kwan-o.html",weekly:[{day:"星期一",time:"12:00-20:00"},{day:"星期二",time:"09:00-20:00"},{day:"星期三",time:"09:00-20:00"},{day:"星期四",time:"09:00-20:00"},{day:"星期五",time:"09:00-20:00"},{day:"星期六",time:"09:00-20:00"},{day:"星期日",time:"09:00-17:00"},{day:"公眾假期",time:"09:00-17:00"}]}];
+const RVM_FACILITIES=[
+{name:"彩明商場",addr:"調景嶺彩明街1號彩明商場一期3樓 (近 3-4號電梯)",addrEn:"3/F, Phase 1, Choi Ming Shopping Centre, 1 Choi Ming Street, Tiu Keng Leng",hours:"06:00-00:00"},
+{name:"新都城中心三期",addr:"將軍澳貿業路8號1樓(近116號舖)",addrEn:"1/F, Metro City Plaza Phase 3, 8 Mau Yip Road, Tseung Kwan O (near Shop 116)",hours:"10:00-22:00"},
+{name:"PopCorn",addr:"唐俊街9號 PopCorn 2 一樓(近寶盈花園天橋)",addrEn:"1/F, PopCorn 2, 9 Tong Chun Street, Tseung Kwan O (near footbridge to Verbena Heights)",hours:"06:00-00:00"},
+{name:"寶林商場",addr:"寶琳北路18號3樓(智郵站旁)",addrEn:"3/F, Po Lam Shopping Centre, 18 Po Lam Road North, Tseung Kwan O (next to iPostal)",hours:"07:00-00:00"},
+{name:"The LOHAS",addr:"康城路1號3樓(近336號舖)",addrEn:"3/F, The LOHAS, 1 Lohas Park Road, Tseung Kwan O (near Shop 336)",hours:"24小時"},
+{name:"TKO Spot",addr:"唐明街2號1樓(近1號扶手電梯)",addrEn:"1/F, TKO Spot, 2 Tong Ming Street, Tseung Kwan O (near Escalator 1)",hours:"09:00-22:00"},
+{name:"怡明邨",addr:"至善街6號怡情樓地下",addrEn:"G/F, Yee Ching House, Yee Ming Estate, 6 Chi Shin Street, Tseung Kwan O",hours:"07:00-22:00"},
+{name:"海悅豪園商場",addr:"培成路18號 UG/F(近UG02-03)",addrEn:"UG/F, Marina Garden Shopping Arcade, 18 Pui Shing Road, Tseung Kwan O (near UG02-03)",hours:"24小時"}
+];
+
+function hkNow(){return new Date()} // server already HKT, no +8h
+function hkMinutes(d){return d.getHours()*60+d.getMinutes()}
+function parseRange(s){
+// s like "早上 9:00 - 9:45" or "下午 12:30 - 13:15" or "24小時" or "06:30 - 12:00"
+if(s.includes("24小時")) return {start:0,end:1440}
+let m=s.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+if(!m) return null;
+let sh=parseInt(m[1]), sm=parseInt(m[2]), eh=parseInt(m[3]), em=parseInt(m[4]);
+let isPM=s.includes("下午")||s.includes("晚上")||s.includes("傍晚")||s.includes("晚");
+let isNoon=s.includes("中午");
+if(isPM){
+ if(sh!==12&&sh<12) sh+=12;
+ if(eh!==12&&eh<12) eh+=12;
+}else if(isNoon){
+ if(sh===12) sh=12;
+ if(eh<12) eh+=12;
+}
+let start=sh*60+sm, end=eh*60+em;
+if(end<=start) end=1440; // 跨午夜：00:00 視為當日結束
+return {start:start,end:end}
+}
+function sessionStatus(range, nowM){
+if(!range) return {text:"—",cls:"done"};
+if(nowM < range.start) return {text:t('soon'),cls:"soon"};
+if(nowM >= range.start && nowM < range.end) return {text:t('open'),cls:"open"};
+return {text:t('done'),cls:"done"};
+}
+function facilityOverallStatus(sessions, nowM){
+let hasOpen=false, hasSoon=false;
+for(let s of sessions){
+ let r=parseRange(s);
+ let st=sessionStatus(r, nowM);
+ if(st.cls==="open") hasOpen=true;
+ if(st.cls==="soon") hasSoon=true;
+}
+if(hasOpen) return {text:t('open'),cls:"status-open"};
+if(hasSoon) return {text:t('soon'),cls:"status-upcoming"};
+return {text:t('closed'),cls:"status-closed"};
+}
+
+function toggleCard(el){el.parentElement.classList.toggle('collapsed')}
+
+// 判斷某池今日是否因每年維修而暫停（11/1-4/15 跨年）
+function inMaintenance(m, now){
+  const y=now.getFullYear();
+  const [sm,sd]=m.start.split('/').map(Number);
+  const [em,ed]=m.end.split('/').map(Number);
+  const d=now.getDate(), mo=now.getMonth()+1;
+  if(m.nextYear){
+    // 跨年：11/1 至 4/15
+    if(mo>sm || (mo===sm&&d>=sd) || mo<em || (mo===em&&d<=ed)) return true;
+  }else{
+    if(mo>sm||(mo===sm&&d>=sd)) { if(mo<em||(mo===em&&d<=ed)) return true; }
+    else if(mo===em&&d<=ed) return true;
+  }
+  return false;
+}
+// 今日是否清潔日
+function isCleaningDay(cleaning, now){
+  if(!cleaning||!cleaning.day) return false;
+  const CN=['日','一','二','三','四','五','六'];
+  return CN[now.getDay()]===cleaning.day;
+}
+
+// 從閉館公告 + 每年維修 + 清潔日 自動推導子設施狀態
+function poolSubStatuses(f, todayStr, now){
+  let closedSet=new Set();
+  const nm=hkMinutes(now);
+  if(f.closures){
+    f.closures.filter(c=>c.date===todayStr).forEach(c=>{
+      // 公告有時間範圍（如 06:30-14:15），只喺範圍內先算暫停
+      const r=parseRange(c.time);
+      if(r && nm>=r.start && nm<r.end){
+        c.pools.split(/[,，]/).map(s=>s.trim()).forEach(p=>closedSet.add(p));
+      }
+    });
+  }
+  // 每年維修
+  if(f.maintenance){
+    const alias=f.id==='ktswim'?{'戶外泳池':['副池','日光浴場'],'室內泳池':['主池','訓練池','習泳池 1&2']}:{};
+    f.maintenance.forEach(m=>{
+      if(inMaintenance(m,now)){
+        const targets=alias[m.pool]||[m.pool];
+        targets.forEach(p=>closedSet.add(p));
+      }
+    });
+  }
+  return f.facilities.map(x=>{
+    if(closedSet.has(x.name)){
+      return {...x, status:'closed', note:t('closedNote')};
+    }
+    return x;
+  });
+}
+
+// Reusable official-link button (replaces 3× duplicated template)
+function officialLink(url,labelKey){return url?`<a href="${url}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:12px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:.78rem;color:#1e3a8a;text-decoration:none">${t(labelKey)}</a>`:'';}
+
+function renderPools(){
+ const now=hkNow(), nm=hkMinutes(now);
+ const FSTATUS={open:{t:t('open'),c:'open'},maintenance:{t:t('maint'),c:'done'},closed:{t:t('closed_today'),c:'suspended'}};
+ const todayStr=now.toISOString().slice(0,10).replace(/-/g,'/');
+ return FACILITIES.map(f=>{
+   let st = facilityOverallStatus(f.schedule.summer.map(x=>x.time), nm);
+   // 今天及未來的暫停開放公告
+   let closureHtml='';
+   if(f.closures){
+     closureHtml=f.closures.filter(c=>{if(c.date>todayStr)return true;if(c.date!==todayStr)return false;const cr=parseRange(c.time);return cr&&nm<cr.end}).map(c=>
+       `<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('closure')}（${c.date} ${c.time}）：${c.pools} — ${t('closureReason')} ${c.reason}</div>`
+     ).join('');
+   }
+   // 今日清潔日提示
+   if(f.cleaning&&isCleaningDay(f.cleaning, now)){
+     closureHtml+=`<div class="notice" style="background:#e0e7ff;border-color:#c7d2fe;color:#3730a3">🧹 ${t('cleaningDay')}（${f.cleaning.day}${f.cleaning.fallback?' → '+f.cleaning.fallback:''}）</div>`;
+   }
+   let sessions=f.schedule.summer.map(s=>{
+     let r=parseRange(s.time);
+     let ss=sessionStatus(r,nm);
+     return `<div class="session"><span class="session-time">${trSession(s.session,currentLang)} ${trSession(s.time,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   }).join("");
+   let subPools=poolSubStatuses(f, todayStr, now);
+   // Dynamic partial status: some facilities closed → partially open
+   const subClosed=subPools.filter(x=>x.status==='closed').length;
+   if(subClosed>0 && subClosed<subPools.length) st={text:t('partial'),cls:"status-partial"};
+   else if(subClosed===subPools.length) st={text:t('closed_today'),cls:"status-suspended"};
+   let pools=subPools.map(x=>{
+     let fs=FSTATUS[x.status]||FSTATUS.closed;
+     return `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><span class="detail-label">${tl('pool',x.name)} <small style="color:#94a3b8">${x.spec}</small></span><span class="session-status ${fs.c}">${fs.t}</span></div>${x.note?`<small style="color:#92400e;font-size:.75rem;text-align:right;width:100%">${tl('note',x.note)}</small>`:''}</div>`
+   }).join("");
+   let official=officialLink(f.officialUrl,'view');
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint"></span></div></div><div class="facility-body">${pools}<div class="schedule-section"><div class="schedule-title">${t('hours')}</div>${sessions}</div>${closureHtml}${official}</div></div>`
+ }).join("");
+}
+function renderPlayrooms(){
+ const now=hkNow(), nm=hkMinutes(now);
+ return PLAYROOMS.map(p=>{
+   let st=facilityOverallStatus(p.sessions, nm);
+   let html=p.sessions.map(s=>{
+     let r=parseRange(s);
+     let ss=sessionStatus(r,nm);
+     return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   }).join("");
+   let official=officialLink(p.officialUrl,'view');
+   return `<div class="card collapsed" id="${p.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(p.id)}</div><div class="facility-address">${addr(p)} · ${tl('pool',p.theme)} · ${p.area}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours45')}</div>${html}</div><div class="notice">${tl('note',p.note)}</div>${official}</div></div>`
+ }).join("");
+}
+function renderLibraries(){
+ const now=hkNow(); let day=now.getDay();
+ let today=LDAY[currentLang][day];
+ return LIBRARIES.map(l=>{
+   let todayRow=l.weekly.find(w=>w.day===LDAY.zh[day]);
+   let nm=hkMinutes(now);
+   let r=todayRow?parseRange(todayRow.time):null;
+   let st=r?sessionStatus(r,nm):{text:t('closed'),cls:"status-closed"};
+   let badgeCls = st.cls==="open"?"status-open":st.cls==="soon"?"status-upcoming":"status-closed";
+   let badgeText = st.text===t('open')?t('open'):st.text;
+   let rows=l.weekly.map(w=>{
+     let isToday=w.day===LDAY.zh[day];
+     return `<div class="session" style="${isToday?'background:#f0fdf4;border-radius:6px;padding:6px 8px':''}"><span class="session-time">${trDay(w.day,currentLang)} ${w.time}${isToday?' ← '+t('today'):''}</span><span class="session-status ${isToday?st.cls:'done'}">${isToday?badgeText:''}</span></div>`
+   }).join("");
+   let official=officialLink(l.officialUrl,'viewLib');
+   return `<div class="card collapsed" id="${l.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(l.id)}</div><div class="facility-address">${addr(l)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${badgeCls}">${badgeText}</span><span class="expand-hint"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('libhours')}</div>${rows}</div>${official}</div></div>`
+ }).join("");
+}
+function renderRVM(){
+ const now=hkNow(), nm=hkMinutes(now);
+ const items=RVM_FACILITIES.map(r=>{
+   let rng=parseRange(r.hours);
+   let st=sessionStatus(rng,nm);
+   let cls=st.cls==="open"?"rvm-status-operating":st.cls==="soon"?"rvm-status-operating":"rvm-status-maintenance";
+   let txt=st.cls==="open"?t('rvm_open'):st.cls==="soon"?t('rvm_soon'):t('rvm_closed');
+   if(r.hours==="24小時"){cls="rvm-status-operating";txt=t('rvm_open')}
+   return `<div class="rvm-item"><div class="rvm-info"><div class="rvm-name">${tl('rvm',r.name)}</div><div class="rvm-address">${addrRVM(r)}</div><div class="rvm-hours">${r.hours}</div></div><span class="rvm-status ${cls}">${txt}</span></div>`
+ }).join("");
+ return `<div class="rvm-card"><div class="rvm-grid">${items}</div><div class="rvm-sync">${t('sync')}：${now.toLocaleString('zh-HK',{hour12:false}).replace(/\//g,'-')}</div><div style="text-align:center;margin-top:8px"><a href="https://www.hkrvms3.com.hk/hk/" target="_blank" rel="noopener" style="font-size:.75rem;color:#1e3a8a;text-decoration:underline">hkrvms3.com.hk — 入樽機官方地圖 ↗</a></div></div>`;
+}
+function renderAll(){
+ document.getElementById('facilities').innerHTML=renderPools();
+ document.getElementById('playrooms').innerHTML=renderPlayrooms();
+ document.getElementById('libraries').innerHTML=renderLibraries();
+ document.getElementById('rvm-facilities').innerHTML=renderRVM();
+ updateClock();
+}
+function updateClock(){
+ const now=hkNow();
+ const fmt={timeZone:'Asia/Hong_Kong',hour12:false};
+ document.getElementById('topDate').textContent=new Date().toLocaleDateString('zh-HK',{...fmt,month:'2-digit',day:'2-digit',weekday:'short'}).replace(/\//g,'-')+' '+new Date().toLocaleTimeString('zh-HK',{...fmt,hour:'2-digit',minute:'2-digit'});
+}
+function toggleSection(id){
+ document.getElementById(id).classList.toggle('collapsed');
+}
+// nav title already in bar, no extra header needed
+setInterval(()=>{renderAll()},60000);
+renderAll();
+// 最後更新：靜態 timestamp（頁面載入時設定一次，唔隨系統跳動）
+const fmt={timeZone:'Asia/Hong_Kong',hour12:false};
+const LAST_UPDATE=new Date().toLocaleString('zh-HK',{...fmt,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).replace(/\//g,'-');
+document.getElementById('lastUpdate').textContent=LAST_UPDATE;
+setInterval(updateClock,1000);
+updateClock();
+document.getElementById('backToTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)});
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>{
+ e.preventDefault();
+ currentLang=b.dataset.lang;
+ document.querySelectorAll('.lang-btn').forEach(x=>x.classList.toggle('active',x===b));
+ document.documentElement.lang=currentLang==='zh'?'zh-HK':currentLang==='cn'?'zh-CN':'en';
+ // 更新標題、導航、區塊標題、頁尾
+ document.querySelector('.nav-title').textContent=t('title');
+ document.title=t('title')+' | we1co.me';
+ const secMap={swim:t('pools'),playroom:t('playrooms'),library:t('library'),rvm:t('rvm')};
+ document.querySelectorAll('section.collapsible h2').forEach(h=>{
+   const id=h.closest('section').id;
+   h.innerHTML=secMap[id]+' <span class="toggle"></span>';
+ });
+ // 快速導覽
+ const navItems=document.querySelectorAll('.index-item');
+ const navTxt=[t('pools')+' (2)',t('playrooms')+' (3)',t('library')+' (1)',t('rvm')+' (8)'];
+ navItems.forEach((el,i)=>{ if(navTxt[i]) el.textContent=navTxt[i]; });
+ // 頁尾
+ document.querySelector('.updated').innerHTML=t('lastUpd')+'：<span id="lastUpdate">'+LAST_UPDATE+'</span> · '+t('src');
+ // 收合提示文字
+ document.querySelectorAll('.card').forEach(c=>c.classList.toggle('collapsed',c.classList.contains('collapsed')));
+ renderAll();
+}));
+</script>
+</body>
+</html>
