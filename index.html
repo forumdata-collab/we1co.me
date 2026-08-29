@@ -418,11 +418,12 @@ document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 setInterval(updateClock,1000);
 updateClock();
 document.getElementById('backToTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
-// ponytail: 手動 offset 跳轉，老 Safari 唔支援 scroll-margin-top；滾動時 nav 高度固定 42px
+// ponytail: 手動 offset 跳轉，老 Safari 唔支援 scroll-margin-top；offset=nav底(66) + sticky索引grid(88+高) + 8px 呼吸位
 document.querySelectorAll('.index-item').forEach(a=>a.addEventListener('click',e=>{
  e.preventDefault();
  const el=document.getElementById(a.getAttribute('href').slice(1));
- if(el) window.scrollTo({top:el.getBoundingClientRect().top+scrollY-66,behavior:'smooth'});
+ if(el){const off=88+document.getElementById('quickNav').getBoundingClientRect().height+8;
+  window.scrollTo({top:el.getBoundingClientRect().top+scrollY-off,behavior:'smooth'});}
 }));
 window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)});
 document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>{
