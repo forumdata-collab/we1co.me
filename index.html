@@ -433,17 +433,32 @@ function renderLibraries(){
    return `<div class="card collapsed" id="${l.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(l.id)}</div><div class="facility-address">${addr(l)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${badgeCls}">${badgeText}</span><span class="expand-hint"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('libhours')}</div>${rows}</div>${warnHtml}${official}</div></div>`
  }).join("");
 }
+let rvmData=null;
+async function loadRVM(){
+ try{const r=await fetch('rvm_status.json');if(r.ok)rvmData=await r.json();}catch(e){}
+ renderAll();
+}
 function renderRVM(){
  const now=hkNow(), nm=hkMinutes(now);
  const items=RVM_FACILITIES.map(r=>{
-   let rng=parseRange(r.hours);
-   let st=sessionStatus(rng,nm);
-   let cls=st.cls==="open"?"rvm-status-operating":st.cls==="soon"?"rvm-status-operating":"rvm-status-maintenance";
-   let txt=st.cls==="open"?t('rvm_open'):st.cls==="soon"?t('rvm_soon'):t('rvm_closed');
-   if(r.hours==="24小時"){cls="rvm-status-operating";txt=t('rvm_open')}
+   let cls='rvm-status-operating', txt=t('rvm_open');
+   if(rvmData && rvmData.machines && rvmData.machines[r.name]){
+     const m=rvmData.machines[r.name];
+     if(m.cat==='full'){cls='rvm-status-full';txt=t('rvm_full')||'已滿';}
+     else if(m.cat==='nearly_full'){cls='rvm-status-nearly-full';txt=t('rvm_nearly_full')||'快將滿溢';}
+     else if(m.cat==='maintenance'){cls='rvm-status-maintenance';txt=t('rvm_maint')||'維護中';}
+     else{cls='rvm-status-operating';txt=t('rvm_open');}
+   }else{
+     let rng=parseRange(r.hours);
+     let st=sessionStatus(rng,nm);
+     cls=st.cls==='open'?'rvm-status-operating':st.cls==='soon'?'rvm-status-operating':'rvm-status-maintenance';
+     txt=st.cls==='open'?t('rvm_open'):st.cls==='soon'?t('rvm_soon'):t('rvm_closed');
+     if(r.hours==='24小時'){cls='rvm-status-operating';txt=t('rvm_open')}
+   }
    return `<div class="rvm-item"><div class="rvm-info"><div class="rvm-name">${tl('rvm',r.name)}</div><div class="rvm-address">${addrRVM(r)}</div><div class="rvm-hours">${r.hours}</div></div><span class="rvm-status ${cls}">${txt}</span></div>`
  }).join("");
- return `<div class="rvm-card"><div class="rvm-grid">${items}</div><div class="rvm-sync">${t('sync')}：${now.toLocaleString('zh-HK',{hour12:false}).replace(/\//g,'-')}</div><div style="text-align:center;margin-top:8px"><a href="https://www.hkrvms3.com.hk/hk/" target="_blank" rel="noopener" style="font-size:.75rem;color:#1e3a8a;text-decoration:underline">hkrvms3.com.hk — 入樽機官方地圖 ↗</a></div></div>`;
+ const syncTime=rvmData?rvmData.lastSync:now.toLocaleString('zh-HK',{hour12:false}).replace(/\//g,'-');
+ return `<div class="rvm-card"><div class="rvm-grid">${items}</div><div class="rvm-sync">${t('sync')}：${syncTime}</div><div style="text-align:center;margin-top:8px"><a href="https://www.hkrvms3.com.hk/hk/" target="_blank" rel="noopener" style="font-size:.75rem;color:#1e3a8a;text-decoration:underline">hkrvms3.com.hk — 入樽機官方地圖 ↗</a></div></div>`;
 }
 function renderAll(){
  document.getElementById('facilities').innerHTML=renderPools();
@@ -467,7 +482,7 @@ function toggleSection(id){
 }
 // nav title already in bar, no extra header needed
 setInterval(()=>{renderAll()},60000);
-renderAll();
+loadRVM();
 // LAST_UPDATE is a static timestamp overwritten by lcsd_closures.py on each auto-sync
 const LAST_UPDATE='2026-08-29 13:00';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;

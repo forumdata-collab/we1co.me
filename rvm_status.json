@@ -1,0 +1,53 @@
+{
+  "lastSync": "2026-08-29 23:55",
+  "machines": {
+    "彩明商場": {
+      "status": "<=40%",
+      "cat": "operating",
+      "service_hour": "Mon-Sun & Public Holiday : 6 am to 12 am",
+      "last_emptied": "2026-08-29T17:02:30+08:00"
+    },
+    "新都城中心三期": {
+      "status": ">40%",
+      "cat": "maintenance",
+      "service_hour": "Mon-Sun & Public Holiday : 10 am to 10 pm",
+      "last_emptied": "2026-08-29T20:26:25+08:00"
+    },
+    "PopCorn": {
+      "status": "<=20%",
+      "cat": "nearly_full",
+      "service_hour": "Mon-Sun & Public Holiday : 6 am to 12 am",
+      "last_emptied": "2026-08-29T19:30:32+08:00"
+    },
+    "寶林商場": {
+      "status": "<=40%",
+      "cat": "operating",
+      "service_hour": "Mon-Sun & Public Holiday : 7 am to 12 am",
+      "last_emptied": "2026-08-29T18:13:11+08:00"
+    },
+    "The LOHAS": {
+      "status": "Full",
+      "cat": "full",
+      "service_hour": "Mon-Sun & Public Holiday : 24 Hours",
+      "last_emptied": "2026-08-29T13:40:35+08:00"
+    },
+    "TKO Spot": {
+      "status": "<=5%",
+      "cat": "maintenance",
+      "service_hour": "Mon-Sun & Public Holiday : 9 am to 10 pm",
+      "last_emptied": "2026-08-29T17:22:58+08:00"
+    },
+    "怡明邨": {
+      "status": "Full",
+      "cat": "full",
+      "service_hour": "Mon-Sun & Public Holiday: 7 am to 10 pm",
+      "last_emptied": "2026-08-29T16:26:27+08:00"
+    },
+    "海悅豪園商場": {
+      "status": "Full",
+      "cat": "full",
+      "service_hour": "Mon-Sun & Public Holiday : 24 Hours",
+      "last_emptied": "2026-08-29T19:13:25+08:00"
+    }
+  }
+}
