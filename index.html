@@ -118,7 +118,7 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 <div class="index-grid" id="quickNav">
 <a href="#swim" class="index-item">🏊 泳池 (2)</a>
 <a href="#playroom" class="index-item">🎮 兒童遊戲室 (3)</a>
-<a href="#library" class="index-item">📚 圖書館 (1)</a>
+<a href="#library" class="index-item">📚 圖書館 (2)</a>
 <a href="#rvm" class="index-item">♻️ 塑膠回收機 (8)</a>
 </div>
 
@@ -149,7 +149,8 @@ const NAME_L10N={
  "playroom-tko1":{zh:"坑口體育館兒童遊戲室",en:"Hang Hau Sports Centre Playroom",cn:"坑口体育馆儿童游戏室"},
  "playroom-tko2":{zh:"香港單車館兒童遊戲室",en:"Hong Kong Velodrome Playroom",cn:"香港单车馆儿童游戏室"},
  "playroom-tko3":{zh:"調景嶺體育館兒童遊戲室",en:"Tiu Keng Leng Sports Centre Playroom",cn:"调景岭体育馆儿童游戏室"},
- tkolib:{zh:"將軍澳公共圖書館",en:"Tseung Kwan O Public Library",cn:"将军澳公共图书馆"}
+ tkolib:{zh:"將軍澳公共圖書館",en:"Tseung Kwan O Public Library",cn:"将军澳公共图书馆"},
+ tklib:{zh:"調景嶺公共圖書館",en:"Tiu Keng Leng Public Library",cn:"调景岭公共图书馆"}
 };
 let currentLang='zh';
 const t=k=>I18N[currentLang][k]||I18N.zh[k]||k;
@@ -199,7 +200,8 @@ const PLAYROOMS=[
 {id:"playroom-tko2",name:"香港單車館兒童遊戲室",address:"將軍澳寶康路 105-107 號",addrEn:"105-107 Po Hong Road, Tseung Kwan O",addrCn:"将军澳宝康路 105-107 号",theme:"極限運動",area:"286m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=8&fcid=",sessions:["早上 9:00 - 10:00","早上 10:15 - 11:15","中午 12:15 - 13:15","下午 13:30 - 14:15","下午 14:30 - 15:30","下午 16:30 - 17:15","下午 17:30 - 18:30","晚上 19:30 - 20:15","晚上 20:30 - 21:30"],note:"保養日(每月第一及第三個星期二 07:00-13:00)首節改 13:30"},
 {id:"playroom-tko3",name:"調景嶺體育館兒童遊戲室",address:"將軍澳翠嶺路 2 號",addrEn:"2 Tsui Ling Road, Tseung Kwan O",addrCn:"将军澳翠岭路 2 号",theme:"海洋世界",area:"226m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=8&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:30 - 12:15","下午 12:30 - 13:15","下午 14:15 - 15:00","下午 15:15 - 16:00","下午 16:15 - 17:00","晚上 18:00 - 18:45","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第二及第四個星期一 07:00-13:00)首節改 14:15"}
 ];
-const LIBRARIES=[{id:"tkolib",name:"將軍澳公共圖書館",address:"將軍澳寶林運隆路 9 號",addrEn:"9 Wan Lung Road, Po Lam, Tseung Kwan O",addrCn:"将军澳宝林运隆路 9 号",phone:"2706 7646",officialUrl:"https://www.hkpl.gov.hk/tc/locations/sai-kung/library/tseung-kwan-o.html",weekly:[{day:"星期一",time:"12:00-20:00"},{day:"星期二",time:"09:00-20:00"},{day:"星期三",time:"09:00-20:00"},{day:"星期四",time:"09:00-20:00"},{day:"星期五",time:"09:00-20:00"},{day:"星期六",time:"09:00-20:00"},{day:"星期日",time:"09:00-17:00"},{day:"公眾假期",time:"09:00-17:00"}]}];
+const LIBRARIES=[{id:"tkolib",name:"將軍澳公共圖書館",address:"將軍澳寶林運隆路 9 號",addrEn:"9 Wan Lung Road, Po Lam, Tseung Kwan O",addrCn:"将军澳宝林运隆路 9 号",phone:"2706 7646",officialUrl:"https://www.hkpl.gov.hk/tc/locations/sai-kung/library/tseung-kwan-o.html",weekly:[{day:"星期一",time:"12:00-20:00"},{day:"星期二",time:"09:00-20:00"},{day:"星期三",time:"09:00-20:00"},{day:"星期四",time:"09:00-20:00"},{day:"星期五",time:"09:00-20:00"},{day:"星期六",time:"09:00-20:00"},{day:"星期日",time:"09:00-17:00"},{day:"公眾假期",time:"09:00-17:00"}]},
+{id:"tklib",name:"調景嶺公共圖書館",address:"將軍澳翠嶺路 4 號",addrEn:"4 Chui Ling Road, Tseung Kwan O, N.T.",addrCn:"将军澳翠岭路 4 号",phone:"2706 7646",officialUrl:"https://www.hkpl.gov.hk/tc/locations/sai-kung/library/tiu-keng-leng.html",weekly:[{day:"星期一",time:"09:00-22:00"},{day:"星期二",time:"09:00-22:00"},{day:"星期三",time:"09:00-22:00"},{day:"星期四",time:"12:00-22:00"},{day:"星期五",time:"09:00-22:00"},{day:"星期六",time:"09:00-20:00"},{day:"星期日",time:"09:00-17:00"},{day:"公眾假期",time:"09:00-17:00"}]}];
 const RVM_FACILITIES=[
 {name:"彩明商場",addr:"調景嶺彩明街1號彩明商場一期3樓 (近 3-4號電梯)",addrEn:"3/F, Phase 1, Choi Ming Shopping Centre, 1 Choi Ming Street, Tiu Keng Leng",hours:"06:00-00:00"},
 {name:"新都城中心三期",addr:"將軍澳貿業路8號1樓(近116號舖)",addrEn:"1/F, Metro City Plaza Phase 3, 8 Mau Yip Road, Tseung Kwan O (near Shop 116)",hours:"10:00-22:00"},
@@ -430,7 +432,7 @@ document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>
  });
  // 快速導覽
  const navItems=document.querySelectorAll('.index-item');
- const navTxt=[t('pools')+' (2)',t('playrooms')+' (3)',t('library')+' (1)',t('rvm')+' (8)'];
+ const navTxt=[t('pools')+' (2)',t('playrooms')+' (3)',t('library')+' (2)',t('rvm')+' (8)'];
  navItems.forEach((el,i)=>{ if(navTxt[i]) el.textContent=navTxt[i]; });
  // 頁尾
  document.querySelector('.updated').innerHTML=t('lastUpd')+'：<span id="lastUpdate">'+LAST_UPDATE+'</span> · '+t('src');
