@@ -434,9 +434,8 @@ function toggleSection(id){
 // nav title already in bar, no extra header needed
 setInterval(()=>{renderAll()},60000);
 renderAll();
-// 最後更新：靜態 timestamp（頁面載入時設定一次，唔隨系統跳動）
-const fmt={timeZone:'Asia/Hong_Kong',hour12:false};
-const LAST_UPDATE=new Date().toLocaleString('zh-HK',{...fmt,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}).replace(/\//g,'-');
+// LAST_UPDATE is a static timestamp overwritten by lcsd_closures.py on each auto-sync
+const LAST_UPDATE='2026-08-29 13:00';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 setInterval(updateClock,1000);
 updateClock();

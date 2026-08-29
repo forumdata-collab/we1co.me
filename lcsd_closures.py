@@ -13,7 +13,7 @@ import os
 import sys
 import subprocess
 import urllib.request
-from datetime import date
+from datetime import date, datetime, timezone, timedelta
 
 POOLS = {"tkoswim": 35, "ktswim": 18}
 HTML_PATH = "/home/ubuntu/we1co.me/index.html"
@@ -185,6 +185,10 @@ def patch_html(all_data):
             + ",cleaning:" + json.dumps(data.get("cleaning"), ensure_ascii=False)
         )
         html = html[:c_start] + flat + html[i:]
+    # Update LAST_UPDATE timestamp (HKT)
+    hkt = timezone(timedelta(hours=8))
+    sync_time = datetime.now(hkt).strftime('%Y-%m-%d %H:%M')
+    html = re.sub(r"const LAST_UPDATE='[^']*'", f"const LAST_UPDATE='{sync_time}'", html)
     with open(HTML_PATH, "w", encoding="utf-8") as f:
         f.write(html)
     for pool_id, data in all_data.items():
