@@ -1,9 +1,9 @@
 {
-  "lastSync": "2026-08-29 23:55",
+  "lastSync": "2026-08-30 07:29",
   "machines": {
     "彩明商場": {
-      "status": "<=40%",
-      "cat": "operating",
+      "status": "Full",
+      "cat": "full",
       "service_hour": "Mon-Sun & Public Holiday : 6 am to 12 am",
       "last_emptied": "2026-08-29T17:02:30+08:00"
     },
@@ -14,14 +14,14 @@
       "last_emptied": "2026-08-29T20:26:25+08:00"
     },
     "PopCorn": {
-      "status": "<=20%",
-      "cat": "nearly_full",
+      "status": "<=5%",
+      "cat": "maintenance",
       "service_hour": "Mon-Sun & Public Holiday : 6 am to 12 am",
       "last_emptied": "2026-08-29T19:30:32+08:00"
     },
     "寶林商場": {
-      "status": "<=40%",
-      "cat": "operating",
+      "status": "<=5%",
+      "cat": "nearly_full",
       "service_hour": "Mon-Sun & Public Holiday : 7 am to 12 am",
       "last_emptied": "2026-08-29T18:13:11+08:00"
     },
