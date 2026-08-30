@@ -1,594 +1,448 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-HK">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="觀塘區康體設施一覽 - 游泳池、體育館、網球場、足球場等康樂設施資訊">
-  <title>觀塘區康體設施一覽 | we1co.me</title>
-  <style>
-    :root {
-      --bg: #0f1115;
-      --card-bg: #1a1d23;
-      --card-bg-hover: #22262e;
-      --text: #e4e6eb;
-      --text-muted: #8b949e;
-      --accent: #58a6ff;
-      --accent-green: #3fb950;
-      --accent-red: #f85149;
-      --accent-orange: #d29922;
-      --border: #30363d;
-      --radius: 12px;
-      --shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      padding: 24px 16px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 32px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-    header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-    header p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-    header .date {
-      margin-top: 8px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 28px 0 14px;
-      padding-left: 10px;
-      border-left: 3px solid var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .facility-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    .facility-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      transition: background 0.2s, transform 0.15s;
-      box-shadow: var(--shadow);
-    }
-    .facility-card:hover {
-      background: var(--card-bg-hover);
-      transform: translateY(-1px);
-    }
-    .facility-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .facility-name {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .facility-status {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-    .status-open {
-      background: rgba(63, 185, 80, 0.15);
-      color: var(--accent-green);
-      border: 1px solid rgba(63, 185, 80, 0.3);
-    }
-    .status-closed {
-      background: rgba(248, 81, 73, 0.15);
-      color: var(--accent-red);
-      border: 1px solid rgba(248, 81, 73, 0.3);
-    }
-    .facility-spec {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-    .facility-detail {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.7;
-    }
-    .facility-detail strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-    .session-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .session-box {
-      background: rgba(88, 166, 255, 0.08);
-      border: 1px solid rgba(88, 166, 255, 0.2);
-      border-radius: 8px;
-      padding: 8px 10px;
-      text-align: center;
-    }
-    .session-label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-    }
-    .session-time {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--accent);
-    }
-    .notice-box {
-      background: rgba(248, 81, 73, 0.08);
-      border: 1px solid rgba(248, 81, 73, 0.2);
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin: 14px 0;
-      font-size: 0.85rem;
-      color: var(--accent-red);
-    }
-    .notice-box::before {
-      content: "⚠️ ";
-    }
-    .info-box {
-      background: rgba(88, 166, 255, 0.08);
-      border: 1px solid rgba(88, 166, 255, 0.2);
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin: 14px 0;
-      font-size: 0.85rem;
-      color: var(--accent);
-    }
-    .info-box::before {
-      content: "ℹ️ ";
-    }
-    .venue-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 12px;
-    }
-    .venue-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      transition: background 0.2s;
-    }
-    .venue-card:hover {
-      background: var(--card-bg-hover);
-    }
-    .venue-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-    .venue-addr {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .venue-phone {
-      font-size: 0.78rem;
-      color: var(--accent);
-      margin-top: 4px;
-    }
-    .facility-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
-    }
-    .facility-tag {
-      font-size: 0.72rem;
-      background: rgba(139, 148, 158, 0.12);
-      color: var(--text-muted);
-      padding: 2px 8px;
-      border-radius: 4px;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid var(--border);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-    .footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .footer a:hover {
-      text-decoration: underline;
-    }
-    @media (max-width: 600px) {
-      .session-grid { grid-template-columns: 1fr; }
-      .venue-list { grid-template-columns: 1fr; }
-      header h1 { font-size: 1.4rem; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="觀塘區康樂設施即時運作狀態">
+<title>觀塘區康樂設施運作情況 | we1co.me</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif;background:#f5f5f5;color:#333;line-height:1.6;padding-top:80px}
+.container{max-width:800px;margin:0 auto;padding:0 16px}
+.top-bar{position:fixed;top:0;left:0;right:0;height:24px;background:#1e3a8a;color:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 16px;font-size:.68rem;z-index:1002}
+.top-bar span{white-space:nowrap}
+.nav-bar{position:fixed;top:24px;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-bottom:1px solid #e5e7eb;z-index:1001;padding:6px 16px}
+section{scroll-margin-top:64px}
+.nav-inner{max-width:800px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.nav-title{font-weight:700;color:#1e3a8a;font-size:.95rem;white-space:nowrap}
+.lang-switch{display:flex;gap:4px}
+.lang-btn{padding:4px 10px;border-radius:6px;font-size:.75rem;font-weight:500;text-decoration:none;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;cursor:pointer}
+.lang-btn.active{background:#1e3a8a;color:#fff;border-color:#1e3a8a}
+header{display:none}
+header p{color:#64748b;font-size:.85rem;margin-top:4px}
+
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin:8px 0;overflow:hidden;border:1px solid #e5e7eb}
+.card.collapsed .facility-body{display:none}
+.card .expand-hint{font-size:.72rem;color:#64748b;font-weight:500;margin-left:6px}
+.card.collapsed .expand-hint::after{content:attr(data-expand)}
+.card:not(.collapsed) .expand-hint::after{content:attr(data-collapse)}
+.facility-header{padding:14px 16px;background:#f8fafc;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer}
+.facility-header:hover{background:#f1f5f9}
+.facility-name{font-size:1rem;font-weight:700;color:#1e293b}
+.facility-address{font-size:.75rem;color:#64748b;margin-top:2px}
+.status-badge{padding:5px 12px;border-radius:999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.status-open{background:#dcfce7;color:#166534}
+.status-upcoming{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
+.status-closed{background:#f1f5f9;color:#64748b}
+.status-maint{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+@keyframes breathe{0%,100%{opacity:1}50%{opacity:.4}}
+.status-partial{background:#fef3c7;color:#92400e}
+.status-suspended{background:#f1f5f9;color:#94a3b8;border:1px solid #e5e7eb}
+.facility-body{padding:12px 16px}
+.detail-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.85rem}
+.detail-row:last-child{border-bottom:none}
+.detail-label{color:#64748b}
+.schedule-section{margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb}
+.schedule-title{font-weight:600;color:#374151;margin-bottom:8px;font-size:.9rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.schedule-title::after{content:'▾';transition:transform .2s}
+.collapsed .schedule-title::after{transform:rotate(-90deg)}
+.session{display:flex;justify-content:space-between;padding:6px 0;font-size:.82rem;align-items:center}
+.session-time{color:#475569}
+.session-status{padding:3px 8px;border-radius:999px;font-size:.7rem;font-weight:600}
+.session-status.soon{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
+.session-status.open{background:#166534;color:#fff}
+.session-status.maint{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.session-status.done{background:#f1f5f9;color:#94a3b8}
+.session-status.suspended{background:#f1f5f9;color:#94a3b8}
+.notice{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-top:12px;font-size:.78rem;color:#92400e}
+.section-title{font-size:1.1rem;font-weight:700;color:#1e293b;margin:12px 0 6px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.section-title .toggle{font-size:.9rem;color:#64748b}
+.collapsible .section-content{display:block}
+.collapsible.collapsed .section-content{display:none}
+.collapsible.collapsed .section-title .toggle::after{content:attr(data-expand)}
+.collapsible .section-title .toggle::after{content:attr(data-collapse)}
+.index-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;position:sticky;top:88px;z-index:900;background:rgba(245,245,245,.95);backdrop-filter:blur(6px);padding:8px 0;border-radius:12px}
+.index-item{padding:10px 12px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;font-size:.82rem;color:#1e3a8a;text-decoration:none;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.index-item:hover{background:#1e3a8a;color:#fff}
+.updated{text-align:center;color:#94a3b8;font-size:.7rem;margin:12px 0 16px}
+.back-to-top{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:#1e3a8a;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(30,58,138,.4);display:none;align-items:center;justify-content:center;z-index:999}
+.back-to-top.visible{display:flex}
+@media(max-width:640px){.index-grid{grid-template-columns:1fr 1fr;top:70px}.facility-header{padding:12px}.facility-body{padding:10px 12px}}
+</style>
 </head>
 <body>
+<div class="top-bar"><span id="topDate"></span><span id="topWeather"></span></div>
+<nav class="nav-bar"><div class="nav-inner"><div class="nav-title" id="navTitle">觀塘區康樂設施運作情況</div><div class="lang-switch"><a href="#" class="lang-btn active" data-lang="zh">繁體</a><a href="#" class="lang-btn" data-lang="en">EN</a><a href="#" class="lang-btn" data-lang="cn">简体</a></div></div></nav>
 
-<header>
-  <h1>🏊 觀塘區康體設施一覽</h1>
-  <p>觀塘區康樂及文化事務署轄下設施資訊</p>
-  <p class="date">資料更新日期：2026年8月30日</p>
-</header>
+<script>
+// 天氣模組 — HKO 官方 Open Data API (CORS enabled)
+let severeWarnings=[];
+(function(){
+  const API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
+  const WARN_API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
+  const ICON_BASE='https://d28gfsrd1pujc.cloudfront.net/frontend_images/mod_sp_weather/images/';
+  function parseSevere(wd){
+    const out=[];
+    const warns=wd&&wd.warnings?wd.warnings:{};
+    for(const k in warns){
+      const w=warns[k]; if(!w) continue;
+      if(w.status && w.status.includes('取消')) continue;
+      const name=w.name||'';
+      if(/八號|九號|十號/.test(name) || name.includes('黑色暴雨')) out.push(name);
+    }
+    return out;
+  }
+  async function fetchWeather(){
+    try{
+      const r=await fetch(API);
+      const d=await r.json();
+      const temps=(d.temperature?.data)||[];
+      const hums=(d.humidity?.data)||[];
+      const t=(temps.find(x=>x.place==='香港天文台')||temps[0]||{}).value;
+      const h=(hums.find(x=>x.place==='香港天文台')||hums[0]||{}).value;
+      const icon=(d.icon&&d.icon[0])||'50';
+      const el=document.getElementById('topWeather');
+      if(el){
+        el.innerHTML=
+          `<img src="${ICON_BASE}weather_${icon}.png" alt="" style="height:16px;vertical-align:middle;margin-right:4px">`+
+          `<span style="font-weight:700">${t??'--'}°C</span>`+
+          `<span style="opacity:.8;margin-left:6px">💧${h??'--'}%</span>`;
+      }
+    }catch(e){
+      const el=document.getElementById('topWeather');
+      if(el) el.textContent='天氣資料暫不可用';
+    }
+    try{
+      const w=await fetch(WARN_API);
+      const wd=await w.json();
+      severeWarnings=parseSevere(wd);
+    }catch(e){ severeWarnings=[]; }
+  }
+  fetchWeather();
+  setInterval(fetchWeather,600000);
+})();
+</script>
 
-<!-- ==================== 游泳池 ==================== -->
-<div class="section-title">🌊 公眾游泳池</div>
-
-<div class="facility-grid">
-
-  <!-- 觀塘游泳池 -->
-  <div class="facility-card">
-    <div class="facility-header">
-      <div class="facility-name">觀塘游泳池</div>
-      <span class="facility-status status-open">夏季開放中</span>
-    </div>
-    <div class="facility-spec">📍 九龍觀塘翠屏道2號　📞 2717 9022 / 2347 8140</div>
-    <div class="facility-detail">
-      <strong>室內設施：</strong>主池 (50.03m × 25m，水深 1.4–1.9m)、訓練池 (25m × 30m，水深 1.2m)、觀眾看台 (1,492座位)、電子計分板、家庭更衣室<br>
-      <strong>戶外設施：</strong>副池 (50m × 21m，水深 1.1–1.4m)、習泳池 1&2 (25m × 12.5m，水深 0.7–0.9m)、日光浴場<br>
-      <strong>無障礙設施：</strong>升降台、斜道、暢通易達洗手間、觸覺引路帶等
-    </div>
-    <div class="session-grid">
-      <div class="session-box">
-        <div class="session-label">第一節</div>
-        <div class="session-time">06:30 – 12:00</div>
-      </div>
-      <div class="session-box">
-        <div class="session-label">第二節</div>
-        <div class="session-time">13:00 – 18:00</div>
-      </div>
-      <div class="session-box">
-        <div class="session-label">第三節</div>
-        <div class="session-time">19:00 – 22:00</div>
-      </div>
-    </div>
-    <div class="info-box" style="margin-top:10px;">
-      每周大清潔：逢星期三（上午10時至第二節完結）※ 公眾假期改為星期五
-    </div>
-  </div>
-
-  <!-- 藍田游泳池 -->
-  <div class="facility-card">
-    <div class="facility-header">
-      <div class="facility-name">藍田游泳池</div>
-      <span class="facility-status status-open">夏季開放中</span>
-    </div>
-    <div class="facility-spec">📍 九龍藍田　📞 查詢請致電康文署</div>
-    <div class="facility-detail">
-      標準公眾游泳池設施，提供暖水游泳服務（十一月中至翌年四月中）
-    </div>
-    <div class="session-grid">
-      <div class="session-box">
-        <div class="session-label">第一節</div>
-        <div class="session-time">06:30 – 12:00</div>
-      </div>
-      <div class="session-box">
-        <div class="session-label">第二節</div>
-        <div class="session-time">13:00 – 18:00</div>
-      </div>
-      <div class="session-box">
-        <div class="session-label">第三節</div>
-        <div class="session-time">19:00 – 22:00</div>
-      </div>
-    </div>
-    <div class="info-box" style="margin-top:10px;">
-      每周大清潔：逢星期四（上午10時至第二節完結）※ 公眾假期改為星期一
-    </div>
-    <div class="notice-box" style="margin-top:8px;">
-      配合每年維修工程暫停開放：4月16日至6月5日
-    </div>
-  </div>
-
-  <!-- 佐敦谷游泳池 -->
-  <div class="facility-card">
-    <div class="facility-header">
-      <div class="facility-name">佐敦谷游泳池</div>
-      <span class="facility-status status-closed">冬季維修中</span>
-    </div>
-    <div class="facility-spec">📍 九龍佐敦谷　📞 查詢請致電康文署</div>
-    <div class="facility-detail">
-      標準公眾游泳池設施
-    </div>
-    <div class="session-grid">
-      <div class="session-box">
-        <div class="session-label">第一節</div>
-        <div class="session-time">06:30 – 12:00</div>
-      </div>
-      <div class="session-box">
-        <div class="session-label">第二節</div>
-        <div class="session-time">13:00 – 18:00</div>
-      </div>
-      <div class="session-box">
-        <div class="session-label">第三節</div>
-        <div class="session-time">19:00 – 22:00</div>
-      </div>
-    </div>
-    <div class="info-box" style="margin-top:10px;">
-      每周大清潔：逢星期二（上午10時至第二節完結）※ 公眾假期改為星期四
-    </div>
-    <div class="notice-box" style="margin-top:8px;">
-      配合每年維修工程暫停開放：11月1日至翌年3月31日
-    </div>
-  </div>
-
+<div class="container">
+<div class="index-grid" id="quickNav">
+<a href="#swim" class="index-item">🏊 泳池 (3)</a>
+<a href="#sports" class="index-item">🏟️ 體育館 (9)</a>
+<a href="#tennis" class="index-item">🎾 網球場 (6)</a>
+<a href="#football" class="index-item">⚽ 足球場 (2)</a>
+<a href="#other" class="index-item">🎯 其他設施</a>
 </div>
 
-<div class="info-box">
-  💡 暫停開放時間：中午12時至下午1時及下午6時至7時為清場時段。農曆年初一至年初三全部泳池暫停開放。
+<section id="swim" class="collapsible"><h2 class="section-title" onclick="toggleSection('swim')">🏊 游泳池 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="pools"></div></div></section>
+<section id="sports" class="collapsible"><h2 class="section-title" onclick="toggleSection('sports')">🏟️ 體育館 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="sports-centres"></div></div></section>
+<section id="tennis" class="collapsible"><h2 class="section-title" onclick="toggleSection('tennis')">🎾 網球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="tennis-courts"></div></div></section>
+<section id="football" class="collapsible"><h2 class="section-title" onclick="toggleSection('football')">⚽ 足球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="football-pitches"></div></div></section>
+<section id="other" class="collapsible"><h2 class="section-title" onclick="toggleSection('other')">🎯 其他設施 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="other-facilities"></div></div></section>
+
+<div class="updated" id="footer-updated">最後更新：<span id="lastUpdate">--</span> <span id="lastSyncAgo" style="color:#16a34a;font-weight:600"></span> · 數據來源：康文署 · 觀塘區議會</div>
+<div id="footer-links" style="text-align:center;margin:16px 0 8px;font-size:.75rem;color:#94a3b8"></div>
 </div>
+<button class="back-to-top" id="backToTop" aria-label="返回頂部">↑</button>
 
-<!-- ==================== 體育館 ==================== -->
-<div class="section-title">🏟️ 體育館（9間）</div>
-<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px;">
-  開放時間：每日 07:00 – 23:00（定期保養日除外）| 預訂設施請使用 <a href="https://www.smartplay.lcsd.gov.hk" style="color:var(--accent);">SmartPLAY 康體通</a>
-</p>
+<script>
+// ponytail: 單檔無框架，硬編碼數據，lightweight
+const I18N={
+ zh:{title:"觀塘區康樂設施運作情況",pools:"🏊 游泳池",sports:"🏟️ 體育館",tennis:"🎾 網球場",football:"⚽ 足球場",other:"🎯 其他設施",open:"營運中",soon:"即將開始",done:"已結束",closed:"休館",partial:"部分開放",maint:"維修中",closed_today:"暫停開放",hours:"開放時段",today:"今日",lastUpd:"最後更新",src:"數據來源：康文署 · 觀塘區議會",view:"查看康文署官網 →",expand:"[展開 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暫停開放公告",closureReason:"因",upcoming:"即將開放",mainPool:"主池",closedNote:"今日暫停",cleaningDay:"今日為每周大清潔日",weatherWarn:"天氣警示",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公眾假期",buyCoffee:"請我飲咖啡",contactAuthor:"聯絡作者",share:"分享",backToTop:"返回頂部",copied:"已複製",artificial:"人造草地",natural:"天然草地"},
+ en:{title:"Kwun Tong Leisure Facilities Status",pools:"🏊 Swimming Pools",sports:"🏟️ Sports Centres",tennis:"🎾 Tennis Courts",football:"⚽ Football Pitches",other:"🎯 Other Facilities",open:"Open",soon:"Opening Soon",done:"Closed",closed:"Closed",partial:"Partially Open",maint:"Maintenance",closed_today:"Suspended",hours:"Opening Sessions",today:"Today",lastUpd:"Last updated",src:"Data: LCSD · Kwun Tong DC",view:"View LCSD official page →",expand:"[Expand +]",collapse:"[Collapse −]",sync:"Last synced",closure:"Closure Notice",closureReason:"due to",upcoming:"Opens Soon",mainPool:"Main Pool",closedNote:"Suspended today",cleaningDay:"Weekly cleaning day",weatherWarn:"Weather Warning",sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",holiday:"Public Holiday",buyCoffee:"Buy me a coffee",contactAuthor:"Contact author",share:"Share",backToTop:"Back to top",copied:"Copied",artificial:"Artificial Turf",natural:"Natural Grass"},
+ cn:{title:"观塘区康乐设施运作情况",pools:"🏊 游泳池",sports:"🏟️ 体育馆",tennis:"🎾 网球场",football:"⚽ 足球场",other:"🎯 其他设施",open:"营运中",soon:"即将开始",done:"已结束",closed:"休馆",partial:"部分开放",maint:"维修中",closed_today:"暂停开放",hours:"开放时段",today:"今日",lastUpd:"最后更新",src:"数据来源：康文署 · 观塘区议会",view:"查看康文署官网 →",expand:"[展开 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暂停开放公告",closureReason:"因",upcoming:"即将开放",mainPool:"主池",closedNote:"今日暂停",cleaningDay:"今日为每周大清洁日",weatherWarn:"天气警示",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公众假期",buyCoffee:"请我喝咖啡",contactAuthor:"联系作者",share:"分享",backToTop:"返回顶部",copied:"已复制",artificial:"人造草地",natural:"天然草地"}
+};
+const NAME_L10N={
+ ktswim:{zh:"觀塘游泳池",en:"Kwun Tong Swimming Pool",cn:"观塘游泳池"},
+ ltswim:{zh:"藍田游泳池",en:"Lam Tin Swimming Pool",cn:"蓝田游泳池"},
+ jvswim:{zh:"佐敦谷游泳池",en:"Jordan Valley Swimming Pool",cn:"佐敦谷游泳池"},
+ "sc-cwr":{zh:"彩榮路體育館",en:"Choi Wing Road Sports Centre",cn:"彩荣路体育馆"},
+ "sc-chd":{zh:"振華道體育館",en:"Chun Wah Road Sports Centre",cn:"振华道体育馆"},
+ "sc-hks":{zh:"曉光街體育館",en:"Hiu Kwong Street Sports Centre",cn:"晓光街体育馆"},
+ "sc-kwb":{zh:"九龍灣體育館",en:"Kowloon Bay Sports Centre",cn:"九龙湾体育馆"},
+ "sc-lts":{zh:"藍田（南）體育館",en:"Lam Tin (South) Sports Centre",cn:"蓝田（南）体育馆"},
+ "sc-lym":{zh:"鯉魚門體育館",en:"Lei Yue Mun Sports Centre",cn:"鲤鱼门体育馆"},
+ "sc-ntk":{zh:"牛頭角道體育館",en:"Ngau Tau Kok Road Sports Centre",cn:"牛头角道体育馆"},
+ "sc-shs":{zh:"瑞和街體育館",en:"Shui Wo Street Sports Centre",cn:"瑞和街体育馆"},
+ "sc-slb":{zh:"順利邨體育館",en:"Shun Lee Estate Sports Centre",cn:"顺利邨体育馆"},
+ "tc-hms":{zh:"曉明街網球場",en:"Hiu Ming Street Tennis Court",cn:"晓明街网球场"},
+ "tc-hlp":{zh:"康寧道公園網球場",en:"Hong Ning Road Park Tennis Court",cn:"康宁道公园网球场"},
+ "tc-sfd":{zh:"茜發道網球場",en:"Sin Fat Road Tennis Court",cn:"茜发道网球场"},
+ "tc-jvp":{zh:"佐敦谷遊樂場網球場",en:"Jordan Valley Playground Tennis Court",cn:"佐敦谷游乐场网球场"},
+ "tc-psp":{zh:"坪石遊樂場網球場",en:"Ping Shek Playground Tennis Court",cn:"坪石游乐场网球场"},
+ "tc-slp":{zh:"順利邨公園網球場",en:"Shun Lee Estate Park Tennis Court",cn:"顺利邨公园网球场"},
+ "fp-art":{zh:"人造草地足球場",en:"Artificial Turf Football Pitch",cn:"人造草地足球场"},
+ "fp-nat":{zh:"天然草地足球場",en:"Natural Grass Football Pitch",cn:"天然草地足球场"}
+};
+let currentLang='zh';
+const t=k=>I18N[currentLang][k]||I18N.zh[k]||k;
+const lname=id=>(NAME_L10N[id]&&NAME_L10N[id][currentLang])||id;
 
-<div class="venue-list">
+function addr(f){
+ const zh=f.address||'';
+ const en=f.addrEn||zh;
+ const a=currentLang==='en'?en:(currentLang==='cn'?(f.addrCn||zh):zh);
+ const q=encodeURIComponent(zh);
+ return `<a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px dotted #94a3b8">${a} <small style="font-size:.6rem">📍</small></a>`;
+}
 
-  <div class="venue-card">
-    <div class="venue-name">彩榮路體育館</div>
-    <div class="venue-addr">📍 觀塘彩榮路58號</div>
-    <div class="venue-phone">📞 2721 5918</div>
-    <div class="facility-tags">
-      <span class="facility-tag">緩跑徑</span>
-      <span class="facility-tag">健身室</span>
-      <span class="facility-tag">兒童遊戲室</span>
-      <span class="facility-tag">羽毛球場×8</span>
-      <span class="facility-tag">乒乓球室</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第1及第3個星期一 09:00–15:00
-    </div>
-  </div>
+function hkNow(){return new Date()}
+function hkMinutes(d){return d.getHours()*60+d.getMinutes()}
 
-  <div class="venue-card">
-    <div class="venue-name">振華道體育館</div>
-    <div class="venue-addr">📍 牛頭角振華道50號樂雅苑停車場頂樓</div>
-    <div class="venue-phone">📞 2318 1767</div>
-    <div class="facility-tags">
-      <span class="facility-tag">羽毛球場×4</span>
-      <span class="facility-tag">舞蹈室</span>
-      <span class="facility-tag">活動室</span>
-      <span class="facility-tag">乒乓球</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第1及第3個星期一 09:00–15:00
-    </div>
-  </div>
+function parseRange(s){
+if(s.includes("24小時")) return {start:0,end:1440}
+let m=s.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+if(!m) return null;
+let sh=parseInt(m[1]), sm=parseInt(m[2]), eh=parseInt(m[3]), em=parseInt(m[4]);
+let isPM=s.includes("下午")||s.includes("晚上")||s.includes("傍晚")||s.includes("晚");
+let isNoon=s.includes("中午");
+if(isPM){
+ if(sh!==12&&sh<12) sh+=12;
+ if(eh!==12&&eh<12) eh+=12;
+}else if(isNoon){
+ if(sh===12) sh=12;
+ if(eh<12) eh+=12;
+}
+let start=sh*60+sm, end=eh*60+em;
+if(end<=start) end=1440;
+return {start:start,end:end}
+}
 
-  <div class="venue-card">
-    <div class="venue-name">曉光街體育館</div>
-    <div class="venue-addr">📍 九龍觀塘曉光街2號</div>
-    <div class="venue-phone">📞 2347 0384</div>
-    <div class="facility-tags">
-      <span class="facility-tag">羽毛球場×8</span>
-      <span class="facility-tag">健身室</span>
-      <span class="facility-tag">壁球室×2</span>
-      <span class="facility-tag">舞蹈室</span>
-      <span class="facility-tag">活動室</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第2及第4個星期一 09:00–15:00
-    </div>
-  </div>
+function sessionStatus(range, nowM){
+if(!range) return {text:"—",cls:"done"};
+if(nowM < range.start) return {text:t('soon'),cls:"soon"};
+if(nowM >= range.start && nowM < range.end) return {text:t('open'),cls:"open"};
+return {text:t('done'),cls:"done"};
+}
 
-  <div class="venue-card">
-    <div class="venue-name">九龍灣體育館</div>
-    <div class="venue-addr">📍 九龍灣啟樂街15號</div>
-    <div class="venue-phone">📞 2750 9539</div>
-    <div class="facility-tags">
-      <span class="facility-tag">羽毛球場×8</span>
-      <span class="facility-tag">壁球室×3</span>
-      <span class="facility-tag">活動室</span>
-      <span class="facility-tag">社區園圃</span>
-      <span class="facility-tag">乒乓球</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第1及第3個星期一 09:00–15:00
-    </div>
-  </div>
+function facilityOverallStatus(sessions, nowM){
+let hasOpen=false, hasSoon=false;
+for(let s of sessions){
+ let r=parseRange(s);
+ let st=sessionStatus(r, nowM);
+ if(st.cls==="open") hasOpen=true;
+ if(st.cls==="soon") hasSoon=true;
+}
+if(hasOpen) return {text:t('open'),cls:"status-open"};
+if(hasSoon) return {text:t('soon'),cls:"status-upcoming"};
+return {text:t('closed'),cls:"status-closed"};
+}
 
-  <div class="venue-card">
-    <div class="venue-name">藍田（南）體育館</div>
-    <div class="venue-addr">📍 九龍觀塘藍田碧雲道170號</div>
-    <div class="venue-phone">📞 2379 9254</div>
-    <div class="facility-tags">
-      <span class="facility-tag">羽毛球場×8</span>
-      <span class="facility-tag">壁球室×6</span>
-      <span class="facility-tag">健身室</span>
-      <span class="facility-tag">兒童遊戲室</span>
-    </div>
-  </div>
+function toggleCard(el){el.parentElement.classList.toggle('collapsed')}
 
-  <div class="venue-card">
-    <div class="venue-name">鯉魚門體育館</div>
-    <div class="venue-addr">📍 九龍油塘鯉魚門徑6號鯉魚門市政大廈2–5樓</div>
-    <div class="venue-phone">📞 2349 3954</div>
-    <div class="facility-tags">
-      <span class="facility-tag">室內攀石牆</span>
-      <span class="facility-tag">兒童遊戲室</span>
-      <span class="facility-tag">散手訓練場</span>
-      <span class="facility-tag">美式桌球</span>
-      <span class="facility-tag">活動室</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第2及第4個星期一 09:00–15:00
-    </div>
-  </div>
+function isCleaningDay(cleaning, now){
+  if(!cleaning||!cleaning.day) return false;
+  const CN=['日','一','二','三','四','五','六'];
+  return CN[now.getDay()]===cleaning.day;
+}
 
-  <div class="venue-card">
-    <div class="venue-name">牛頭角道體育館</div>
-    <div class="venue-addr">📍 九龍牛頭角道183號牛頭角市政大廈2–4樓</div>
-    <div class="venue-phone">📞 2756 3466</div>
-    <div class="facility-tags">
-      <span class="facility-tag">羽毛球場×4</span>
-      <span class="facility-tag">健身室</span>
-      <span class="facility-tag">活動室</span>
-      <span class="facility-tag">平台花園</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第2及第4個星期一 09:00–15:00
-    </div>
-  </div>
+function inMaintenance(m, now){
+  const y=now.getFullYear();
+  const [sm,sd]=m.start.split('/').map(Number);
+  const [em,ed]=m.end.split('/').map(Number);
+  const d=now.getDate(), mo=now.getMonth()+1;
+  if(m.nextYear){
+    if(mo>sm || (mo===sm&&d>=sd) || mo<em || (mo===em&&d<=ed)) return true;
+  }else{
+    if(mo>sm||(mo===sm&&d>=sd)) { if(mo<em||(mo===em&&d<=ed)) return true; }
+    else if(mo===em&&d<=ed) return true;
+  }
+  return false;
+}
 
-  <div class="venue-card">
-    <div class="venue-name">瑞和街體育館</div>
-    <div class="venue-addr">📍 九龍觀塘瑞和街9號瑞和街市政大廈8–9樓</div>
-    <div class="venue-phone">📞 2797 3350</div>
-    <div class="facility-tags">
-      <span class="facility-tag">羽毛球場×4</span>
-      <span class="facility-tag">壁球室×3</span>
-      <span class="facility-tag">活動室</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第1及第3個星期一 09:00–15:00
-    </div>
-  </div>
+function officialLink(url,labelKey){return url?`<a href="${url}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:12px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:.78rem;color:#1e3a8a;text-decoration:none">${t(labelKey)}</a>`:'';}
 
-  <div class="venue-card">
-    <div class="venue-name">順利邨體育館</div>
-    <div class="venue-addr">📍 九龍觀塘順利邨道33號</div>
-    <div class="venue-phone">📞 2951 4136</div>
-    <div class="facility-tags">
-      <span class="facility-tag">體操訓練場</span>
-      <span class="facility-tag">英式/美式桌球</span>
-      <span class="facility-tag">戶外攀石牆</span>
-      <span class="facility-tag">高爾夫球發球道</span>
-      <span class="facility-tag">門球場</span>
-      <span class="facility-tag">兒童遊戲室</span>
-    </div>
-    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
-      保養日：每月第1及第3個星期一 09:00–15:00
-    </div>
-  </div>
+const POOLS=[
+{id:"ktswim",name:"觀塘游泳池",address:"九龍觀塘翠屏道2號",addrEn:"2 Tsui Ping Road, Kwun Tong, Kowloon",addrCn:"九龙观塘翠屏道2号",phone:"2717 9022 / 2347 8140",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=18",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"三",fallback:"五"},maintenance:[{pool:"戶外泳池",start:"11/1",end:"4/15",nextYear:true},{pool:"室內泳池",start:"1/2",end:"2/21",nextYear:false}]},
+{id:"ltswim",name:"藍田游泳池",address:"九龍藍田",addrEn:"Lam Tin, Kowloon",addrCn:"九龙蓝田",phone:"",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=19",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"四",fallback:"一"},maintenance:[{pool:"全場",start:"4/16",end:"6/5",nextYear:false}]},
+{id:"jvswim",name:"佐敦谷游泳池",address:"九龍佐敦谷",addrEn:"Jordan Valley, Kowloon",addrCn:"九龙佐敦谷",phone:"",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=20",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"二",fallback:"四"},maintenance:[{pool:"全場",start:"11/1",end:"3/31",nextYear:true}]}
+];
 
-</div>
+const SPORTS_CENTRES=[
+{id:"sc-cwr",name:"彩榮路體育館",address:"觀塘彩榮路58號",addrEn:"58 Choi Wing Road, Kwun Tong",addrCn:"观塘彩荣路58号",phone:"2721 5918",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"},
+{id:"sc-chd",name:"振華道體育館",address:"牛頭角振華道50號樂雅苑停車場頂樓",addrEn:"R/F, Lok Nga Court Carpark, 50 Chun Wah Road, Ngau Tau Kok",addrCn:"牛头角振华道50号乐雅苑停车场顶楼",phone:"2318 1767",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"},
+{id:"sc-hks",name:"曉光街體育館",address:"九龍觀塘曉光街2號",addrEn:"2 Hiu Kwong Street, Kwun Tong, Kowloon",addrCn:"九龙观塘晓光街2号",phone:"2347 0384",sessions:["07:00 - 23:00"],maintNote:"每月第2及第4個星期一 09:00–15:00"},
+{id:"sc-kwb",name:"九龍灣體育館",address:"九龍灣啟樂街15號",addrEn:"15 Kai Lok Street, Kowloon Bay",addrCn:"九龙湾启乐街15号",phone:"2750 9539",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"},
+{id:"sc-lts",name:"藍田（南）體育館",address:"九龍觀塘藍田碧雲道170號",addrEn:"170 Pik Wan Road, Lam Tin, Kwun Tong, Kowloon",addrCn:"九龙观塘蓝田碧云道170号",phone:"2379 9254",sessions:["07:00 - 23:00"]},
+{id:"sc-lym",name:"鯉魚門體育館",address:"九龍油塘鯉魚門徑6號鯉魚門市政大廈2–5樓",addrEn:"2-5/F, Lei Yue Mun Municipal Services Building, 6 Lei Yue Mun Path, Yau Tong, Kowloon",addrCn:"九龙油塘鲤鱼门径6号鲤鱼门市政大厦2–5楼",phone:"2349 3954",sessions:["07:00 - 23:00"],maintNote:"每月第2及第4個星期一 09:00–15:00"},
+{id:"sc-ntk",name:"牛頭角道體育館",address:"九龍牛頭角道183號牛頭角市政大廈2–4樓",addrEn:"2-4/F, Ngau Tau Kok Municipal Services Building, 183 Ngau Tau Kok Road, Kowloon",addrCn:"九龙牛头角道183号牛头角市政大厦2–4楼",phone:"2756 3466",sessions:["07:00 - 23:00"],maintNote:"每月第2及第4個星期一 09:00–15:00"},
+{id:"sc-shs",name:"瑞和街體育館",address:"九龍觀塘瑞和街9號瑞和街市政大廈8–9樓",addrEn:"8-9/F, Shui Wo Street Municipal Services Building, 9 Shui Wo Street, Kwun Tong, Kowloon",addrCn:"九龙观塘瑞和街9号瑞和街市政大厦8–9楼",phone:"2797 3350",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"},
+{id:"sc-slb",name:"順利邨體育館",address:"九龍觀塘順利邨道33號",addrEn:"33 Shun Lee Estate Road, Kwun Tong, Kowloon",addrCn:"九龙观塘顺利邨道33号",phone:"2951 4136",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"}
+];
 
-<!-- ==================== 網球場 ==================== -->
-<div class="section-title">🎾 網球場</div>
-<div class="venue-list">
-  <div class="venue-card"><div class="venue-name">曉明街網球場</div><div class="venue-addr">📍 觀塘曉明街17號</div></div>
-  <div class="venue-card"><div class="venue-name">康寧道公園網球場</div><div class="venue-addr">📍 康寧道</div></div>
-  <div class="venue-card"><div class="venue-name">茜發道網球場</div><div class="venue-addr">📍 觀塘茜發道</div></div>
-  <div class="venue-card"><div class="venue-name">佐敦谷遊樂場網球場</div><div class="venue-addr">📍 牛頭角彩霞道</div></div>
-  <div class="venue-card"><div class="venue-name">坪石遊樂場網球場</div><div class="venue-addr">📍 觀塘彩石里</div></div>
-  <div class="venue-card"><div class="venue-name">順利邨公園網球場</div><div class="venue-addr">📍 觀塘順利邨道</div></div>
-</div>
+const TENNIS_COURTS=[
+{id:"tc-hms",name:"曉明街網球場",address:"觀塘曉明街17號",addrEn:"17 Hiu Ming Street, Kwun Tong",addrCn:"观塘晓明街17号"},
+{id:"tc-hlp",name:"康寧道公園網球場",address:"康寧道",addrEn:"Hong Ning Road",addrCn:"康宁道"},
+{id:"tc-sfd",name:"茜發道網球場",address:"觀塘茜發道",addrEn:"Sin Fat Road, Kwun Tong",addrCn:"观塘茜发道"},
+{id:"tc-jvp",name:"佐敦谷遊樂場網球場",address:"牛頭角彩霞道",addrEn:"Choi Ha Road, Ngau Tau Kok",addrCn:"牛头角彩霞道"},
+{id:"tc-psp",name:"坪石遊樂場網球場",address:"觀塘彩石里",addrEn:"Choi Shek Lane, Kwun Tong",addrCn:"观塘彩石里"},
+{id:"tc-slp",name:"順利邨公園網球場",address:"觀塘順利邨道",addrEn:"Shun Lee Estate Road, Kwun Tong",addrCn:"观塘顺利邨道"}
+];
 
-<!-- ==================== 足球場 ==================== -->
-<div class="section-title">⚽ 足球場</div>
-<div class="facility-grid">
-  <div class="facility-card">
-    <div class="facility-header">
-      <div class="facility-name">人造草地足球場</div>
-    </div>
-    <div class="facility-detail">
-      • 順利邨公園（觀塘順利邨道）<br>
-      • 九龍灣公園（九龍灣啟禮道）
-    </div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header">
-      <div class="facility-name">天然草地足球場</div>
-    </div>
-    <div class="facility-detail">
-      • 九龍灣運動場（九龍灣啟樂街1號）<br>
-      • 晒草灣遊樂場（藍田茜發道）<br>
-      • 偉樂街臨時足球場（觀塘偉樂街）<br>
-      • 九龍灣公園（九龍灣啟禮道）
-    </div>
-  </div>
-</div>
+const FOOTBALL_PITCHES=[
+{id:"fp-art",name:"人造草地足球場",type:"artificial",venues:[{name:"順利邨公園",addr:"觀塘順利邨道"},{name:"九龍灣公園",addr:"九龍灣啟禮道"}]},
+{id:"fp-nat",name:"天然草地足球場",type:"natural",venues:[{name:"九龍灣運動場",addr:"九龍灣啟樂街1號"},{name:"晒草灣遊樂場",addr:"藍田茜發道"},{name:"偉樂街臨時足球場",addr:"觀塘偉樂街"},{name:"九龍灣公園",addr:"九龍灣啟禮道"}]}
+];
 
-<!-- ==================== 其他設施 ==================== -->
-<div class="section-title">🎯 其他康體設施</div>
-<div class="facility-grid">
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">美式桌球</div></div>
-    <div class="facility-detail">鯉魚門體育館（油塘鯉魚門徑6號鯉魚門市政大廈2樓）</div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">攀石牆</div></div>
-    <div class="facility-detail">
-      <strong>室內：</strong>鯉魚門體育館<br>
-      <strong>室外：</strong>順利邨體育館
-    </div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">門球及高爾夫球發球道</div></div>
-    <div class="facility-detail">順利邨體育館（觀塘順利邨道）</div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">棒球練習場</div></div>
-    <div class="facility-detail">晒草灣遊樂場（藍田茜發道）</div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">單車場</div></div>
-    <div class="facility-detail">九龍灣公園（九龍灣啟禮道）</div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">體操訓練場</div></div>
-    <div class="facility-detail">順利邨體育館（觀塘順利邨道）</div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">散手訓練場</div></div>
-    <div class="facility-detail">鯉魚門體育館（油塘鯉魚門徑6號）</div>
-  </div>
-  <div class="facility-card">
-    <div class="facility-header"><div class="facility-name">兒童遊戲室</div></div>
-    <div class="facility-detail">
-      • 順利邨體育館<br>
-      • 鯉魚門體育館<br>
-      • 藍田（南）體育館
-    </div>
-  </div>
-</div>
+const OTHER_FACILITIES=[
+{name:"美式桌球",addr:"鯉魚門體育館（油塘鯉魚門徑6號鯉魚門市政大廈2樓）",addrEn:"2/F, Lei Yue Mun Municipal Services Building, 6 Lei Yue Mun Path, Yau Tong",addrCn:"鲤鱼门市政大厦2楼（油塘鲤鱼门径6号）"},
+{name:"攀石牆",addr:"室內：鯉魚門體育館；室外：順利邨體育館",addrEn:"Indoor: Lei Yue Mun SC; Outdoor: Shun Lee Estate SC",addrCn:"室内：鲤鱼门体育馆；室外：顺利邨体育馆"},
+{name:"門球及高爾夫球發球道",addr:"順利邨體育館（觀塘順利邨道）",addrEn:"Shun Lee Estate Sports Centre (Shun Lee Estate Road)",addrCn:"顺利邨体育馆（观塘顺利邨道）"},
+{name:"棒球練習場",addr:"晒草灣遊樂場（藍田茜發道）",addrEn:"Sai Tso Wan Recreation Ground (Sin Fat Road, Lam Tin)",addrCn:"晒草湾游乐场（蓝田茜发道）"},
+{name:"單車場",addr:"九龍灣公園（九龍灣啟禮道）",addrEn:"Kowloon Bay Park (Kai Lai Road)",addrCn:"九龙湾公园（九龙湾启礼道）"},
+{name:"體操訓練場",addr:"順利邨體育館（觀塘順利邨道）",addrEn:"Shun Lee Estate Sports Centre (Shun Lee Estate Road)",addrCn:"顺利邨体育馆（观塘顺利邨道）"},
+{name:"散手訓練場",addr:"鯉魚門體育館（油塘鯉魚門徑6號）",addrEn:"Lei Yue Mun Sports Centre (6 Lei Yue Mun Path, Yau Tong)",addrCn:"鲤鱼门体育馆（油塘鲤鱼门径6号）"},
+{name:"兒童遊戲室",addr:"順利邨體育館、鯉魚門體育館、藍田（南）體育館",addrEn:"Shun Lee Estate SC, Lei Yue Mun SC, Lam Tin (South) SC",addrCn:"顺利邨体育馆、鲤鱼门体育馆、蓝田（南）体育馆"}
+];
 
-<!-- ==================== 預訂資訊 ==================== -->
-<div class="section-title">📋 預訂及查詢</div>
-<div class="info-box">
-  市民可透過康樂及文化事務署「SmartPLAY 康體通」網上租場服務預訂各項設施。<br>
-  🔗 <a href="https://www.smartplay.lcsd.gov.hk" style="color:var(--accent);">SmartPLAY 康體通</a>　|　
-  🔗 <a href="https://www.lcsd.gov.hk" style="color:var(--accent);">康文署官網</a>
-</div>
+function renderPools(){
+ const now=hkNow(), nm=hkMinutes(now);
+ return POOLS.map(f=>{
+   let st = facilityOverallStatus(f.sessions, nm);
+   let closureHtml='';
+   if(f.cleaning&&isCleaningDay(f.cleaning, now)){
+     closureHtml+=`<div class="notice" style="background:#e0e7ff;border-color:#c7d2fe;color:#3730a3">🧹 ${t('cleaningDay')}（${f.cleaning.day}${f.cleaning.fallback?' → '+f.cleaning.fallback:''}）</div>`;
+   }
+   if(f.maintenance){
+     f.maintenance.forEach(m=>{
+       if(inMaintenance(m,now)){
+         closureHtml+=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('maint')}：${m.pool} (${m.start} - ${m.end})</div>`;
+         if(st.cls==="status-open"||st.cls==="status-upcoming") st={text:t('maint'),cls:"status-maint"};
+       }
+     });
+   }
+   let sessions=f.sessions.map(s=>{
+     let r=parseRange(s);
+     let ss=sessionStatus(r,nm);
+     return `<div class="session"><span class="session-time">${s}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   }).join("");
+   let official=officialLink(f.officialUrl,'view');
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours')}</div>${sessions}</div>${closureHtml}${official}</div></div>`
+ }).join("");
+}
 
-<div class="footer">
-  <p>資料來源：觀塘區議會、康樂及文化事務署</p>
-  <p style="margin-top:6px;">
-    <a href="https://www.kwuntong.org.hk/tc/c5_7.html">觀塘區議會 – 康體設施</a>　|　
-    <a href="https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do">康文署 – 公眾游泳池</a>　|　
-    <a href="https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/District.do?ftid=0">康文署 – 體育館</a>
-  </p>
-  <p style="margin-top:10px;font-size:0.75rem;">本頁面僅供參考，最新開放安排請以康文署公告為準。</p>
-</div>
+function renderSportsCentres(){
+ const now=hkNow(), nm=hkMinutes(now);
+ return SPORTS_CENTRES.map(f=>{
+   let st = facilityOverallStatus(f.sessions, nm);
+   let notice='';
+   if(f.maintNote){
+     notice=`<div class="notice">🔧 ${currentLang==='en'?'Maintenance':currentLang==='cn'?'保养':'保養'}：${f.maintNote}</div>`;
+   }
+   let sessions=f.sessions.map(s=>{
+     let r=parseRange(s);
+     let ss=sessionStatus(r,nm);
+     return `<div class="session"><span class="session-time">${s}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   }).join("");
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours')}</div>${sessions}</div>${notice}</div></div>`
+ }).join("");
+}
 
+function renderTennisCourts(){
+ return TENNIS_COURTS.map(f=>{
+   // Tennis courts are outdoor, no specific session times in source data → show as open/closed based on generic 07:00-23:00
+   const now=hkNow(), nm=hkMinutes(now);
+   const st=facilityOverallStatus(["07:00 - 23:00"], nm);
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="detail-row"><span class="detail-label">${t('hours')}</span><span>07:00 - 23:00</span></div></div></div>`
+ }).join("");
+}
+
+function renderFootballPitches(){
+ return FOOTBALL_PITCHES.map(f=>{
+   const venues=f.venues.map(v=>`<div class="detail-row"><span class="detail-label">• ${v.name}</span><span style="font-size:.78rem;color:#64748b">${v.addr}</span></div>`).join("");
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${currentLang==='en'?(f.type==='artificial'?'Artificial Turf':'Natural Grass'):(currentLang==='cn'?(f.type==='artificial'?'人造草地':'天然草地'):(f.type==='artificial'?'人造草地':'天然草地'))}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body">${venues}</div></div>`
+ }).join("");
+}
+
+function renderOtherFacilities(){
+ return OTHER_FACILITIES.map(f=>{
+   const a=currentLang==='en'?(f.addrEn||f.addr):(currentLang==='cn'?(f.addrCn||f.addr):f.addr);
+   return `<div class="card collapsed"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${f.name}</div><div class="facility-address">${a}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"></div></div>`
+ }).join("");
+}
+
+function renderAll(){
+ document.getElementById('pools').innerHTML=renderPools();
+ document.getElementById('sports-centres').innerHTML=renderSportsCentres();
+ document.getElementById('tennis-courts').innerHTML=renderTennisCourts();
+ document.getElementById('football-pitches').innerHTML=renderFootballPitches();
+ document.getElementById('other-facilities').innerHTML=renderOtherFacilities();
+ updateClock();
+}
+
+function updateClock(){
+ const now=hkNow();
+ const y=now.getFullYear();
+ const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+ const d=now.getDate();
+ const wd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][now.getDay()];
+ const hh=String(now.getHours()).padStart(2,'0');
+ const mm=String(now.getMinutes()).padStart(2,'0');
+ document.getElementById('topDate').textContent=`${y}-${mon}-${d} (${wd}) ${hh}:${mm}`;
+}
+
+function toggleSection(id){
+ document.getElementById(id).classList.toggle('collapsed');
+}
+
+setInterval(()=>{renderAll()},60000);
+renderAll();
+
+const LAST_UPDATE='2026-08-30 12:00';
+document.getElementById('lastUpdate').textContent=LAST_UPDATE;
+
+function updateSyncAgo(){
+  const [d,t]=LAST_UPDATE.split(' ');
+  const [y,m,dd]=d.split('-').map(Number);
+  const [hh,mm]=t.split(':').map(Number);
+  const syncTime=new Date(y,m-1,dd,hh,mm);
+  const diff=Math.floor((Date.now()-syncTime)/60000);
+  const ago=diff<1?'剛剛':diff<60?diff+'分鐘前':diff<1440?Math.floor(diff/60)+'小時前':Math.floor(diff/1440)+'天前';
+  document.getElementById('lastSyncAgo').textContent='('+ago+')';
+}
+updateSyncAgo();
+setInterval(updateSyncAgo,30000);
+
+function renderFooter(){
+  document.querySelector('#footer-updated').innerHTML=t('lastUpd')+'：<span id="lastUpdate">'+LAST_UPDATE+'</span> <span id="lastSyncAgo" style="color:#16a34a;font-weight:600"></span> · '+t('src');
+  document.querySelector('#footer-links').innerHTML='<a href="https://ko-fi.com/forumdata" target="_blank" rel="noopener" style="color:#f59e0b;text-decoration:none">☕ '+t('buyCoffee')+'</a><span style="margin:0 6px">·</span><a href="mailto:youre@we1co.me" style="color:#64748b;text-decoration:none">✉️ '+t('contactAuthor')+'</a><span style="margin:0 6px">·</span><button id="shareBtn" style="color:#1e3a8a;background:none;border:none;cursor:pointer;text-decoration:underline">🔗 '+t('share')+'</button>';
+  updateSyncAgo();
+  document.getElementById('backToTop').setAttribute('aria-label', t('backToTop'));
+  document.getElementById('shareBtn').onclick=()=>{
+    const url=location.href;
+    const title=document.title;
+    if(navigator.share){navigator.share({title,url}).catch(()=>{});}
+    else{navigator.clipboard.writeText(url).then(()=>{const b=document.getElementById('shareBtn');b.textContent='✅ '+t('copied');setTimeout(()=>b.textContent='🔗 '+t('share'),1500);});}
+  };
+}
+renderFooter();
+setInterval(updateClock,1000);
+updateClock();
+document.getElementById('backToTop').onclick=()=>window.scrollTo({top:0,behavior:'smooth'});
+document.querySelectorAll('.index-item').forEach(a=>a.addEventListener('click',e=>{
+ e.preventDefault();
+ const el=document.getElementById(a.getAttribute('href').slice(1));
+ if(el){const off=88+document.getElementById('quickNav').getBoundingClientRect().height+8;
+  window.scrollTo({top:el.getBoundingClientRect().top+scrollY-off,behavior:'smooth'});}
+}));
+window.addEventListener('scroll',()=>{document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300)});
+document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>{
+ e.preventDefault();
+ currentLang=b.dataset.lang;
+ document.querySelectorAll('.lang-btn').forEach(x=>x.classList.toggle('active',x===b));
+ document.documentElement.lang=currentLang==='zh'?'zh-HK':currentLang==='cn'?'zh-CN':'en';
+ document.querySelector('.nav-title').textContent=t('title');
+ document.title=t('title')+' | we1co.me';
+ const secMap={swim:t('pools'),sports:t('sports'),tennis:t('tennis'),football:t('football'),other:t('other')};
+ document.querySelectorAll('section.collapsible h2').forEach(h=>{
+   const id=h.closest('section').id;
+   h.innerHTML=secMap[id]+' <span class="toggle"></span>';
+ });
+ const navItems=document.querySelectorAll('.index-item');
+ const navTxt=[t('pools')+' (3)',t('sports')+' (9)',t('tennis')+' (6)',t('football')+' (2)',t('other')];
+ navItems.forEach((el,i)=>{ if(navTxt[i]) el.textContent=navTxt[i]; });
+ renderFooter();
+ document.querySelectorAll('.card').forEach(c=>c.classList.toggle('collapsed',c.classList.contains('collapsed')));
+ renderAll();
+}));
+</script>
 </body>
 </html>
