@@ -251,9 +251,9 @@ function inMaintenance(m, now){
 function officialLink(url,labelKey){return url?`<a href="${url}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:12px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:.78rem;color:#1e3a8a;text-decoration:none">${t(labelKey)}</a>`:'';}
 
 const POOLS=[
-{id:"ktswim",name:"觀塘游泳池",address:"九龍觀塘翠屏道2號",addrEn:"2 Tsui Ping Road, Kwun Tong, Kowloon",addrCn:"九龙观塘翠屏道2号",phone:"2717 9022 / 2347 8140",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=18",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"三",fallback:"五"},maintenance:[{pool:"戶外泳池",start:"11/1",end:"4/15",nextYear:true},{pool:"室內泳池",start:"1/2",end:"2/21",nextYear:false}]},
-{id:"ltswim",name:"藍田游泳池",address:"九龍藍田",addrEn:"Lam Tin, Kowloon",addrCn:"九龙蓝田",phone:"",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=19",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"四",fallback:"一"},maintenance:[{pool:"全場",start:"4/16",end:"6/5",nextYear:false}]},
-{id:"jvswim",name:"佐敦谷游泳池",address:"九龍佐敦谷",addrEn:"Jordan Valley, Kowloon",addrCn:"九龙佐敦谷",phone:"",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=20",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"二",fallback:"四"},maintenance:[{pool:"全場",start:"11/1",end:"3/31",nextYear:true}]}
+{id:"ktswim",name:"觀塘游泳池",address:"九龍觀塘翠屏道2號",addrEn:"2 Tsui Ping Road, Kwun Tong, Kowloon",addrCn:"九龙观塘翠屏道 2 号",phone:"2717 9022 / 2347 8140",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=18",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"三",fallback:"五"},maintenance:[{pool:"戶外泳池",start:"11/1",end:"4/15",nextYear:true},{pool:"室內泳池",start:"1/2",end:"2/21",nextYear:false}],closures:[{date:"2026/09/11",time:"07:30 - 16:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"},{date:"2026/09/12",time:"07:30 - 15:00",pools:"主池",reason:"游泳比賽",poolsEn:"Main pool",reasonEn:"Competition"},{date:"2026/09/15",time:"07:30 - 15:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"},{date:"2026/09/18",time:"07:30 - 15:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"},{date:"2026/09/19",time:"07:30 - 15:00",pools:"主池",reason:"游泳比賽",poolsEn:"Main pool",reasonEn:"Competition"},{date:"2026/09/22",time:"07:30 - 15:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"},{date:"2026/09/25",time:"07:30 - 16:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"},{date:"2026/09/28",time:"07:30 - 16:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"},{date:"2026/09/29",time:"07:30 - 14:00",pools:"主池",reason:"學校水運會",poolsEn:"Main pool",reasonEn:"School Swimming Gala"}],facilities:[{name:"主池",spec:"50.03米 x 25米，水深 1.4-1.9米",status:"open"},{name:"訓練池",spec:"25米 x 30米，水深 1.2米",status:"open"},{name:"副池",spec:"50米 x 21米，水深 1.1-1.4米",status:"open"},{name:"習泳池 1&2",spec:"25米 x 12.5米，水深 0.7-0.9米",status:"open"},{name:"日光浴場",spec:"戶外",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}},
+{id:"ltswim",name:"藍田游泳池",address:"九龍藍田",addrEn:"Lam Tin, Kowloon",addrCn:"九龙蓝田",phone:"",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=19",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"四",fallback:"一"},maintenance:[{pool:"全場",start:"4/16",end:"6/5",nextYear:false}],facilities:[{name:"主池",spec:"標準游泳池",status:"open"},{name:"副池",spec:"標準游泳池",status:"open"},{name:"習泳池",spec:"標準游泳池",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}},
+{id:"jvswim",name:"佐敦谷游泳池",address:"九龍佐敦谷",addrEn:"Jordan Valley, Kowloon",addrCn:"九龙佐敦谷",phone:"",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=20",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],cleaning:{day:"二",fallback:"四"},maintenance:[{pool:"全場",start:"11/1",end:"3/31",nextYear:true}],facilities:[{name:"主池",spec:"標準游泳池",status:"open"},{name:"副池",spec:"標準游泳池",status:"open"},{name:"習泳池",spec:"標準游泳池",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}}
 ];
 
 const SPORTS_CENTRES=[
@@ -295,27 +295,43 @@ const OTHER_FACILITIES=[
 
 function renderPools(){
  const now=hkNow(), nm=hkMinutes(now);
+ const FSTATUS={open:{t:t('open'),c:'open'},maintenance:{t:t('maint'),c:'done'},closed:{t:t('closed_today'),c:'suspended'}};
+ const todayStr=now.toISOString().slice(0,10).replace(/-/g,'/');
  return POOLS.map(f=>{
    let st = facilityOverallStatus(f.sessions, nm);
+   // 今天及未來的暫停開放公告
    let closureHtml='';
+   if(f.closures){
+     closureHtml=f.closures.filter(c=>{if(c.date>todayStr)return true;if(c.date!==todayStr)return false;const cr=parseRange(c.time);return cr&&nm<cr.end}).map(c=>{
+     const p=currentLang==='en'?(c.poolsEn||c.pools):c.pools;
+     const r=currentLang==='en'?(c.reasonEn||c.reason):c.reason;
+     return `<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('closure')}（${c.date} ${c.time}）：${p} — ${t('closureReason')} ${r}</div>`
+     }).join('');
+   }
+   // 今日清潔日提示
    if(f.cleaning&&isCleaningDay(f.cleaning, now)){
      closureHtml+=`<div class="notice" style="background:#e0e7ff;border-color:#c7d2fe;color:#3730a3">🧹 ${t('cleaningDay')}（${f.cleaning.day}${f.cleaning.fallback?' → '+f.cleaning.fallback:''}）</div>`;
-   }
-   if(f.maintenance){
-     f.maintenance.forEach(m=>{
-       if(inMaintenance(m,now)){
-         closureHtml+=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('maint')}：${m.pool} (${m.start} - ${m.end})</div>`;
-         if(st.cls==="status-open"||st.cls==="status-upcoming") st={text:t('maint'),cls:"status-maint"};
-       }
-     });
    }
    let sessions=f.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
-     return `<div class="session"><span class="session-time">${s}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+     return `<div class="session"><span class="session-time">${trSession(s,currentLang)} ${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   }).join("");
+   let subPools=poolSubStatuses(f, todayStr, now);
+   // Dynamic partial status: some facilities closed → partially open
+   const subClosed=subPools.filter(x=>x.status==='closed').length;
+   if(subClosed>0 && subClosed<subPools.length) st={text:t('partial'),cls:"status-partial"};
+   else if(subClosed===subPools.length) st={text:t('closed_today'),cls:"status-suspended"};
+   // ponytail: 如果整體設施已休館（所有時段已結束），子池都應顯示休館，唔好顯示營運中
+   if(st.cls==="status-closed"||st.cls==="status-suspended"){
+     subPools=subPools.map(x=>({...x, status:'closed', note:x.note||t('closedNote')}));
+   }
+   let pools=subPools.map(x=>{
+     let fs=FSTATUS[x.status]||FSTATUS.closed;
+     return `<div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="display:flex;justify-content:space-between;width:100%;align-items:center"><span class="detail-label">${tl('pool',x.name)} <small style="color:#94a3b8">${x.spec}</small></span><span class="session-status ${fs.c}">${fs.t}</span></div>${x.note?`<small style="color:#92400e;font-size:.75rem;text-align:right;width:100%">${tl('note',x.note)}</small>`:''}</div>`
    }).join("");
    let official=officialLink(f.officialUrl,'view');
-   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours')}</div>${sessions}</div>${closureHtml}${official}</div></div>`
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body">${pools}<div class="schedule-section"><div class="schedule-title">${t('hours')}</div>${sessions}</div>${closureHtml}${official}</div></div>`
  }).join("");
 }
 
