@@ -225,6 +225,24 @@ def main():
             if dm:
                 xlsx_date = f"{dm.group(1)}年{dm.group(2)}月"
 
+        # Extract file modified date from XLSX internal metadata (docProps/core.xml)
+        xlsx_file_date = ""
+        try:
+            import zipfile
+            with zipfile.ZipFile(xlsx_path) as zf:
+                if 'docProps/core.xml' in zf.namelist():
+                    core_xml = zf.read('docProps/core.xml').decode('utf-8', errors='ignore')
+                    # Look for dcterms:modified or created
+                    mod_match = re.search(r'<dcterms:modified[^>]*>([^<]+)</dcterms:modified>', core_xml)
+                    if mod_match:
+                        # Parse ISO format like 2026-08-29T10:30:00Z
+                        raw = mod_match.group(1).strip()
+                        dt_match = re.match(r'(\d{4})-(\d{2})-(\d{2})', raw)
+                        if dt_match:
+                            xlsx_file_date = f"{dt_match.group(1)}-{dt_match.group(2)}-{dt_match.group(3)}"
+        except Exception:
+            pass
+
         tomorrow_day = today_day + 1
         # Check if tomorrow exceeds current month's days
         import calendar
@@ -312,6 +330,7 @@ def main():
             "noticeUrl": f"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?fid={FID}",
             "xlsxUrl": f"{BASE_URL}/{FID}_{now_hkt.strftime('%Y%m')}.xlsx",
             "xlsxDate": xlsx_date,
+            "xlsxFileDate": xlsx_file_date,
         }
 
         with open(JSON_PATH, "w", encoding="utf-8") as f:
