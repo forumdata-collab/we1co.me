@@ -126,6 +126,7 @@ let severeWarnings=[];
 <div class="container">
 <div class="index-grid" id="quickNav">
 <a href="#swim" class="index-item">🏊 泳池 (3)</a>
+<a href="#playroom" class="index-item">🎮 兒童遊戲室 (4)</a>
 <a href="#sports" class="index-item">🏟️ 體育館 (9)</a>
 <a href="#tennis" class="index-item">🎾 網球場 (6)</a>
 <a href="#football" class="index-item">⚽ 足球場 (2)</a>
@@ -133,6 +134,7 @@ let severeWarnings=[];
 </div>
 
 <section id="swim" class="collapsible"><h2 class="section-title" onclick="toggleSection('swim')">🏊 游泳池 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="pools"></div></div></section>
+<section id="playroom" class="collapsible"><h2 class="section-title" onclick="toggleSection('playroom')">🎮 兒童遊戲室 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="playrooms"></div></div></section>
 <section id="sports" class="collapsible"><h2 class="section-title" onclick="toggleSection('sports')">🏟️ 體育館 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="sports-centres"></div></div></section>
 <section id="tennis" class="collapsible"><h2 class="section-title" onclick="toggleSection('tennis')">🎾 網球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="tennis-courts"></div></div></section>
 <section id="football" class="collapsible"><h2 class="section-title" onclick="toggleSection('football')">⚽ 足球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="football-pitches"></div></div></section>
@@ -171,7 +173,7 @@ const NAME_L10N={
  "tc-slp":{zh:"順利邨公園網球場",en:"Shun Lee Estate Park Tennis Court",cn:"顺利邨公园网球场"},
  "fp-art":{zh:"人造草地足球場",en:"Artificial Turf Football Pitch",cn:"人造草地足球场"},
  "fp-nat":{zh:"天然草地足球場",en:"Natural Grass Football Pitch",cn:"天然草地足球场"}
-};
+,"playroom-kt-cwr":{zh:"彩榮路體育館兒童遊戲室",en:"Choi Wing Road Sports CentrePlayroom",cn:"彩榮路体育馆儿童游戏室"},"playroom-kt-lts":{zh:"藍田（南）體育館兒童遊戲室",en:"Lam Tin (South) Sports CentrePlayroom",cn:"蓝田（南）体育馆儿童游戏室"},"playroom-kt-lym":{zh:"鯉魚門體育館兒童遊戲室",en:"Lei Yue Mun Sports CentrePlayroom",cn:"鲤鱼门体育馆儿童游戏室"},"playroom-kt-slb":{zh:"順利邨體育館兒童遊戲室",en:"Shun Lee Estate Sports CentrePlayroom",cn:"顺利邨体育馆儿童游戏室"}};
 let currentLang='zh';
 const t=k=>I18N[currentLang][k]||I18N.zh[k]||k;
 const lname=id=>(NAME_L10N[id]&&NAME_L10N[id][currentLang])||id;
@@ -340,6 +342,13 @@ const POOLS=[
 {id:"jvswim",name:"佐敦谷游泳池",address:"九龍牛頭角彩霞道6號",addrEn:"Jordan Valley, Kowloon",addrCn:"九龙佐敦谷",phone:"2305 5919, 2305 5920",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=17",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],closures:[{"date": "2026/09/01", "time": "06:30 - 12:00", "pools": "嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}, {"date": "2026/09/01", "time": "13:00 - 18:00", "pools": "訓練池 , 嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Training Pool, Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}, {"date": "2026/09/01", "time": "19:00 - 22:00", "pools": "嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}],maintenance:[{"pool": "全場", "start": "11/1", "end": "3/31", "nextYear": true}],cleaning:{"day": "二", "fallback": "四"},facilities:[{name:"訓練池",spec:"25米 x 11米，水深 1-1.4米",status:"open"},{name:"嬉水池 1",spec:"不規則形狀，水深 0.6米",status:"open"},{name:"嬉水池 2&3",spec:"不規則形狀，水深 0.2-0.6米",status:"open"},{name:"嬉水池 4",spec:"不規則形狀，水深 0.2-0.3米",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}},
 ];
 
+const PLAYROOMS=[
+{id:"playroom-kt-cwr",name:"彩榮路體育館兒童遊戲室",address:"九龍觀塘彩榮路58號",addrEn:"58 Choi Wing Road, Kwun Tong",addrCn:"九龙观塘彩荣路58号",theme:"動物王國",area:"350m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=6&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:00 - 11:45","中午 12:00 - 12:45","下午 13:30 - 14:15","下午 14:30 - 15:15","下午 15:30 - 16:15","下午 16:30 - 17:15","晚上 18:00 - 18:45","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第一及第三個星期一 09:00-15:00)首節改 15:30"},
+{id:"playroom-kt-lts",name:"藍田（南）體育館兒童遊戲室",address:"九龍觀塘藍田碧雲道170號",addrEn:"170 Pik Wan Road, Lam Tin, Kwun Tong",addrCn:"九龙观塘蓝田碧云道170号",theme:"天空",area:"130m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=6&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:00 - 11:45","中午 12:00 - 12:45","下午 13:30 - 14:15","下午 14:30 - 15:15","下午 15:30 - 16:15","下午 16:30 - 17:15","晚上 18:00 - 18:45","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第二及第四個星期三 09:00-15:00)首節改 15:30"},
+{id:"playroom-kt-lym",name:"鯉魚門體育館兒童遊戲室",address:"九龍油塘鯉魚門徑6號鯉魚門市政大廈2樓",addrEn:"2/F, Lei Yue Mun Municipal Services Building, 6 Lei Yue Mun Path, Yau Tong",addrCn:"九龙油塘鲤鱼门径6号鲤鱼门市政大厦2楼",theme:"海洋世界",area:"150m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=6&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:00 - 11:45","中午 12:00 - 12:45","下午 13:00 - 13:45","下午 14:30 - 15:15","下午 15:30 - 16:15","下午 16:30 - 17:15","晚上 17:30 - 18:15","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第二及第四個星期一 09:00-15:00)首節改 15:30"},
+{id:"playroom-kt-slb",name:"順利邨體育館兒童遊戲室",address:"九龍觀塘順利邨道33號",addrEn:"33 Shun Lee Estate Road, Kwun Tong",addrCn:"九龙观塘顺利邨道33号",theme:"森林",area:"167m²",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=6&fcid=",sessions:["早上 9:00 - 9:45","早上 10:00 - 10:45","早上 11:00 - 11:45","中午 12:00 - 12:45","下午 13:00 - 13:45","下午 14:30 - 15:15","下午 15:30 - 16:15","下午 16:30 - 17:15","晚上 17:30 - 18:15","晚上 19:00 - 19:45","晚上 20:00 - 20:45","晚上 21:00 - 21:45"],note:"保養日(每月第一及第三個星期一 09:00-15:00)首節改 15:30"}
+];
+
 const SPORTS_CENTRES=[
 {id:"sc-cwr",name:"彩榮路體育館",address:"觀塘彩榮路58號",addrEn:"58 Choi Wing Road, Kwun Tong",addrCn:"观塘彩荣路58号",phone:"2721 5918",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"},
 {id:"sc-chd",name:"振華道體育館",address:"牛頭角振華道50號樂雅苑停車場頂樓",addrEn:"R/F, Lok Nga Court Carpark, 50 Chun Wah Road, Ngau Tau Kok",addrCn:"牛头角振华道50号乐雅苑停车场顶楼",phone:"2318 1767",sessions:["07:00 - 23:00"],maintNote:"每月第1及第3個星期一 09:00–15:00"},
@@ -425,6 +434,23 @@ function renderPools(){
  }).join("");
 }
 
+function renderPlayrooms(){
+ const now=hkNow(), nm=hkMinutes(now);
+ return PLAYROOMS.map(p=>{
+   let maint=parseMaintNote(p.note);
+   let isMaint=isMaintDay(maint);
+   let maintNow=isMaint && nm < maint.shift;
+   let st=maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
+   let html=p.sessions.map(s=>{
+     let r=parseRange(s);
+     let ss=sessionStatus(r,nm);
+     if(isMaint && r && r.start<maint.shift){ss={text:t('maint'),cls:'maint'};}
+     return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   }).join("");
+   let official=officialLink(p.officialUrl,'view');
+   return `<div class="card collapsed" id="${p.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(p.id)}</div><div class="facility-address">${addr(p)} · ${tl('pool',p.theme)} · ${p.area}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours45')}</div>${html}</div><div class="notice">${tl('note',p.note)}</div>${official}</div></div>`
+ }).join("");
+}
 function renderSportsCentres(){
  const now=hkNow(), nm=hkMinutes(now);
  return SPORTS_CENTRES.map(f=>{
@@ -467,6 +493,7 @@ function renderOtherFacilities(){
 
 function renderAll(){
  document.getElementById('pools').innerHTML=renderPools();
+ document.getElementById('playrooms').innerHTML=renderPlayrooms();
  document.getElementById('sports-centres').innerHTML=renderSportsCentres();
  document.getElementById('tennis-courts').innerHTML=renderTennisCourts();
  document.getElementById('football-pitches').innerHTML=renderFootballPitches();
@@ -492,7 +519,7 @@ function toggleSection(id){
 setInterval(()=>{renderAll()},60000);
 renderAll();
 
-const LAST_UPDATE='2026-08-30 20:39';
+const LAST_UPDATE='2026-08-30 21:15';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 
 function updateSyncAgo(){
