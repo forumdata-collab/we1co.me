@@ -508,13 +508,13 @@ function renderOtherFacilities(){
 }
 
 function renderAll(){
- document.getElementById('pools').innerHTML=renderPools();
- document.getElementById('playrooms').innerHTML=renderPlayrooms();
- document.getElementById('sports-centres').innerHTML=renderSportsCentres();
- document.getElementById('tennis-courts').innerHTML=renderTennisCourts();
- document.getElementById('cycling-tracks').innerHTML=renderCyclingTracks();
- document.getElementById('football-pitches').innerHTML=renderFootballPitches();
- document.getElementById('other-facilities').innerHTML=renderOtherFacilities();
+ try{document.getElementById('pools').innerHTML=renderPools();}catch(e){console.error('renderPools',e);}
+ try{document.getElementById('playrooms').innerHTML=renderPlayrooms();}catch(e){console.error('renderPlayrooms',e);}
+ try{document.getElementById('sports-centres').innerHTML=renderSportsCentres();}catch(e){console.error('renderSportsCentres',e);}
+ try{document.getElementById('tennis-courts').innerHTML=renderTennisCourts();}catch(e){console.error('renderTennisCourts',e);}
+ try{document.getElementById('cycling-tracks').innerHTML=renderCyclingTracks();}catch(e){console.error('renderCyclingTracks',e);}
+ try{document.getElementById('football-pitches').innerHTML=renderFootballPitches();}catch(e){console.error('renderFootballPitches',e);}
+ try{document.getElementById('other-facilities').innerHTML=renderOtherFacilities();}catch(e){console.error('renderOtherFacilities',e);}
  updateClock();
 }
 

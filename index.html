@@ -577,9 +577,9 @@ function renderRVM(){
  return `<div class="rvm-card"><div class="rvm-grid">${items}</div><div class="rvm-sync">${t('sync')}：${syncTime}</div><div style="text-align:center;margin-top:8px"><a href="https://www.hkrvms3.com.hk/hk/" target="_blank" rel="noopener" style="font-size:.75rem;color:#1e3a8a;text-decoration:underline">hkrvms3.com.hk — 入樽機官方地圖 ↗</a></div></div>`;
 }
 function renderAll(){
- document.getElementById('facilities').innerHTML=renderPools();
+ try{document.getElementById('facilities').innerHTML=renderPools();}catch(e){console.error('renderPools',e);}
  document.getElementById('sportground-grid').innerHTML=renderSportGround();
- document.getElementById('playrooms').innerHTML=renderPlayrooms();
+ try{document.getElementById('playrooms').innerHTML=renderPlayrooms();}catch(e){console.error('renderPlayrooms',e);}
  document.getElementById('libraries').innerHTML=renderLibraries();
  document.getElementById('rvm-facilities').innerHTML=renderRVM();
  updateClock();
@@ -601,7 +601,7 @@ function toggleSection(id){
 setInterval(()=>{renderAll()},60000);
 loadRVM();loadSportGround();
 // LAST_UPDATE is a static timestamp overwritten by lcsd_closures.py on each auto-sync
-const LAST_UPDATE='2026-08-30 20:39';
+const LAST_UPDATE='2026-08-30 21:15';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 // Live "X分鐘前同步"
 function updateSyncAgo(){
