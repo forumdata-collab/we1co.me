@@ -17,5 +17,5 @@ sport_grounds:
 rvm:
   filter: {area: "NEW_TERRITORIES", district: "SAI KUNG"}
   names: [彩明商場, 新都城中心三期, PopCorn, 寶林商場, The_LOHAS, TKO_Spot, 怡明邨, 海悅豪園商場]
-cron: "15,20,25 7 * * *" # 每日一次，07:15/20/25 錯峰
+cron: "15,20,25 6,9,12,15,18,21 * * *" # 3 scrapers staggered 防 burst WAF
 cf_proxy: lcsd-proxy.forumdata.workers.dev # Anycast 隱藏 VM 固定 IP

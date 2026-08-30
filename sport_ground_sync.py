@@ -124,8 +124,8 @@ def parse_notices(ws):
     return notices
 
 
-def get_current_status(timetable, dates, notices, today_day):
-    """Get status for each time slot today based on A/L/B/M codes."""
+def get_current_status(timetable, dates, notices, day_num):
+    """Get status for each time slot for given day based on A/L/B/M codes."""
     now_hkt = datetime.now(timezone(timedelta(hours=8)))
     current_minutes = now_hkt.hour * 60 + now_hkt.minute
 
@@ -135,14 +135,12 @@ def get_current_status(timetable, dates, notices, today_day):
         time_slot_clean = time_slot.strip()
         m = re.match(r"(\d{2}):(\d{2})\s*-\s*(\d{2}):(\d{2})", time_slot_clean)
         if not m:
-            # Debug: log unparseable slots
-            print(f"  warn: cannot parse time slot '{time_slot}'", file=sys.stderr)
             continue
         sh, sm, eh, em = int(m.group(1)), int(m.group(2)), int(m.group(3)), int(m.group(4))
         start_min = sh * 60 + sm
         end_min = eh * 60 + em
 
-        code = day_codes.get(today_day, "")
+        code = day_codes.get(day_num, "")
         status = STATUS_MAP.get(code, {"en": "Unknown", "zh": "未知"})
 
         # Check if in current time window
@@ -219,36 +217,61 @@ def main():
         sec_timetable, sec_dates = parse_timetable(sec_ws)
         notices = parse_notices(notice_ws) if notice_ws else []
 
+        # Extract XLSX date from sheet title (e.g. "2026年8月")
+        title_cell = main_ws['B1']
+        xlsx_date = ""
+        if title_cell.value:
+            dm = re.search(r"(\d{4})年(\d{1,2})月", str(title_cell.value))
+            if dm:
+                xlsx_date = f"{dm.group(1)}年{dm.group(2)}月"
+
+        tomorrow_day = today_day + 1
+        # Check if tomorrow exceeds current month's days
+        import calendar
+        now_hkt = datetime.now(timezone(timedelta(hours=8)))
+        days_in_month = calendar.monthrange(now_hkt.year, now_hkt.month)[1]
+        if tomorrow_day > days_in_month:
+            tomorrow_day = 1  # wrap to next month (day 1)
+
+        # Today
         main_status, main_closures = get_current_status(main_timetable, main_dates, notices, today_day)
         sec_status, sec_closures = get_current_status(sec_timetable, sec_dates, notices, today_day)
 
-        # Determine overall status
-        all_codes_main = set(d.get(str(today_day), "") for d in main_timetable.values())
-        all_codes_sec = set(d.get(str(today_day), "") for d in sec_timetable.values())
-        all_codes = all_codes_main | all_codes_sec
+        # Tomorrow
+        main_status_tm, _ = get_current_status(main_timetable, main_dates, notices, tomorrow_day)
+        sec_status_tm, _ = get_current_status(sec_timetable, sec_dates, notices, tomorrow_day)
 
-        if "A" in all_codes and "M" not in all_codes:
-            overall = "open"
-        elif "A" in all_codes and "M" in all_codes:
-            overall = "partial"
-        elif all_codes <= {"B", "M", ""}:
+        # Overall: any A today → partial if mixed, else open
+        all_codes_main = set(d.get(today_day, "") for d in main_timetable.values())
+        all_codes_sec = set(d.get(today_day, "") for d in sec_timetable.values())
+        all_codes = all_codes_main | all_codes_sec
+        all_codes.discard("")
+        if not all_codes:
+            overall = "unknown"
+        elif "A" in all_codes or "L" in all_codes:
+            overall = "partial" if len(all_codes) > 1 else "open"
+        elif "B" in all_codes or "M" in all_codes:
             overall = "closed"
         else:
             overall = "unknown"
 
-        hkt = timezone(timedelta(hours=8))
-        sync_time = datetime.now(hkt).strftime("%Y-%m-%d %H:%M")
+        sync_time = datetime.now(now_hkt.tzinfo).strftime("%Y-%m-%d %H:%M")
 
         result = {
             "lastSync": sync_time,
             "today": today_day,
             "todayDate": date.today().strftime("%Y/%m/%d"),
+            "tomorrow": tomorrow_day,
+            "tomorrowDate": (now_hkt + timedelta(days=1)).strftime("%Y/%m/%d"),
             "overall": overall,
             "mainField": main_status,
             "secondaryField": sec_status,
-            "closures": main_closures,  # closures already include both fields
+            "mainFieldTomorrow": main_status_tm,
+            "secondaryFieldTomorrow": sec_status_tm,
+            "closures": main_closures,
             "noticeUrl": f"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?fid={FID}",
-            "xlsxUrl": f"{BASE_URL}/{FID}_{date.today().strftime('%Y%m')}.xlsx",
+            "xlsxUrl": f"{BASE_URL}/{FID}_{now_hkt.strftime('%Y%m')}.xlsx",
+            "xlsxDate": xlsx_date,
         }
 
         with open(JSON_PATH, "w", encoding="utf-8") as f:
