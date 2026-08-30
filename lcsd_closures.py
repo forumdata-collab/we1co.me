@@ -15,12 +15,33 @@ import subprocess
 import urllib.request
 from datetime import date, datetime, timezone, timedelta
 
-POOLS = {"tkoswim": 35, "ktswim": 18}
-HTML_PATH = "/home/ubuntu/we1co.me/index.html"
+POOLS = {"tkoswim": 35, "ktswim": 18, "ltswim": 19, "jvswim": 20}
+HTML_PATHS = ["/home/ubuntu/we1co.me/index.html", "/home/ubuntu/we1co.me/kt.html"]
+HTML_PATH = HTML_PATHS[0]  # backward compat for external imports
 UA = {"User-Agent": "Mozilla/5.0 (compatible; LCSD-closure-bot/1.0)"}
 
 
+import time, random, urllib.parse
+CF_PROXY = "https://lcsd-proxy.forumdata.workers.dev/?url="
+def _cf_token():
+    t = os.environ.get("CF_PROXY_TOKEN", "")
+    if t: return t
+    for p in ["/home/ubuntu/.config/lcsd_proxy_token", "/tmp/cf_proxy_token.txt"]:
+        try:
+            with open(p) as f: return f.read().strip()
+        except: pass
+    return ""
 def fetch(url):
+    # ponytail: CF Anycast IP 隱藏 VM 固定 IP + 600s cache 降頻；fallback 直連防單點
+    tok = _cf_token()
+    if tok:
+        try:
+            proxied = CF_PROXY + urllib.parse.quote(url, safe='')
+            req = urllib.request.Request(proxied, headers={**UA, "x-proxy-token": tok})
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return r.read().decode("utf-8", errors="ignore")
+        except Exception:
+            pass
     req = urllib.request.Request(url, headers=UA)
     with urllib.request.urlopen(req, timeout=30) as r:
         return r.read().decode("utf-8", errors="ignore")
@@ -161,38 +182,42 @@ def pool_data(swp_id):
 
 
 def patch_html(all_data):
-    with open(HTML_PATH, encoding="utf-8") as f:
+    for html_path in HTML_PATHS:
+      if not os.path.exists(html_path):
+        continue
+      with open(html_path, encoding="utf-8") as f:
         html = f.read()
-    for pool_id, data in all_data.items():
+      patched_any = False
+      for pool_id, data in all_data.items():
         start = html.find(f'id:"{pool_id}"')
         if start < 0:
-            raise RuntimeError(f"找不到 {pool_id} 的資料區塊")
+          continue
         c_start = html.find("closures:", start)
         if c_start < 0:
-            raise RuntimeError(f"找不到 {pool_id} 的 closures")
-        # 讀取完整 JSON 值（[ ] 或 { } 開頭），容忍雙重包裝
+          continue
         pos = c_start + len("closures:")
         ch = html[pos]
         depth, i = 1, pos + 1
         while depth > 0 and i < len(html):
-            if html[i] == ch: depth += 1
-            elif html[i] == ("]" if ch == "[" else "}"): depth -= 1
-            i += 1
-        # 扁平化：closures:[...],maintenance:[...],cleaning:{...}
+          if html[i] == ch: depth += 1
+          elif html[i] == ("]" if ch == "[" else "}"): depth -= 1
+          i += 1
         flat = (
-            "closures:" + json.dumps(data["closures"], ensure_ascii=False)
-            + ",maintenance:" + json.dumps(data.get("maintenance", []), ensure_ascii=False)
-            + ",cleaning:" + json.dumps(data.get("cleaning"), ensure_ascii=False)
+          "closures:" + json.dumps(data["closures"], ensure_ascii=False)
+          + ",maintenance:" + json.dumps(data.get("maintenance", []), ensure_ascii=False)
+          + ",cleaning:" + json.dumps(data.get("cleaning"), ensure_ascii=False)
         )
         html = html[:c_start] + flat + html[i:]
-    # Update LAST_UPDATE timestamp (HKT)
-    hkt = timezone(timedelta(hours=8))
-    sync_time = datetime.now(hkt).strftime('%Y-%m-%d %H:%M')
-    html = re.sub(r"const LAST_UPDATE='[^']*'", f"const LAST_UPDATE='{sync_time}'", html)
-    with open(HTML_PATH, "w", encoding="utf-8") as f:
-        f.write(html)
+        patched_any = True
+      if patched_any:
+        hkt = timezone(timedelta(hours=8))
+        sync_time = datetime.now(hkt).strftime('%Y-%m-%d %H:%M')
+        html = re.sub(r"const LAST_UPDATE='[^']*'", f"const LAST_UPDATE='{sync_time}'", html)
+        with open(html_path, "w", encoding="utf-8") as f:
+          f.write(html)
+        print(f"Patched {os.path.basename(html_path)}")
     for pool_id, data in all_data.items():
-        print(f"{pool_id}: {len(data['closures'])} 公告, {len(data['maintenance'])} 維修, 清潔日={data['cleaning']}")
+      print(f"{pool_id}: {len(data['closures'])} 公告, {len(data['maintenance'])} 維修, 清潔日={data['cleaning']}")
 
 
 def deploy():
@@ -213,7 +238,11 @@ def deploy():
 
 if __name__ == "__main__":
     try:
-        all_data = {pid: pool_data(swp) for pid, swp in POOLS.items()}
+        all_data = {}
+        for pid, swp in POOLS.items():
+            all_data[pid] = pool_data(swp)
+            if pid != list(POOLS.keys())[-1]:
+                time.sleep(random.uniform(0.8, 2.5))
         patch_html(all_data)
         if "--deploy" in sys.argv:
             deploy()
