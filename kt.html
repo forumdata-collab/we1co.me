@@ -398,6 +398,10 @@ function renderPools(){
    if(f.cleaning&&isCleaningDay(f.cleaning, now)){
      closureHtml+=`<div class="notice" style="background:#e0e7ff;border-color:#c7d2fe;color:#3730a3">🧹 ${t('cleaningDay')}（${f.cleaning.day}${f.cleaning.fallback?' → '+f.cleaning.fallback:''}）</div>`;
    }
+   // 惡劣天氣警示（八號風球以上 / 黑雨）
+   if(severeWarnings.length){
+     closureHtml+=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${severeWarnings.join('、')} — ${currentLang==='en'?'Pool may close':currentLang==='cn'?'泳池可能暫停開放':'泳池可能暫停開放'}</div>`;
+   }
    let sessions=f.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
