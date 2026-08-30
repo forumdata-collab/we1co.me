@@ -241,12 +241,51 @@ def main():
         main_status_tm, _ = get_current_status(main_timetable, main_dates, notices, tomorrow_day)
         sec_status_tm, _ = get_current_status(sec_timetable, sec_dates, notices, tomorrow_day)
 
-        # Overall: any A today → partial if mixed, else open
+        # Maintenance overrides — ponytail: hardcode fid=1060 weekly closure
+        # Correct weekday: Mon=0 ... Sun=6 in Python
+        _wd = now_hkt.weekday()
+        is_main_maint = _wd == 0
+        is_sec_maint = _wd == 4
+        # Force M code on maintenance days (overrides XLSX in case of stale/missing data)
+        if is_main_maint:
+            for s in main_status:
+                s["code"] = "M"
+                s["status_zh"] = "關閉"
+                s["status_en"] = "Closed"
+                s["is_current"] = False
+        if is_sec_maint:
+            for s in sec_status:
+                s["code"] = "M"
+                s["status_zh"] = "關閉"
+                s["status_en"] = "Closed"
+                s["is_current"] = False
+        # Also check tomorrow's maintenance for tomorrow slots
+        _wd_tom = (now_hkt + timedelta(days=1)).weekday()
+        if _wd_tom == 0:
+            for s in main_status_tm:
+                s["code"] = "M"
+                s["status_zh"] = "關閉"
+                s["status_en"] = "Closed"
+        if _wd_tom == 4:
+            for s in sec_status_tm:
+                s["code"] = "M"
+                s["status_zh"] = "關閉"
+                s["status_en"] = "Closed"
+        # Overall: maintenance forces closed for that field, mixed → partial
         all_codes_main = set(d.get(today_day, "") for d in main_timetable.values())
         all_codes_sec = set(d.get(today_day, "") for d in sec_timetable.values())
+        # Override with maintenance
+        if is_main_maint:
+            all_codes_main = {"M"}
+        if is_sec_maint:
+            all_codes_sec = {"M"}
         all_codes = all_codes_main | all_codes_sec
         all_codes.discard("")
-        if not all_codes:
+        if is_main_maint and is_sec_maint:
+            overall = "closed"
+        elif is_main_maint or is_sec_maint:
+            overall = "partial"
+        elif not all_codes:
             overall = "unknown"
         elif "A" in all_codes or "L" in all_codes:
             overall = "partial" if len(all_codes) > 1 else "open"
@@ -269,6 +308,7 @@ def main():
             "mainFieldTomorrow": main_status_tm,
             "secondaryFieldTomorrow": sec_status_tm,
             "closures": main_closures,
+            "maintenance": {"main": "逢星期一", "sec": "逢星期五"},
             "noticeUrl": f"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?fid={FID}",
             "xlsxUrl": f"{BASE_URL}/{FID}_{now_hkt.strftime('%Y%m')}.xlsx",
             "xlsxDate": xlsx_date,
