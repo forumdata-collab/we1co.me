@@ -1,5 +1,5 @@
 {
-  "lastSync": "2026-08-30 15:25",
+  "lastSync": "2026-08-30 18:25",
   "today": 30,
   "todayDate": "2026/08/30",
   "tomorrow": 31,
@@ -130,7 +130,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "15:30 - 16:00",
@@ -172,7 +172,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": false
+      "is_current": true
     },
     {
       "time": "18:30 - 19:00",
@@ -356,7 +356,7 @@
       "code": "M",
       "status_zh": "關閉",
       "status_en": "Closed",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "15:30 - 16:00",
@@ -398,7 +398,7 @@
       "code": "M",
       "status_zh": "關閉",
       "status_en": "Closed",
-      "is_current": false
+      "is_current": true
     },
     {
       "time": "18:30 - 19:00",
@@ -582,7 +582,7 @@
       "code": "M",
       "status_zh": "關閉",
       "status_en": "Closed",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "15:30 - 16:00",
@@ -607,79 +607,79 @@
     },
     {
       "time": "17:00 - 17:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "17:30 - 18:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "18:00 - 18:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
-      "is_current": false
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
+      "is_current": true
     },
     {
       "time": "18:30 - 19:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "19:00 - 19:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "19:30 - 20:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "20:00 - 20:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "20:30 - 21:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "21:00 - 21:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "21:30 - 22:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "22:00 - 22:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     }
   ],
@@ -808,7 +808,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "15:30 - 16:00",
@@ -850,7 +850,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": false
+      "is_current": true
     },
     {
       "time": "18:30 - 19:00",

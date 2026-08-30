@@ -15,7 +15,7 @@ import subprocess
 import urllib.request
 from datetime import date, datetime, timezone, timedelta
 
-POOLS = {"tkoswim": 35, "ktswim": 18, "ltswim": 19, "jvswim": 20}
+POOLS = {"tkoswim": 35, "ktswim": 18, "ltswim": 42, "jvswim": 17}
 HTML_PATHS = ["/home/ubuntu/we1co.me/index.html", "/home/ubuntu/we1co.me/kt.html"]
 HTML_PATH = HTML_PATHS[0]  # backward compat for external imports
 UA = {"User-Agent": "Mozilla/5.0 (compatible; LCSD-closure-bot/1.0)"}
