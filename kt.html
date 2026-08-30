@@ -248,6 +248,36 @@ function inMaintenance(m, now){
   return false;
 }
 
+// poolSubStatuses: 根據閉館公告 + 每年維修 + 清潔日 推導子設施狀態
+function poolSubStatuses(f, todayStr, now){
+  let closedSet=new Set();
+  const nm=hkMinutes(now);
+  if(f.closures){
+    f.closures.filter(c=>c.date===todayStr).forEach(c=>{
+      const r=parseRange(c.time);
+      if(r && nm>=r.start && nm<r.end){
+        c.pools.split(/[,，]/).map(s=>s.trim()).forEach(p=>closedSet.add(p));
+      }
+    });
+  }
+  // 每年維修
+  if(f.maintenance){
+    const alias=f.id==='ktswim'?{'戶外泳池':['副池','日光浴場'],'室內泳池':['主池','訓練池','習泳池 1&2']}:{};
+    f.maintenance.forEach(m=>{
+      if(inMaintenance(m,now)){
+        const targets=alias[m.pool]||[m.pool];
+        targets.forEach(p=>closedSet.add(p));
+      }
+    });
+  }
+  return f.facilities.map(x=>{
+    if(closedSet.has(x.name)){
+      return {...x, status:'closed', note:t('closedNote')};
+    }
+    return x;
+  });
+}
+
 function officialLink(url,labelKey){return url?`<a href="${url}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:12px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;font-size:.78rem;color:#1e3a8a;text-decoration:none">${t(labelKey)}</a>`:'';}
 
 const POOLS=[
