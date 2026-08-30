@@ -125,7 +125,7 @@ def parse_maintenance(html):
     # 匹配 "XX池：M月D日至翌年M月D日" 或 "XX池：M月D日至M月D日"，或 "池A、池B、池C：..."
     # 先切走 header「配合每年維修工程的暫停開放時間」
     text = text.replace("配合每年維修工程的暫停開放時間", "")
-    re_pool = re.compile(r"([\u4e00-\u9fff、，, ]+(?:池|場))\s*[：:]\s*(\d{1,2})月(\d{1,2})日\s*至\s*(翌年)?\s*(\d{1,2})月(\d{1,2})日")
+    re_pool = re.compile(r"([\u4e00-\u9fff、，, ]+(?:池|場))\s*(?:\([^)]+\))?\s*[：:]\s*(\d{1,2})月(\d{1,2})日\s*至\s*(翌年)?\s*(\d{1,2})月(\d{1,2})日")
     seen = set()
     for m in re_pool.finditer(text):
         pool_list, sm, sd, ny, em, ed = m.groups()
@@ -142,18 +142,28 @@ def parse_maintenance(html):
                 "pool": pool, "start": f"{sm}/{sd}", "end": f"{em}/{ed}",
                 "nextYear": bool(ny),
             })
+    # Bare date without pool name (e.g. ltswim: "11月1日至翌年3月31日" → whole facility)
+    if not maint:
+        m2 = re.search(r"(\d{1,2})月(\d{1,2})日\s*至\s*(翌年)?\s*(\d{1,2})月(\d{1,2})日", text)
+        if m2:
+            sm, sd, ny, em, ed = m2.groups()
+            maint.append({"pool": "全場", "start": f"{sm}/{sd}", "end": f"{em}/{ed}", "nextYear": bool(ny)})
     return maint
 
 
 def parse_cleaning(html):
     """每周大清潔: 逢星期X (公眾假期→星期Y)，限於大清潔行動段落"""
-    start = html.find("每周大清潔行動")
-    if start < 0:
-        return None
-    seg = html[start:start + 1500]
-    m = re.search(r"逢\s*星期([一二三四五六日天])\s*(?:\(星期([一二三四五六日天])\s*\*?\))?", seg)
-    if m:
-        return {"day": m.group(1), "fallback": m.group(2) or ""}
+    # Search ALL occurrences — the first hit may be in schedule/sidebar fragments (e.g. ltswim)
+    import re as _re2
+    for m0 in _re2.finditer(r"每周大清潔行動", html):
+        seg = html[m0.start():m0.start() + 1500]
+        # Strip tags for robust matching — HTML inserts <span>/line breaks between 逢 and 星期
+        stripped = re.sub(r"<[^>]+>", "", seg)
+        stripped = re.sub(r"&nbsp;?", " ", stripped)
+        stripped = re.sub(r"\s+", " ", stripped)
+        m = _re2.search(r"逢\s*星期([一二三四五六日天])\s*(?:\(星期([一二三四五六日天])\s*[※*]?\s*\))?", stripped)
+        if m:
+            return {"day": m.group(1), "fallback": m.group(2) or ""}
     return None
 
 
@@ -202,6 +212,21 @@ def patch_html(all_data):
           if html[i] == ch: depth += 1
           elif html[i] == ("]" if ch == "[" else "}"): depth -= 1
           i += 1
+        # Extend i to swallow any stale duplicate maintenance/cleaning that accumulated from prior buggy runs
+        # Look ahead for the next real delimiter: ,facilities: or ,schedule: or ,sessions:
+        for delim in (",facilities:", ",schedule:", ",sessions:", ",status:", ",id:"):
+            nxt = html.find(delim, i)
+            if nxt != -1:
+                # swallow everything (including duplicate maintenance/cleaning) up to delim
+                # but keep the comma+delim itself
+                dup_seg = html[i:nxt]
+                # only swallow if it looks like duplicate maintenance/cleaning
+                if "maintenance:" in dup_seg or "cleaning:" in dup_seg:
+                    i = nxt + 1  # +1 to keep the leading comma for flat+delim
+                    # flat already starts with closures: so we need to not double-comma
+                    # Actually flat = "closures:..." and html[i-1:] starts with ",facilities" — we want html[:c_start]+flat+html[nxt:]
+                    i = nxt
+                break
         flat = (
           "closures:" + json.dumps(data["closures"], ensure_ascii=False)
           + ",maintenance:" + json.dumps(data.get("maintenance", []), ensure_ascii=False)
@@ -236,6 +261,46 @@ def deploy():
     print(r.stdout[-600:] or r.stderr[-600:])
 
 
+
+def fetch_holidays():
+    """Fetch 1823.gov.hk holidays → ["YYYY/MM/DD", ...]. Stdlib, no deps."""
+    try:
+        req = urllib.request.Request(
+            "https://www.1823.gov.hk/common/ical/en.json",
+            headers={**UA}
+        )
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = json.loads(r.read().decode('utf-8-sig'))
+        vevents = data['vcalendar'][0]['vevent']
+        dates = sorted(set(
+            v['dtstart'][0][:4] + '/' + v['dtstart'][0][4:6] + '/' + v['dtstart'][0][6:8]
+            for v in vevents
+            if v['dtstart'][0][:4] >= str(date.today().year)
+        ))
+        return dates
+    except Exception as e:
+        print(f"fetch_holidays skip: {e}", file=sys.stderr)
+        return None
+
+def patch_holidays(days):
+    if not days: return
+    js = f"const HK_HOLIDAYS={json.dumps(days, ensure_ascii=False)};"
+    for html_path in HTML_PATHS:
+        if not os.path.exists(html_path): continue
+        with open(html_path, encoding='utf-8') as f: html = f.read()
+        # replace existing
+        new, n = re.subn(r'const HK_HOLIDAYS=\[[^\]]*\];', js, html)
+        if n == 0:
+            # insert before FACILITIES
+            for marker in ['const FACILITIES=[', 'const OTHER_FACILITIES=[', 'const PLAYROOMS=[']:
+                idx = new.find(marker)
+                if idx >= 0:
+                    new = new[:idx] + js + "\n\n" + new[idx:]
+                    break
+        if n > 0 or 'const HK_HOLIDAYS=' in new:
+            with open(html_path, 'w', encoding='utf-8') as f: f.write(new)
+            print(f"HK_HOLIDAYS patched in {os.path.basename(html_path)} ({len(days)} dates)")
+
 if __name__ == "__main__":
     try:
         all_data = {}
@@ -247,8 +312,12 @@ if __name__ == "__main__":
         if "--deploy" in sys.argv:
             deploy()
         print("PASS")
+        # Refresh HK holidays (for cleaning fallback holiday check)
+        hdays = fetch_holidays()
+        if hdays: patch_holidays(hdays)
     except Exception as e:
         print(f"FAIL: {e}", file=sys.stderr)
         import traceback
         traceback.print_exc()
         sys.exit(1)
+

@@ -264,31 +264,36 @@ def main():
         _wd = now_hkt.weekday()
         is_main_maint = _wd == 0
         is_sec_maint = _wd == 4
-        # Force M code on maintenance days (overrides XLSX in case of stale/missing data)
+        # Maintenance: only fill M into slots WITHOUT a valid XLSX code (A/B/L).
+        # XLSX is authoritative — don't override existing bookings or open slots.
         if is_main_maint:
             for s in main_status:
-                s["code"] = "M"
-                s["status_zh"] = "關閉"
-                s["status_en"] = "Closed"
+                if s["code"] not in ("A", "B", "L"):
+                    s["code"] = "M"
+                    s["status_zh"] = "關閉"
+                    s["status_en"] = "Closed"
                 s["is_current"] = False
         if is_sec_maint:
             for s in sec_status:
-                s["code"] = "M"
-                s["status_zh"] = "關閉"
-                s["status_en"] = "Closed"
+                if s["code"] not in ("A", "B", "L"):
+                    s["code"] = "M"
+                    s["status_zh"] = "關閉"
+                    s["status_en"] = "Closed"
                 s["is_current"] = False
         # Also check tomorrow's maintenance for tomorrow slots
         _wd_tom = (now_hkt + timedelta(days=1)).weekday()
         if _wd_tom == 0:
             for s in main_status_tm:
-                s["code"] = "M"
-                s["status_zh"] = "關閉"
-                s["status_en"] = "Closed"
+                if s["code"] not in ("A", "B", "L"):
+                    s["code"] = "M"
+                    s["status_zh"] = "關閉"
+                    s["status_en"] = "Closed"
         if _wd_tom == 4:
             for s in sec_status_tm:
-                s["code"] = "M"
-                s["status_zh"] = "關閉"
-                s["status_en"] = "Closed"
+                if s["code"] not in ("A", "B", "L"):
+                    s["code"] = "M"
+                    s["status_zh"] = "關閉"
+                    s["status_en"] = "Closed"
         # Overall: maintenance forces closed for that field, mixed → partial
         all_codes_main = set(d.get(today_day, "") for d in main_timetable.values())
         all_codes_sec = set(d.get(today_day, "") for d in sec_timetable.values())
