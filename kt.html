@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="觀塘區康體設施一覽 - 游泳池、體育館、網球場、足球場等康樂設施資訊">
+  <title>觀塘區康體設施一覽 | we1co.me</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card-bg: #1a1d23;
+      --card-bg-hover: #22262e;
+      --text: #e4e6eb;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-red: #f85149;
+      --accent-orange: #d29922;
+      --border: #30363d;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 24px 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+    header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    header .date {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 28px 0 14px;
+      padding-left: 10px;
+      border-left: 3px solid var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .facility-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .facility-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: var(--shadow);
+    }
+    .facility-card:hover {
+      background: var(--card-bg-hover);
+      transform: translateY(-1px);
+    }
+    .facility-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .facility-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .facility-status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .status-open {
+      background: rgba(63, 185, 80, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(63, 185, 80, 0.3);
+    }
+    .status-closed {
+      background: rgba(248, 81, 73, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+    }
+    .facility-spec {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .facility-detail {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .facility-detail strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+    .session-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .session-box {
+      background: rgba(88, 166, 255, 0.08);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .session-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .session-time {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .notice-box {
+      background: rgba(248, 81, 73, 0.08);
+      border: 1px solid rgba(248, 81, 73, 0.2);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 0.85rem;
+      color: var(--accent-red);
+    }
+    .notice-box::before {
+      content: "⚠️ ";
+    }
+    .info-box {
+      background: rgba(88, 166, 255, 0.08);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+    .info-box::before {
+      content: "ℹ️ ";
+    }
+    .venue-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .venue-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      transition: background 0.2s;
+    }
+    .venue-card:hover {
+      background: var(--card-bg-hover);
+    }
+    .venue-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .venue-addr {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .venue-phone {
+      font-size: 0.78rem;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+    .facility-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+    .facility-tag {
+      font-size: 0.72rem;
+      background: rgba(139, 148, 158, 0.12);
+      color: var(--text-muted);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 600px) {
+      .session-grid { grid-template-columns: 1fr; }
+      .venue-list { grid-template-columns: 1fr; }
+      header h1 { font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🏊 觀塘區康體設施一覽</h1>
+  <p>觀塘區康樂及文化事務署轄下設施資訊</p>
+  <p class="date">資料更新日期：2026年8月30日</p>
+</header>
+
+<!-- ==================== 游泳池 ==================== -->
+<div class="section-title">🌊 公眾游泳池</div>
+
+<div class="facility-grid">
+
+  <!-- 觀塘游泳池 -->
+  <div class="facility-card">
+    <div class="facility-header">
+      <div class="facility-name">觀塘游泳池</div>
+      <span class="facility-status status-open">夏季開放中</span>
+    </div>
+    <div class="facility-spec">📍 九龍觀塘翠屏道2號　📞 2717 9022 / 2347 8140</div>
+    <div class="facility-detail">
+      <strong>室內設施：</strong>主池 (50.03m × 25m，水深 1.4–1.9m)、訓練池 (25m × 30m，水深 1.2m)、觀眾看台 (1,492座位)、電子計分板、家庭更衣室<br>
+      <strong>戶外設施：</strong>副池 (50m × 21m，水深 1.1–1.4m)、習泳池 1&2 (25m × 12.5m，水深 0.7–0.9m)、日光浴場<br>
+      <strong>無障礙設施：</strong>升降台、斜道、暢通易達洗手間、觸覺引路帶等
+    </div>
+    <div class="session-grid">
+      <div class="session-box">
+        <div class="session-label">第一節</div>
+        <div class="session-time">06:30 – 12:00</div>
+      </div>
+      <div class="session-box">
+        <div class="session-label">第二節</div>
+        <div class="session-time">13:00 – 18:00</div>
+      </div>
+      <div class="session-box">
+        <div class="session-label">第三節</div>
+        <div class="session-time">19:00 – 22:00</div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:10px;">
+      每周大清潔：逢星期三（上午10時至第二節完結）※ 公眾假期改為星期五
+    </div>
+  </div>
+
+  <!-- 藍田游泳池 -->
+  <div class="facility-card">
+    <div class="facility-header">
+      <div class="facility-name">藍田游泳池</div>
+      <span class="facility-status status-open">夏季開放中</span>
+    </div>
+    <div class="facility-spec">📍 九龍藍田　📞 查詢請致電康文署</div>
+    <div class="facility-detail">
+      標準公眾游泳池設施，提供暖水游泳服務（十一月中至翌年四月中）
+    </div>
+    <div class="session-grid">
+      <div class="session-box">
+        <div class="session-label">第一節</div>
+        <div class="session-time">06:30 – 12:00</div>
+      </div>
+      <div class="session-box">
+        <div class="session-label">第二節</div>
+        <div class="session-time">13:00 – 18:00</div>
+      </div>
+      <div class="session-box">
+        <div class="session-label">第三節</div>
+        <div class="session-time">19:00 – 22:00</div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:10px;">
+      每周大清潔：逢星期四（上午10時至第二節完結）※ 公眾假期改為星期一
+    </div>
+    <div class="notice-box" style="margin-top:8px;">
+      配合每年維修工程暫停開放：4月16日至6月5日
+    </div>
+  </div>
+
+  <!-- 佐敦谷游泳池 -->
+  <div class="facility-card">
+    <div class="facility-header">
+      <div class="facility-name">佐敦谷游泳池</div>
+      <span class="facility-status status-closed">冬季維修中</span>
+    </div>
+    <div class="facility-spec">📍 九龍佐敦谷　📞 查詢請致電康文署</div>
+    <div class="facility-detail">
+      標準公眾游泳池設施
+    </div>
+    <div class="session-grid">
+      <div class="session-box">
+        <div class="session-label">第一節</div>
+        <div class="session-time">06:30 – 12:00</div>
+      </div>
+      <div class="session-box">
+        <div class="session-label">第二節</div>
+        <div class="session-time">13:00 – 18:00</div>
+      </div>
+      <div class="session-box">
+        <div class="session-label">第三節</div>
+        <div class="session-time">19:00 – 22:00</div>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:10px;">
+      每周大清潔：逢星期二（上午10時至第二節完結）※ 公眾假期改為星期四
+    </div>
+    <div class="notice-box" style="margin-top:8px;">
+      配合每年維修工程暫停開放：11月1日至翌年3月31日
+    </div>
+  </div>
+
+</div>
+
+<div class="info-box">
+  💡 暫停開放時間：中午12時至下午1時及下午6時至7時為清場時段。農曆年初一至年初三全部泳池暫停開放。
+</div>
+
+<!-- ==================== 體育館 ==================== -->
+<div class="section-title">🏟️ 體育館（9間）</div>
+<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px;">
+  開放時間：每日 07:00 – 23:00（定期保養日除外）| 預訂設施請使用 <a href="https://www.smartplay.lcsd.gov.hk" style="color:var(--accent);">SmartPLAY 康體通</a>
+</p>
+
+<div class="venue-list">
+
+  <div class="venue-card">
+    <div class="venue-name">彩榮路體育館</div>
+    <div class="venue-addr">📍 觀塘彩榮路58號</div>
+    <div class="venue-phone">📞 2721 5918</div>
+    <div class="facility-tags">
+      <span class="facility-tag">緩跑徑</span>
+      <span class="facility-tag">健身室</span>
+      <span class="facility-tag">兒童遊戲室</span>
+      <span class="facility-tag">羽毛球場×8</span>
+      <span class="facility-tag">乒乓球室</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第1及第3個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">振華道體育館</div>
+    <div class="venue-addr">📍 牛頭角振華道50號樂雅苑停車場頂樓</div>
+    <div class="venue-phone">📞 2318 1767</div>
+    <div class="facility-tags">
+      <span class="facility-tag">羽毛球場×4</span>
+      <span class="facility-tag">舞蹈室</span>
+      <span class="facility-tag">活動室</span>
+      <span class="facility-tag">乒乓球</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第1及第3個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">曉光街體育館</div>
+    <div class="venue-addr">📍 九龍觀塘曉光街2號</div>
+    <div class="venue-phone">📞 2347 0384</div>
+    <div class="facility-tags">
+      <span class="facility-tag">羽毛球場×8</span>
+      <span class="facility-tag">健身室</span>
+      <span class="facility-tag">壁球室×2</span>
+      <span class="facility-tag">舞蹈室</span>
+      <span class="facility-tag">活動室</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第2及第4個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">九龍灣體育館</div>
+    <div class="venue-addr">📍 九龍灣啟樂街15號</div>
+    <div class="venue-phone">📞 2750 9539</div>
+    <div class="facility-tags">
+      <span class="facility-tag">羽毛球場×8</span>
+      <span class="facility-tag">壁球室×3</span>
+      <span class="facility-tag">活動室</span>
+      <span class="facility-tag">社區園圃</span>
+      <span class="facility-tag">乒乓球</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第1及第3個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">藍田（南）體育館</div>
+    <div class="venue-addr">📍 九龍觀塘藍田碧雲道170號</div>
+    <div class="venue-phone">📞 2379 9254</div>
+    <div class="facility-tags">
+      <span class="facility-tag">羽毛球場×8</span>
+      <span class="facility-tag">壁球室×6</span>
+      <span class="facility-tag">健身室</span>
+      <span class="facility-tag">兒童遊戲室</span>
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">鯉魚門體育館</div>
+    <div class="venue-addr">📍 九龍油塘鯉魚門徑6號鯉魚門市政大廈2–5樓</div>
+    <div class="venue-phone">📞 2349 3954</div>
+    <div class="facility-tags">
+      <span class="facility-tag">室內攀石牆</span>
+      <span class="facility-tag">兒童遊戲室</span>
+      <span class="facility-tag">散手訓練場</span>
+      <span class="facility-tag">美式桌球</span>
+      <span class="facility-tag">活動室</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第2及第4個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">牛頭角道體育館</div>
+    <div class="venue-addr">📍 九龍牛頭角道183號牛頭角市政大廈2–4樓</div>
+    <div class="venue-phone">📞 2756 3466</div>
+    <div class="facility-tags">
+      <span class="facility-tag">羽毛球場×4</span>
+      <span class="facility-tag">健身室</span>
+      <span class="facility-tag">活動室</span>
+      <span class="facility-tag">平台花園</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第2及第4個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">瑞和街體育館</div>
+    <div class="venue-addr">📍 九龍觀塘瑞和街9號瑞和街市政大廈8–9樓</div>
+    <div class="venue-phone">📞 2797 3350</div>
+    <div class="facility-tags">
+      <span class="facility-tag">羽毛球場×4</span>
+      <span class="facility-tag">壁球室×3</span>
+      <span class="facility-tag">活動室</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第1及第3個星期一 09:00–15:00
+    </div>
+  </div>
+
+  <div class="venue-card">
+    <div class="venue-name">順利邨體育館</div>
+    <div class="venue-addr">📍 九龍觀塘順利邨道33號</div>
+    <div class="venue-phone">📞 2951 4136</div>
+    <div class="facility-tags">
+      <span class="facility-tag">體操訓練場</span>
+      <span class="facility-tag">英式/美式桌球</span>
+      <span class="facility-tag">戶外攀石牆</span>
+      <span class="facility-tag">高爾夫球發球道</span>
+      <span class="facility-tag">門球場</span>
+      <span class="facility-tag">兒童遊戲室</span>
+    </div>
+    <div class="facility-detail" style="margin-top:6px;font-size:0.75rem;color:var(--text-muted);">
+      保養日：每月第1及第3個星期一 09:00–15:00
+    </div>
+  </div>
+
+</div>
+
+<!-- ==================== 網球場 ==================== -->
+<div class="section-title">🎾 網球場</div>
+<div class="venue-list">
+  <div class="venue-card"><div class="venue-name">曉明街網球場</div><div class="venue-addr">📍 觀塘曉明街17號</div></div>
+  <div class="venue-card"><div class="venue-name">康寧道公園網球場</div><div class="venue-addr">📍 康寧道</div></div>
+  <div class="venue-card"><div class="venue-name">茜發道網球場</div><div class="venue-addr">📍 觀塘茜發道</div></div>
+  <div class="venue-card"><div class="venue-name">佐敦谷遊樂場網球場</div><div class="venue-addr">📍 牛頭角彩霞道</div></div>
+  <div class="venue-card"><div class="venue-name">坪石遊樂場網球場</div><div class="venue-addr">📍 觀塘彩石里</div></div>
+  <div class="venue-card"><div class="venue-name">順利邨公園網球場</div><div class="venue-addr">📍 觀塘順利邨道</div></div>
+</div>
+
+<!-- ==================== 足球場 ==================== -->
+<div class="section-title">⚽ 足球場</div>
+<div class="facility-grid">
+  <div class="facility-card">
+    <div class="facility-header">
+      <div class="facility-name">人造草地足球場</div>
+    </div>
+    <div class="facility-detail">
+      • 順利邨公園（觀塘順利邨道）<br>
+      • 九龍灣公園（九龍灣啟禮道）
+    </div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header">
+      <div class="facility-name">天然草地足球場</div>
+    </div>
+    <div class="facility-detail">
+      • 九龍灣運動場（九龍灣啟樂街1號）<br>
+      • 晒草灣遊樂場（藍田茜發道）<br>
+      • 偉樂街臨時足球場（觀塘偉樂街）<br>
+      • 九龍灣公園（九龍灣啟禮道）
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 其他設施 ==================== -->
+<div class="section-title">🎯 其他康體設施</div>
+<div class="facility-grid">
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">美式桌球</div></div>
+    <div class="facility-detail">鯉魚門體育館（油塘鯉魚門徑6號鯉魚門市政大廈2樓）</div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">攀石牆</div></div>
+    <div class="facility-detail">
+      <strong>室內：</strong>鯉魚門體育館<br>
+      <strong>室外：</strong>順利邨體育館
+    </div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">門球及高爾夫球發球道</div></div>
+    <div class="facility-detail">順利邨體育館（觀塘順利邨道）</div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">棒球練習場</div></div>
+    <div class="facility-detail">晒草灣遊樂場（藍田茜發道）</div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">單車場</div></div>
+    <div class="facility-detail">九龍灣公園（九龍灣啟禮道）</div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">體操訓練場</div></div>
+    <div class="facility-detail">順利邨體育館（觀塘順利邨道）</div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">散手訓練場</div></div>
+    <div class="facility-detail">鯉魚門體育館（油塘鯉魚門徑6號）</div>
+  </div>
+  <div class="facility-card">
+    <div class="facility-header"><div class="facility-name">兒童遊戲室</div></div>
+    <div class="facility-detail">
+      • 順利邨體育館<br>
+      • 鯉魚門體育館<br>
+      • 藍田（南）體育館
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 預訂資訊 ==================== -->
+<div class="section-title">📋 預訂及查詢</div>
+<div class="info-box">
+  市民可透過康樂及文化事務署「SmartPLAY 康體通」網上租場服務預訂各項設施。<br>
+  🔗 <a href="https://www.smartplay.lcsd.gov.hk" style="color:var(--accent);">SmartPLAY 康體通</a>　|　
+  🔗 <a href="https://www.lcsd.gov.hk" style="color:var(--accent);">康文署官網</a>
+</div>
+
+<div class="footer">
+  <p>資料來源：觀塘區議會、康樂及文化事務署</p>
+  <p style="margin-top:6px;">
+    <a href="https://www.kwuntong.org.hk/tc/c5_7.html">觀塘區議會 – 康體設施</a>　|　
+    <a href="https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do">康文署 – 公眾游泳池</a>　|　
+    <a href="https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/District.do?ftid=0">康文署 – 體育館</a>
+  </p>
+  <p style="margin-top:10px;font-size:0.75rem;">本頁面僅供參考，最新開放安排請以康文署公告為準。</p>
+</div>
+
+</body>
+</html>
