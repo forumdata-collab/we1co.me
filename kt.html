@@ -129,6 +129,7 @@ let severeWarnings=[];
 <a href="#playroom" class="index-item">🎮 兒童遊戲室 (4)</a>
 <a href="#sports" class="index-item">🏟️ 體育館 (9)</a>
 <a href="#tennis" class="index-item">🎾 網球場 (6)</a>
+<a href="#cycling" class="index-item">🚲 單車場 (2)</a>
 <a href="#football" class="index-item">⚽ 足球場 (2)</a>
 <a href="#other" class="index-item">🎯 其他設施</a>
 </div>
@@ -137,6 +138,7 @@ let severeWarnings=[];
 <section id="playroom" class="collapsible"><h2 class="section-title" onclick="toggleSection('playroom')">🎮 兒童遊戲室 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="playrooms"></div></div></section>
 <section id="sports" class="collapsible"><h2 class="section-title" onclick="toggleSection('sports')">🏟️ 體育館 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="sports-centres"></div></div></section>
 <section id="tennis" class="collapsible"><h2 class="section-title" onclick="toggleSection('tennis')">🎾 網球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="tennis-courts"></div></div></section>
+<section id="cycling" class="collapsible"><h2 class="section-title" onclick="toggleSection('cycling')">🚲 單車場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="cycling-tracks"></div></div></section>
 <section id="football" class="collapsible"><h2 class="section-title" onclick="toggleSection('football')">⚽ 足球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="football-pitches"></div></div></section>
 <section id="other" class="collapsible"><h2 class="section-title" onclick="toggleSection('other')">🎯 其他設施 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="other-facilities"></div></div></section>
 
@@ -370,6 +372,11 @@ const TENNIS_COURTS=[
 {id:"tc-slp",name:"順利邨公園網球場",address:"觀塘順利邨道",addrEn:"Shun Lee Estate Road, Kwun Tong",addrCn:"观塘顺利邨道"}
 ];
 
+const CYCLING_TRACKS=[
+{id:"ct-kb",name:"九龍灣公園單車場",address:"九龍九龍灣啟禮道",addrEn:"Kai Lai Road, Kowloon Bay",addrCn:"九龙九龙湾启礼道",hours:"07:00 - 23:00",phone:"2750 0849 / 2343 6123",facilities:"洗手間、更衣室、貯物櫃、21個停車位"},
+{id:"ct-klt",name:"功樂道遊樂場單車場",address:"九龍觀塘功樂道",addrEn:"Kung Lok Road, Kwun Tong",addrCn:"九龙观塘功乐道",hours:"07:00 - 23:00",phone:"2797 3681",facilities:"洗手間"}
+];
+
 const FOOTBALL_PITCHES=[
 {id:"fp-art",name:"人造草地足球場",type:"artificial",venues:[{name:"順利邨公園",addr:"觀塘順利邨道"},{name:"九龍灣公園",addr:"九龍灣啟禮道"}]},
 {id:"fp-nat",name:"天然草地足球場",type:"natural",venues:[{name:"九龍灣運動場",addr:"九龍灣啟樂街1號"},{name:"晒草灣遊樂場",addr:"藍田茜發道"},{name:"偉樂街臨時足球場",addr:"觀塘偉樂街"},{name:"九龍灣公園",addr:"九龍灣啟禮道"}]}
@@ -477,6 +484,15 @@ function renderTennisCourts(){
  }).join("");
 }
 
+function renderCyclingTracks(){
+ return CYCLING_TRACKS.map(f=>{
+   const now=hkNow(), nm=hkMinutes(now);
+   const st=facilityOverallStatus([f.hours], nm);
+   const a=currentLang==='en'?(f.addrEn||f.addr):(currentLang==='cn'?(f.addrCn||f.addr):f.addr);
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${f.name}</div><div class="facility-address">${a}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="detail-row"><span class="detail-label">${t('hours')}</span><span>${f.hours}</span></div><div class="detail-row"><span class="detail-label">${currentLang==='en'?'Phone':currentLang==='cn'?'电话':'電話'}</span><span>${f.phone}</span></div><div class="detail-row"><span class="detail-label">${currentLang==='en'?'Facilities':currentLang==='cn'?'設施':'設施'}</span><span>${f.facilities}</span></div></div></div>`
+ }).join("");
+}
+
 function renderFootballPitches(){
  return FOOTBALL_PITCHES.map(f=>{
    const venues=f.venues.map(v=>`<div class="detail-row"><span class="detail-label">• ${v.name}</span><span style="font-size:.78rem;color:#64748b">${v.addr}</span></div>`).join("");
@@ -496,6 +512,7 @@ function renderAll(){
  document.getElementById('playrooms').innerHTML=renderPlayrooms();
  document.getElementById('sports-centres').innerHTML=renderSportsCentres();
  document.getElementById('tennis-courts').innerHTML=renderTennisCourts();
+ document.getElementById('cycling-tracks').innerHTML=renderCyclingTracks();
  document.getElementById('football-pitches').innerHTML=renderFootballPitches();
  document.getElementById('other-facilities').innerHTML=renderOtherFacilities();
  updateClock();
