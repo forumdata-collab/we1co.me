@@ -175,7 +175,29 @@ const NAME_L10N={
 let currentLang='zh';
 const t=k=>I18N[currentLang][k]||I18N.zh[k]||k;
 const lname=id=>(NAME_L10N[id]&&NAME_L10N[id][currentLang])||id;
-
+// 子設施/RVM/備註翻譯（EN 模式用）
+const SUB_L10N={
+  pool:{主池:"Main Pool",訓練池:"Training Pool","習泳池 1":"Teaching Pool 1","習泳池 2":"Teaching Pool 2",習泳池:"Teaching Pool",跳水池:"Diving Pool",戲水池:"Splash Pool","嬉水池 1":"Children's Pool 1","嬉水池 2 (滑水梯)":"Children's Pool 2 (Water Slide)",日光浴場:"Sunbathing Area",副池:"Secondary Pool","習泳池 1&2":"Teaching Pools 1&2",奇妙水世界:"Wonder Water World",極限運動:"Extreme Sports",海洋世界:"Ocean World"},
+  rvm:{彩明商場:"Choi Ming Shopping Centre","新都城中心三期":"Metro City Plaza Phase 3",PopCorn:"PopCorn",寶林商場:"Po Lam Shopping Centre","The LOHAS":"The LOHAS","TKO Spot":"TKO Spot",怡明邨:"Yee Ming Estate","海悅豪園商場":"Marina Garden Shopping Arcade"},
+  note:{"保養日(每月第二及第四個星期二 07:00-13:00)首節改 13:30":"Maintenance day (2nd & 4th Tue 07:00-13:00): first session moves to 13:30","保養日(每月第一及第三個星期二 07:00-13:00)首節改 13:30":"Maintenance day (1st & 3rd Tue 07:00-13:00): first session moves to 13:30","保養日(每月第二及第四個星期一 07:00-13:00)首節改 14:15":"Maintenance day (2nd & 4th Mon 07:00-13:00): first session moves to 14:15"}
+};
+const tl=(cat,k)=>{if(currentLang==='zh')return k;const m=SUB_L10N[cat];return (m&&m[k])||k;};
+const LDAY={zh:["星期日","星期一","星期二","星期三","星期四","星期五","星期六","公眾假期"],en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Public Holiday"],cn:["星期日","星期一","星期二","星期三","星期四","星期五","星期六","公众假期"]};
+const LSESS={zh:["早上","中午","下午","晚上"],en:["AM","Noon","PM","PM"],cn:["早上","中午","下午","晚上"]};
+function trSession(s,lang){
+ if(lang==='zh') return s;
+ let m=s.match(/^(早上|中午|下午|晚上)\s*(.+)$/);
+ if(!m) return s;
+ let map={早上:'AM',中午:'12:00',下午:'PM',晚上:'PM'};
+ let pre=map[m[1]]||'';
+ return m[2]+(pre==='AM'||pre==='PM'?' '+pre:'');
+}
+function trDay(d,lang){
+ if(lang==='zh') return d;
+ let map={星期一:'Mon',星期二:'Tue',星期三:'Wed',星期四:'Thu',星期五:'Fri',星期六:'Sat',星期日:'Sun','公眾假期':'PH'};
+ return map[d]||d;
+}
+// 地址：多語言 + Google Maps 連結
 function addr(f){
  const zh=f.address||'';
  const en=f.addrEn||zh;
