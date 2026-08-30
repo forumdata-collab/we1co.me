@@ -31,9 +31,12 @@ def fetch_xlsx(month=None):
     if month is None:
         month = now.strftime("%Y%m")
     prev = (now.replace(day=1) - timedelta(days=1)).strftime("%Y%m")
+    # Also try next month (for cross-month tomorrow)
+    nxt = (now.replace(day=1) + timedelta(days=32)).replace(day=1).strftime("%Y%m")
     urls = [
         f"{BASE_URL}/{FID}_{month}.xlsx",
         f"{BASE_URL}/{FID}_{prev}.xlsx",
+        f"{BASE_URL}/{FID}_{nxt}.xlsx",
     ]
     # Try CF proxy first
     try:
@@ -208,6 +211,14 @@ def main():
         wb = openpyxl.load_workbook(xlsx_path)
         today_day = date.today().day
 
+        # Also try next month XLSX for cross-month tomorrow
+        nxt = (datetime.now(timezone(timedelta(hours=8))).replace(day=1) + timedelta(days=32)).replace(day=1).strftime("%Y%m")
+        wb2 = None
+        try:
+            nxt_path = fetch_xlsx(nxt)
+            if nxt_path: wb2 = openpyxl.load_workbook(nxt_path)
+        except: pass
+
         # Parse both sheets
         main_ws = wb[wb.sheetnames[0]]
         sec_ws = wb[wb.sheetnames[1]]
@@ -215,6 +226,18 @@ def main():
 
         main_timetable, main_dates = parse_timetable(main_ws)
         sec_timetable, sec_dates = parse_timetable(sec_ws)
+        # Merge next month timetable (cross-month tomorrow)
+        if wb2:
+            for nm_ws in [wb2[wb2.sheetnames[0]], wb2[wb2.sheetnames[1]] if len(wb2.sheetnames)>1 else None]:
+                if not nm_ws: continue
+                nm_tt, nm_dates = parse_timetable(nm_ws)
+                # nm_dates maps col→day_num (1,2,3... for next month)
+                # We want day_num 1 (tomorrow=Sep 1) → map to our day 1
+                for ts, codes in nm_tt.items():
+                    if ts in (main_timetable if nm_ws == wb2[wb2.sheetnames[0]] else sec_timetable):
+                        target = main_timetable if nm_ws == wb2[wb2.sheetnames[0]] else sec_timetable
+                        for dn, code in codes.items():
+                            target.setdefault(ts, {})[dn] = code
         notices = parse_notices(notice_ws) if notice_ws else []
 
         # Extract XLSX date from sheet title (e.g. "2026年8月")

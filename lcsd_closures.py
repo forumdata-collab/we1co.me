@@ -246,19 +246,18 @@ def patch_html(all_data):
 
 
 def deploy():
-    env = {
-        "CLOUDFLARE_API_TOKEN": subprocess.check_output(
-            ["bash", "-lc", "echo -n $CF_WORKERS_TOKEN"]).decode(),
-        "CLOUDFLARE_ACCOUNT_ID": subprocess.check_output(
-            ["bash", "-lc", "echo -n $CF_ACCOUNT_ID"]).decode(),
-    }
+    env = {**os.environ,
+           "CLOUDFLARE_API_TOKEN": os.environ.get("CF_WORKERS_TOKEN", ""),
+           "CLOUDFLARE_ACCOUNT_ID": os.environ.get("CF_ACCOUNT_ID", "")}
     r = subprocess.run(
-        ["wrangler", "pages", "deploy", "/home/ubuntu/we1co.me",
-         "--project-name=we1co-sai-kung", "--branch=main"],
-        env={**os.environ, **env},
+        ["wrangler", "pages", "deploy", ".",
+         "--project-name=we1co-sai-kung", "--branch=main", "--commit-dirty=true"],
+        env=env,
         capture_output=True, text=True, timeout=120,
     )
     print(r.stdout[-600:] or r.stderr[-600:])
+    if r.returncode != 0:
+        raise RuntimeError(f"wrangler deploy failed: {r.stderr[-300:]}")
 
 
 
