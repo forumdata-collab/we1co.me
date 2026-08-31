@@ -68,6 +68,21 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 .back-to-top{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:#1e3a8a;color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(30,58,138,.4);display:none;align-items:center;justify-content:center;z-index:999}
 .back-to-top.visible{display:flex}
 @media(max-width:640px){.index-grid{grid-template-columns:1fr 1fr;top:70px}.facility-header{padding:12px}.facility-body{padding:10px 12px}}
+
+.refresh-btn {
+  margin-left: 8px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  font-family: inherit;
+}
+.refresh-btn:hover { background: #2563eb; }
+.refresh-btn:active { transform: scale(0.98); }
 </style>
 </head>
 <body>
@@ -142,7 +157,8 @@ let severeWarnings=[];
 <section id="football" class="collapsible"><h2 class="section-title" onclick="toggleSection('football')">⚽ 足球場 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="football-pitches"></div></div></section>
 <section id="other" class="collapsible"><h2 class="section-title" onclick="toggleSection('other')">🎯 其他設施 <span class="toggle" data-expand="展開 ▸" data-collapse="收合 ▾"></span></h2><div class="section-content"><div id="other-facilities"></div></div></section>
 
-<div class="updated" id="footer-updated">最後更新：<span id="lastUpdate">--</span> <span id="lastSyncAgo" style="color:#16a34a;font-weight:600"></span> · 數據來源：康文署 · 觀塘區議會</div>
+<div class="updated" id="footer-updated">
+<button id="hardRefreshBtn" class="refresh-btn" onclick="location.reload(true)" title="強制重新整理 (清除快取)">🔄 重新整理</button>最後更新：<span id="lastUpdate">--</span> <span id="lastSyncAgo" style="color:#16a34a;font-weight:600"></span> · 數據來源：康文署 · 觀塘區議會</div>
 <div id="footer-links" style="text-align:center;margin:16px 0 8px;font-size:.75rem;color:#94a3b8"></div>
 </div>
 <button class="back-to-top" id="backToTop" aria-label="返回頂部">↑</button>
@@ -553,7 +569,7 @@ function toggleSection(id){
 setInterval(()=>{renderAll()},60000);
 renderAll();
 
-const LAST_UPDATE='2026-08-31 08:18';
+const LAST_UPDATE='2026-08-31 09:15';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 
 function updateSyncAgo(){
