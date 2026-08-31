@@ -441,6 +441,23 @@ function renderPools(){
  }).join("");
 }
 
+function parseMaintNote(note){
+  const m=note.match(/保養日\(每月(.+?)及(.+?)個(.+?) ([0-9:]+)-([0-9:]+)\)首節改 ([0-9:]+)/);
+  if(!m)return null;
+  const ord={第一:1,第二:2,第三:3,第四:4};
+  const wd={星期一:1,星期二:2,星期三:3,星期四:4,星期五:5,星期六:6,星期日:0};
+  const toMin=s=>{const[h,mm]=s.split(':').map(Number);return h*60+mm;};
+  return{weeks:[ord[m[1]],ord[m[2]]],weekday:wd[m[3]],winEnd:toMin(m[5]),shift:toMin(m[6])};
+}
+// isMaintDay: 今日係咪某個保養日（第N個星期X）？date預設今日
+function isMaintDay(obj,date){
+  if(!obj)return false;
+  const d=date||new Date();
+  if(d.getDay()!==obj.weekday)return false;
+  const off=(obj.weekday-new Date(d.getFullYear(),d.getMonth(),1).getDay()+7)%7;
+  const occ=1+Math.floor((d.getDate()-(1+off))/7);
+  return obj.weeks.includes(occ);
+}
 function renderPlayrooms(){
  const now=hkNow(), nm=hkMinutes(now);
  return PLAYROOMS.map(p=>{
