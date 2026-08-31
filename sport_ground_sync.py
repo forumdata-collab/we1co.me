@@ -356,8 +356,8 @@ def main():
             "closures": main_closures,
             "maintenance": {"main": "逢星期一", "sec": "逢星期五"},
             "noticeUrl": f"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?fid={FID}",
-            "xlsxUrl": f"{BASE_URL}/{FID}_{now_hkt.strftime('%Y%m')}.xlsx",
-            "xlsxDate": xlsx_date,
+            "xlsxUrl": f"{BASE_URL}/{FID}_{(now_hkt + timedelta(days=1)).strftime('%Y%m') if tomorrow_day == 1 else now_hkt.strftime('%Y%m')}.xlsx",
+            "xlsxDate": (lambda d: (lambda m: f"{m[1]}年{str(int(m[2])+1).zfill(2)}月" if int(m[2])<12 else f"{int(m[1])+1}年01月")(re.match(r"(\d{4})年(\d{1,2})月", d)))(xlsx_date) if tomorrow_day == 1 and re.match(r"\d{4}年\d{1,2}月", xlsx_date) else xlsx_date,
             "xlsxFileDate": xlsx_file_date,
         }
 
