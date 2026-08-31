@@ -258,6 +258,18 @@ if(nowM < range.start) return {text:t('soon'),cls:"soon"};
 if(nowM >= range.start && nowM < range.end) return {text:t('open'),cls:"open"};
 return {text:t('done'),cls:"done"};
 }
+function sessionStatusAt(sessions, nowM){
+// 揀選最相關時段：若 nowM 落空檔（無 active session），優先顯示下一個未開始嘅 session 而非「已結束」
+let next=null;
+for(let s of sessions){
+ let r=parseRange(s.time||s);
+ if(!r) continue;
+ if(nowM >= r.start && nowM < r.end) return {text:t('open'),cls:"open"};
+ if(nowM < r.start && (!next || r.start < parseRange(next.time||next).start)) next=s;
+}
+if(next) return {text:t('soon'),cls:"soon"};
+return {text:t('done'),cls:"done"};
+}
 
 function facilityOverallStatus(sessions, nowM){
 let hasOpen=false, hasSoon=false;
@@ -316,12 +328,18 @@ function inMaintenance(m, now){
 // poolSubStatuses: 根據閉館公告 + 每年維修 + 清潔日 推導子設施狀態
 function poolSubStatuses(f, todayStr, now){
   let closedSet=new Set();
+  let reasonMap={};
   const nm=hkMinutes(now);
   if(f.closures){
     f.closures.filter(c=>c.date===todayStr).forEach(c=>{
+      // 公告有時間範圍：只要公告未完結（end > now），即使未開始都預告暫停
       const r=parseRange(c.time);
-      if(r && nm>=r.start && nm<r.end){
-        c.pools.split(/[,，]/).map(s=>s.trim()).forEach(p=>closedSet.add(p));
+      if(r && nm<r.end){
+        const reason=currentLang==='en'?(c.reasonEn||c.reason):c.reason;
+        c.pools.split(/[,，]/).map(s=>s.trim()).forEach(p=>{
+          closedSet.add(p);
+          reasonMap[p]=reason;
+        });
       }
     });
   }
@@ -352,7 +370,7 @@ function poolSubStatuses(f, todayStr, now){
   }
   return f.facilities.map(x=>{
     if(closedSet.has(x.name)){
-      return {...x, status:'closed', note:cleaningActive?t('cleaningNote'):t('closedNote')};
+      return {...x, status:'closed', note:reasonMap[x.name]?`${t('closureReason')} ${reasonMap[x.name]}`:(cleaningActive?t('cleaningNote'):t('closedNote'))};
     }
     return x;
   });
@@ -418,7 +436,7 @@ const OTHER_FACILITIES=[
 
 function renderPools(){
  const now=hkNow(), nm=hkMinutes(now);
- const FSTATUS={open:{t:t('open'),c:'open'},maintenance:{t:t('maint'),c:'done'},closed:{t:t('closed_today'),c:'suspended'}};
+ const FSTATUS={open:{t:t('open'),c:'open'},soon:{t:t('soon'),c:'soon'},maintenance:{t:t('maint'),c:'done'},closed:{t:t('closed_today'),c:'suspended'}};
  const todayStr=now.toISOString().slice(0,10).replace(/-/g,'/');
  return POOLS.map(f=>{
    let st = facilityOverallStatus(f.sessions, nm);
@@ -440,17 +458,30 @@ function renderPools(){
      closureHtml+=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${severeWarnings.join('、')} — ${currentLang==='en'?'Pool may close':currentLang==='cn'?'泳池可能暫停開放':'泳池可能暫停開放'}</div>`;
    }
    let sessions=f.sessions.map(s=>{
-     let r=parseRange(s);
-     let ss=sessionStatus(r,nm);
-     if(f.cleaning&&isCleaningDay(f.cleaning, now)){
-       const CLEAN_START=10*60; let cleanEnd=18*60;
-       const s2=f.sessions&&f.sessions[1]|| (f.schedule&&f.schedule.summer&&f.schedule.summer[1]&&f.schedule.summer[1].time);
-       if(s2){ const r2=parseRange(s2); if(r2) cleanEnd=r2.end; }
-       if(r && r.start<cleanEnd && r.end>CLEAN_START) ss={text:t('cleaningClosed'),cls:'suspended'};
-     }
-     return `<div class="session"><span class="session-time">${trSession(s,currentLang)} ${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
-   }).join("");
+    let r=parseRange(s);
+    let inRange=r && nm>=r.start && nm<r.end;
+    let ss=inRange?{text:t('open'),cls:"open"}:sessionStatusAt(f.sessions,nm);
+    if(f.cleaning&&isCleaningDay(f.cleaning, now)){
+      const CLEAN_START=10*60; let cleanEnd=18*60;
+      const s2=f.sessions&&f.sessions[1]|| (f.schedule&&f.schedule.summer&&f.schedule.summer[1]&&f.schedule.summer[1].time);
+      if(s2){ const r2=parseRange(s2); if(r2) cleanEnd=r2.end; }
+      if(r && r.start<cleanEnd && r.end>CLEAN_START) ss={text:t('cleaningClosed'),cls:'suspended'};
+    }
+    // 公告遮罩：僅當公告已生效時覆蓋為「暫停」（未生效時保持「即將開始」）
+    if(f.closures){
+      for(const c of f.closures){
+        if(c.date!==todayStr) continue;
+        const cr=parseRange(c.time);
+        if(cr && r && r.start<cr.end && r.end>cr.start && nm>=cr.start && !ss.cls.startsWith('suspended')) ss={text:t('closed_today'),cls:'suspended'};
+      }
+    }
+    return `<div class="session"><span class="session-time">${trSession(s,currentLang)} ${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+  }).join("");
    let subPools=poolSubStatuses(f, todayStr, now);
+   // 整體狀態係「即將開始」時，未暫停嘅子池都跟隨顯示「即將開始」
+   if(st.cls==="soon"||st.text===t('soon')){
+     subPools=subPools.map(x=>x.status==='open'?{...x,status:'soon'}:x);
+   }
    // Dynamic partial status: some facilities closed → partially open
    const subClosed=subPools.filter(x=>x.status==='closed').length;
    if(subClosed>0 && subClosed<subPools.length) st={text:t('partial'),cls:"status-partial"};
@@ -581,7 +612,7 @@ function toggleSection(id){
 setInterval(()=>{renderAll()},60000);
 renderAll();
 
-const LAST_UPDATE='2026-08-31 17:24';
+const LAST_UPDATE='2026-08-31 18:50';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 
 function updateSyncAgo(){
