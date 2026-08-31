@@ -53,7 +53,7 @@ header p{color:#64748b;font-size:.85rem;margin-top:4px}
 .session-status.open{background:#166534;color:#fff}
 .session-status.maint{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
 .session-status.done{background:#f1f5f9;color:#94a3b8}
-.session-status.suspended{background:#f1f5f9;color:#94a3b8}
+.session-status.suspended{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
 .notice{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-top:12px;font-size:.78rem;color:#92400e}
 .section-title{font-size:1.1rem;font-weight:700;color:#1e293b;margin:12px 0 6px;padding-bottom:6px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
 .section-title .toggle{font-size:.9rem;color:#64748b}
@@ -170,9 +170,9 @@ let severeWarnings=[];
 <script>
 // ponytail: 單檔無框架，硬編碼數據，lightweight
 const I18N={
- zh:{title:"觀塘區康樂設施運作情況",pools:"🏊 游泳池",sports:"🏟️ 體育館",tennis:"🎾 網球場",football:"⚽ 足球場",other:"🎯 其他設施",open:"營運中",soon:"即將開始",done:"已結束",closed:"休館",partial:"部分開放",maint:"維修中",closed_today:"暫停開放",hours:"開放時段",today:"今日",lastUpd:"最後更新",src:"數據來源：康文署 · 觀塘區議會",view:"查看康文署官網 →",expand:"[展開 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暫停開放公告",closureReason:"因",upcoming:"即將開放",mainPool:"主池",closedNote:"今日暫停",cleaningDay:"今日為每周大清潔日",weatherWarn:"天氣警示",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公眾假期",buyCoffee:"請我飲咖啡",contactAuthor:"聯絡作者",share:"分享",backToTop:"返回頂部",copied:"已複製",artificial:"人造草地",natural:"天然草地"},
- en:{title:"Kwun Tong Leisure Facilities Status",pools:"🏊 Swimming Pools",sports:"🏟️ Sports Centres",tennis:"🎾 Tennis Courts",football:"⚽ Football Pitches",other:"🎯 Other Facilities",open:"Open",soon:"Opening Soon",done:"Closed",closed:"Closed",partial:"Partially Open",maint:"Maintenance",closed_today:"Suspended",hours:"Opening Sessions",today:"Today",lastUpd:"Last updated",src:"Data: LCSD · Kwun Tong DC",view:"View LCSD official page →",expand:"[Expand +]",collapse:"[Collapse −]",sync:"Last synced",closure:"Closure Notice",closureReason:"due to",upcoming:"Opens Soon",mainPool:"Main Pool",closedNote:"Suspended today",cleaningDay:"Weekly cleaning day",weatherWarn:"Weather Warning",sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",holiday:"Public Holiday",buyCoffee:"Buy me a coffee",contactAuthor:"Contact author",share:"Share",backToTop:"Back to top",copied:"Copied",artificial:"Artificial Turf",natural:"Natural Grass"},
- cn:{title:"观塘区康乐设施运作情况",pools:"🏊 游泳池",sports:"🏟️ 体育馆",tennis:"🎾 网球场",football:"⚽ 足球场",other:"🎯 其他设施",open:"营运中",soon:"即将开始",done:"已结束",closed:"休馆",partial:"部分开放",maint:"维修中",closed_today:"暂停开放",hours:"开放时段",today:"今日",lastUpd:"最后更新",src:"数据来源：康文署 · 观塘区议会",view:"查看康文署官网 →",expand:"[展开 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暂停开放公告",closureReason:"因",upcoming:"即将开放",mainPool:"主池",closedNote:"今日暂停",cleaningDay:"今日为每周大清洁日",weatherWarn:"天气警示",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公众假期",buyCoffee:"请我喝咖啡",contactAuthor:"联系作者",share:"分享",backToTop:"返回顶部",copied:"已复制",artificial:"人造草地",natural:"天然草地"}
+ zh:{title:"觀塘區康樂設施運作情況",pools:"🏊 游泳池",playrooms:"🎮 兒童遊戲室",sports:"🏟️ 體育館",tennis:"🎾 網球場",football:"⚽ 足球場",cycling:"🚲 單車場",other:"🎯 其他設施",open:"營運中",soon:"即將開始",done:"已結束",closed:"休館",partial:"部分開放",maint:"維修中",closed_today:"暫停開放",cleaningClosed:"暫停清潔中",hours:"開放時段",today:"今日",lastUpd:"最後更新",src:"數據來源：康文署 · 觀塘區議會",view:"查看康文署官網 →",expand:"[展開 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暫停開放公告",closureReason:"因",upcoming:"即將開放",mainPool:"主池",closedNote:"今日暫停",cleaningNote:"是日為清潔日，目前暫停，時間為上午10時至第二節開放時段完結為止，而泳池會於同日第三節重開。",cleaningDay:"今日為每周大清潔日",weatherWarn:"天氣警示",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公眾假期",buyCoffee:"請我飲咖啡",contactAuthor:"聯絡作者",share:"分享",backToTop:"返回頂部",copied:"已複製",artificial:"人造草地",natural:"天然草地"},
+ en:{title:"Kwun Tong Leisure Facilities Status",pools:"🏊 Swimming Pools",playrooms:"🎮 Playrooms",sports:"🏟️ Sports Centres",tennis:"🎾 Tennis Courts",football:"⚽ Football Pitches",cycling:"🚲 Cycling Tracks",other:"🎯 Other Facilities",open:"Open",soon:"Opening Soon",done:"Closed",closed:"Closed",partial:"Partially Open",maint:"Maintenance",closed_today:"Suspended",cleaningClosed:"Cleaning",hours:"Opening Sessions",today:"Today",lastUpd:"Last updated",src:"Data: LCSD · Kwun Tong DC",view:"View LCSD official page →",expand:"[Expand +]",collapse:"[Collapse −]",sync:"Last synced",closure:"Closure Notice",closureReason:"due to",upcoming:"Opens Soon",mainPool:"Main Pool",closedNote:"Suspended today",cleaningNote:"Cleaning day today. Pool suspended from 10:00 to end of session 2. Reopens in session 3.",cleaningDay:"Weekly cleaning day",weatherWarn:"Weather Warning",sun:"Sun",mon:"Mon",tue:"Tue",wed:"Wed",thu:"Thu",fri:"Fri",sat:"Sat",holiday:"Public Holiday",buyCoffee:"Buy me a coffee",contactAuthor:"Contact author",share:"Share",backToTop:"Back to top",copied:"Copied",artificial:"Artificial Turf",natural:"Natural Grass"},
+ cn:{title:"观塘区康乐设施运作情况",pools:"🏊 游泳池",playrooms:"🎮 兒童遊戲室",sports:"🏟️ 体育馆",tennis:"🎾 网球场",football:"⚽ 足球场",cycling:"🚲 单车场",other:"🎯 其他设施",open:"营运中",soon:"即将开始",done:"已结束",closed:"休馆",partial:"部分开放",maint:"维修中",closed_today:"暂停开放",cleaningClosed:"暂停清洁中",hours:"开放时段",today:"今日",lastUpd:"最后更新",src:"数据来源：康文署 · 观塘区议会",view:"查看康文署官网 →",expand:"[展开 +]",collapse:"[收合 −]",sync:"最近同步",closure:"暂停开放公告",closureReason:"因",upcoming:"即将开放",mainPool:"主池",closedNote:"今日暂停",cleaningNote:"是日为清洁日，目前暂停，时间为上午10时至第二节开放时段完结为止，而泳池会于同日第三节重开。",cleaningDay:"今日为每周大清洁日",weatherWarn:"天气警示",sun:"日",mon:"一",tue:"二",wed:"三",thu:"四",fri:"五",sat:"六",holiday:"公众假期",buyCoffee:"请我喝咖啡",contactAuthor:"联系作者",share:"分享",backToTop:"返回顶部",copied:"已复制",artificial:"人造草地",natural:"天然草地"}
 };
 const NAME_L10N={
  ktswim:{zh:"觀塘游泳池",en:"Kwun Tong Swimming Pool",cn:"观塘游泳池"},
@@ -337,6 +337,7 @@ function poolSubStatuses(f, todayStr, now){
     });
   }
   // 每周大清潔：10:00 至第二節結束 → 全場關閉（第三節重開）
+  let cleaningActive=false;
   if(f.cleaning && isCleaningDay(f.cleaning, now)){
     const CLEAN_START=10*60;
     let cleanEnd=18*60;
@@ -346,11 +347,12 @@ function poolSubStatuses(f, todayStr, now){
     }
     if(nm>=CLEAN_START && nm<cleanEnd){
       (f.facilities||[]).forEach(x=>closedSet.add(x.name));
+      cleaningActive=true;
     }
   }
   return f.facilities.map(x=>{
     if(closedSet.has(x.name)){
-      return {...x, status:'closed', note:t('closedNote')};
+      return {...x, status:'closed', note:cleaningActive?t('cleaningNote'):t('closedNote')};
     }
     return x;
   });
@@ -361,7 +363,7 @@ function officialLink(url,labelKey){return url?`<a href="${url}" target="_blank"
 const POOLS=[
 {id:"ktswim",name:"觀塘游泳池",address:"九龍觀塘翠屏道2號",addrEn:"2 Tsui Ping Road, Kwun Tong, Kowloon",addrCn:"九龙观塘翠屏道 2 号",phone:"2717 9022 / 2347 8140",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=18",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],closures:[{"date": "2026/08/31", "time": "06:30 - 14:15", "pools": "習泳池 (2)", "reason": "救生員不足", "poolsEn": "Teaching pool (2)", "reasonEn": "Insufficient Lifeguard"}, {"date": "2026/09/11", "time": "07:30 - 16:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}, {"date": "2026/09/12", "time": "07:30 - 15:00", "pools": "主池", "reason": "游泳比賽", "poolsEn": "Main pool", "reasonEn": "Competition"}, {"date": "2026/09/15", "time": "07:30 - 15:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}, {"date": "2026/09/18", "time": "07:30 - 15:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}, {"date": "2026/09/19", "time": "07:30 - 15:00", "pools": "主池", "reason": "游泳比賽", "poolsEn": "Main pool", "reasonEn": "Competition"}, {"date": "2026/09/22", "time": "07:30 - 15:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}, {"date": "2026/09/25", "time": "07:30 - 16:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}, {"date": "2026/09/28", "time": "07:30 - 16:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}, {"date": "2026/09/29", "time": "07:30 - 14:00", "pools": "主池", "reason": "學校水運會", "poolsEn": "Main pool", "reasonEn": "School Swimming Gala"}],maintenance:[{"pool": "戶外泳池", "start": "11/1", "end": "4/15", "nextYear": true}, {"pool": "室內泳池", "start": "1/2", "end": "2/21", "nextYear": false}],cleaning:{"day": "三", "fallback": "五"},facilities:[{name:"主池",spec:"50.03米 x 25米，水深 1.4-1.9米",status:"open"},{name:"訓練池",spec:"25米 x 30米，水深 1.2米",status:"open"},{name:"副池",spec:"50米 x 21米，水深 1.1-1.4米",status:"open"},{name:"習泳池 1&2",spec:"25米 x 12.5米，水深 0.7-0.9米",status:"open"},{name:"日光浴場",spec:"戶外",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}},
 {id:"ltswim",name:"藍田游泳池",address:"九龍藍田慶田街1號藍田綜合大樓1樓",addrEn:"Lam Tin, Kowloon",addrCn:"九龙蓝田",phone:"2205 6535, 2205 6711",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=42",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],closures:[],maintenance:[{"pool": "全場", "start": "4/16", "end": "6/5", "nextYear": false}],cleaning:{"day": "四", "fallback": "一"},facilities:[{name:"訓練池",spec:"25米 x 25米，水深 1.2-1.4米",status:"open"},{name:"習泳池",spec:"25米 x 10米，水深 0.7-0.9米",status:"open"},{name:"日光浴場",spec:"戶外",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}},
-{id:"jvswim",name:"佐敦谷游泳池",address:"九龍牛頭角彩霞道6號",addrEn:"Jordan Valley, Kowloon",addrCn:"九龙佐敦谷",phone:"2305 5919, 2305 5920",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=17",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],closures:[{"date": "2026/09/01", "time": "06:30 - 12:00", "pools": "嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}, {"date": "2026/09/01", "time": "13:00 - 18:00", "pools": "訓練池 , 嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Training Pool, Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}, {"date": "2026/09/01", "time": "19:00 - 22:00", "pools": "嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}],maintenance:[{"pool": "全場", "start": "11/1", "end": "3/31", "nextYear": true}],cleaning:{"day": "二", "fallback": "四"},facilities:[{name:"訓練池",spec:"25米 x 11米，水深 1-1.4米",status:"open"},{name:"嬉水池 1",spec:"不規則形狀，水深 0.6米",status:"open"},{name:"嬉水池 2&3",spec:"不規則形狀，水深 0.2-0.6米",status:"open"},{name:"嬉水池 4",spec:"不規則形狀，水深 0.2-0.3米",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}},
+{id:"jvswim",name:"佐敦谷游泳池",address:"九龍牛頭角彩霞道6號",addrEn:"Jordan Valley, Kowloon",addrCn:"九龙佐敦谷",phone:"2305 5919, 2305 5920",officialUrl:"https://www.lcsd.gov.hk/clpss/tc/webApp/Swimming.do?swpId=17",sessions:["06:30 - 12:00","13:00 - 18:00","19:00 - 22:00"],closures:[{"date": "2026/09/01", "time": "06:30 - 12:00", "pools": "嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}, {"date": "2026/09/01", "time": "13:00 - 18:00", "pools": "訓練池 , 嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Training Pool, Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}, {"date": "2026/09/01", "time": "19:00 - 22:00", "pools": "嬉水池 (2), 嬉水池 (3)", "reason": "其他", "poolsEn": "Leisure Pool (2), Leisure Pool (3)", "reasonEn": "Others"}],maintenance:[{"pool": "全場", "start": "11/1", "end": "3/31", "nextYear": true}],cleaning:{"day": "二", "fallback": "四"},facilities:[{name:"訓練池",spec:"25米 x 11米，水深 1-1.4米",status:"open"},{name:"嬉水池 1",spec:"不規則形狀，水深 0.6米",status:"open"},{name:"嬉水池 2&3",spec:"不規則形狀，水深 0.2-0.6米",status:"open"},{name:"嬉水池 4",spec:"不規則形狀，水深 0.2-0.3米",status:"open"}],schedule:{summer:[{session:"第一節",time:"06:30 - 12:00"},{session:"第二節",time:"13:00 - 18:00"},{session:"第三節",time:"19:00 - 22:00"}],cleaning:"每周大清潔：上午10時至第二節結束，第三節重開"}}
 ];
 
 const PLAYROOMS=[
@@ -405,14 +407,13 @@ const FOOTBALL_PITCHES=[
 const HK_HOLIDAYS=["2026/01/01", "2026/02/17", "2026/02/18", "2026/02/19", "2026/04/03", "2026/04/04", "2026/04/06", "2026/04/07", "2026/05/01", "2026/05/25", "2026/06/19", "2026/07/01", "2026/09/26", "2026/10/01", "2026/10/19", "2026/12/25", "2026/12/26", "2027/01/01", "2027/02/06", "2027/02/08", "2027/02/09", "2027/03/26", "2027/03/27", "2027/03/29", "2027/04/05", "2027/05/01", "2027/05/13", "2027/06/09", "2027/07/01", "2027/09/16", "2027/10/01", "2027/10/08", "2027/12/25", "2027/12/27"];
 
 const OTHER_FACILITIES=[
-{name:"美式桌球",addr:"鯉魚門體育館（油塘鯉魚門徑6號鯉魚門市政大廈2樓）",addrEn:"2/F, Lei Yue Mun Municipal Services Building, 6 Lei Yue Mun Path, Yau Tong",addrCn:"鲤鱼门市政大厦2楼（油塘鲤鱼门径6号）"},
-{name:"攀石牆",addr:"室內：鯉魚門體育館；室外：順利邨體育館",addrEn:"Indoor: Lei Yue Mun SC; Outdoor: Shun Lee Estate SC",addrCn:"室内：鲤鱼门体育馆；室外：顺利邨体育馆"},
-{name:"門球及高爾夫球發球道",addr:"順利邨體育館（觀塘順利邨道）",addrEn:"Shun Lee Estate Sports Centre (Shun Lee Estate Road)",addrCn:"顺利邨体育馆（观塘顺利邨道）"},
-{name:"棒球練習場",addr:"晒草灣遊樂場（藍田茜發道）",addrEn:"Sai Tso Wan Recreation Ground (Sin Fat Road, Lam Tin)",addrCn:"晒草湾游乐场（蓝田茜发道）"},
-{name:"單車場",addr:"九龍灣公園（九龍灣啟禮道）",addrEn:"Kowloon Bay Park (Kai Lai Road)",addrCn:"九龙湾公园（九龙湾启礼道）"},
-{name:"體操訓練場",addr:"順利邨體育館（觀塘順利邨道）",addrEn:"Shun Lee Estate Sports Centre (Shun Lee Estate Road)",addrCn:"顺利邨体育馆（观塘顺利邨道）"},
-{name:"散手訓練場",addr:"鯉魚門體育館（油塘鯉魚門徑6號）",addrEn:"Lei Yue Mun Sports Centre (6 Lei Yue Mun Path, Yau Tong)",addrCn:"鲤鱼门体育馆（油塘鲤鱼门径6号）"},
-{name:"兒童遊戲室",addr:"順利邨體育館、鯉魚門體育館、藍田（南）體育館",addrEn:"Shun Lee Estate SC, Lei Yue Mun SC, Lam Tin (South) SC",addrCn:"顺利邨体育馆、鲤鱼门体育馆、蓝田（南）体育馆"}
+{name:"美式桌球",nameEn:"American Billiards",nameCn:"美式台球",addr:"鯉魚門體育館（油塘鯉魚門徑6號鯉魚門市政大廈2樓）",addrEn:"2/F, Lei Yue Mun Municipal Services Building, 6 Lei Yue Mun Path, Yau Tong",addrCn:"鲤鱼门市政大厦2楼（油塘鲤鱼门径6号）"},
+{name:"攀石牆",nameEn:"Climbing Wall",nameCn:"攀岩墙",addr:"室內：鯉魚門體育館；室外：順利邨體育館",addrEn:"Indoor: Lei Yue Mun SC; Outdoor: Shun Lee Estate SC",addrCn:"室内：鲤鱼门体育馆；室外：顺利邨体育馆"},
+{name:"門球及高爾夫球發球道",nameEn:"Gateball & Golf Driving Range",nameCn:"门球及高尔夫球发球道",addr:"順利邨體育館（觀塘順利邨道）",addrEn:"Shun Lee Estate Sports Centre (Shun Lee Estate Road)",addrCn:"顺利邨体育馆（观塘顺利邨道）"},
+{name:"棒球練習場",nameEn:"Baseball Practice Area",nameCn:"棒球练习场",addr:"晒草灣遊樂場（藍田茜發道）",addrEn:"Sai Tso Wan Recreation Ground (Sin Fat Road, Lam Tin)",addrCn:"晒草湾游乐场（蓝田茜发道）"},
+{name:"單車場",nameEn:"Cycling Area",nameCn:"单车场",addr:"九龍灣公園（九龍灣啟禮道）",addrEn:"Kowloon Bay Park (Kai Lai Road)",addrCn:"九龙湾公园（九龙湾启礼道）"},
+{name:"體操訓練場",nameEn:"Gymnastics Training Area",nameCn:"体操训练场",addr:"順利邨體育館（觀塘順利邨道）",addrEn:"Shun Lee Estate Sports Centre (Shun Lee Estate Road)",addrCn:"顺利邨体育馆（观塘顺利邨道）"},
+{name:"散手訓練場",nameEn:"Karate Training Area",nameCn:"散手训练场",addr:"鯉魚門體育館（油塘鯉魚門徑6號）",addrEn:"Lei Yue Mun Sports Centre (6 Lei Yue Mun Path, Yau Tong)",addrCn:"鲤鱼门体育馆（油塘鲤鱼门径6号）"},
 ];
 
 function renderPools(){
@@ -441,6 +442,12 @@ function renderPools(){
    let sessions=f.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
+     if(f.cleaning&&isCleaningDay(f.cleaning, now)){
+       const CLEAN_START=10*60; let cleanEnd=18*60;
+       const s2=f.sessions&&f.sessions[1]|| (f.schedule&&f.schedule.summer&&f.schedule.summer[1]&&f.schedule.summer[1].time);
+       if(s2){ const r2=parseRange(s2); if(r2) cleanEnd=r2.end; }
+       if(r && r.start<cleanEnd && r.end>CLEAN_START) ss={text:t('cleaningClosed'),cls:'suspended'};
+     }
      return `<div class="session"><span class="session-time">${trSession(s,currentLang)} ${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
    let subPools=poolSubStatuses(f, todayStr, now);
@@ -539,8 +546,9 @@ function renderFootballPitches(){
 
 function renderOtherFacilities(){
  return OTHER_FACILITIES.map(f=>{
+   const nm=currentLang==='en'?(f.nameEn||f.name):(currentLang==='cn'?(f.nameCn||f.name):f.name);
    const a=currentLang==='en'?(f.addrEn||f.addr):(currentLang==='cn'?(f.addrCn||f.addr):f.addr);
-   return `<div class="card collapsed"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${f.name}</div><div class="facility-address">${a}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"></div></div>`
+   return `<div class="card collapsed"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${nm}</div><div class="facility-address">${a}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"></div></div>`
  }).join("");
 }
 
@@ -573,7 +581,7 @@ function toggleSection(id){
 setInterval(()=>{renderAll()},60000);
 renderAll();
 
-const LAST_UPDATE='2026-08-31 09:15';
+const LAST_UPDATE='2026-08-31 13:26';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 
 function updateSyncAgo(){
@@ -624,7 +632,7 @@ document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>
    h.innerHTML=secMap[id]+' <span class="toggle"></span>';
  });
  const navItems=document.querySelectorAll('.index-item');
- const navTxt=[t('pools')+' (3)',t('sports')+' (9)',t('tennis')+' (6)',t('football')+' (2)',t('other')];
+ const navTxt=[t('pools')+' (3)',t('playrooms')+' (4)',t('sports')+' (9)',t('tennis')+' (6)',t('cycling')+' (2)',t('football')+' (2)',t('other')];
  navItems.forEach((el,i)=>{ if(navTxt[i]) el.textContent=navTxt[i]; });
  renderFooter();
  document.querySelectorAll('.card').forEach(c=>c.classList.toggle('collapsed',c.classList.contains('collapsed')));

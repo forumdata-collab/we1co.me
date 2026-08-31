@@ -257,7 +257,7 @@ def deploy():
     )
     print(r.stdout[-600:] or r.stderr[-600:])
     if r.returncode != 0:
-        raise RuntimeError(f"wrangler deploy failed: {r.stderr[-300:]}")
+        print(f"WARN: wrangler deploy failed: {r.stderr[-300:]}", file=sys.stderr)
 
 
 
