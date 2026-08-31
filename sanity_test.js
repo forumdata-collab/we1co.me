@@ -34,7 +34,7 @@ for(let i=0;i<lines.length;i++){
 const ptm = code.match(/  function parseThunder\(wd\)\{[\s\S]*?\n  \}/);
 if(ptm) funcs.parseThunder = ptm[0];
 
-const need = ['parseRange','sessionStatusAt','poolSubStatuses','facilityOverallStatus','renderPools','parseThunder','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
+const need = ['parseRange','sessionStatus','poolSubStatuses','facilityOverallStatus','renderPools','parseThunder','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
 const missing = need.filter(n=>!funcs[n]);
 if(missing.length){ console.log('MISSING funcs:', missing); process.exit(1); }
 
@@ -54,8 +54,8 @@ const sandbox = {console, Date, Math, Set, JSON, t, tl, trSession, trDay, FSTATU
   lname:(id)=>id, addr:()=>'', officialLink:()=>'', trTime:()=>'', LDAY:{}};
 vm.createContext(sandbox);
 // 依賴順序: parseRange → sessionStatusAt → poolSubStatuses → facilityOverallStatus → renderPools
-const depOrder = ['parseRange','isCleaningDay','sessionStatusAt','inMaintenance','parseMaintNote','poolSubStatuses','facilityOverallStatus','renderPools'];
-const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatusAt,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote};';
+const depOrder = ['parseRange','sessionStatus','isCleaningDay','inMaintenance','parseMaintNote','poolSubStatuses','facilityOverallStatus','renderPools'];
+const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatus,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote};';
 vm.runInContext(codeToRun, sandbox);
 // parseThunder 單獨跑 (只用 t 唔依賴其他)
 try{ vm.runInContext(funcs.parseThunder + '\n;__f.parseThunder=parseThunder;', sandbox); }catch(e){ console.log('parseThunder load fail:', e.message); }
@@ -77,21 +77,18 @@ ok('06:30 - 12:00', JSON.stringify(f.parseRange('06:30 - 12:00'))==='{"start":39
 ok('19:00 - 22:00', JSON.stringify(f.parseRange('19:00 - 22:00'))==='{"start":1140,"end":1320}');
 ok('null input → null', f.parseRange(null)===null);
 
-console.log('── sessionStatusAt (空檔行為) ──');
+console.log('── sessionStatus (每節獨立判斷) ──');
 const sessions=[{session:'一',time:'06:30 - 12:00'},{session:'二',time:'13:00 - 18:00'},{session:'三',time:'19:00 - 22:00'}];
-let r=f.sessionStatusAt(sessions, 18*60);
-ok('18:00 空檔 → soon', r.text==='即將開始' && r.cls==='soon', JSON.stringify(r));
-r=f.sessionStatusAt(sessions, 6*60);
-ok('06:00 → soon', r.text==='即將開始');
-r=f.sessionStatusAt(sessions, 10*60);
-ok('10:00 第一節中 → 營運中', r.text==='營運中' && r.cls==='open');
-r=f.sessionStatusAt(sessions, 23*60);
+let r=f.sessionStatus(f.parseRange('06:30 - 12:00'), 18*60);
+ok('18:00 第一節已過 → 已結束', r.text==='已結束' && r.cls==='done', JSON.stringify(r));
+r=f.sessionStatus(f.parseRange('19:00 - 22:00'), 18*60);
+ok('18:00 第三節未開始 → soon', r.text==='即將開始' && r.cls==='soon');
+r=f.sessionStatus(f.parseRange('13:00 - 18:00'), 15*60);
+ok('15:00 第二節中 → 營運中', r.text==='營運中' && r.cls==='open');
+r=f.sessionStatus(f.parseRange('06:30 - 12:00'), 23*60);
 ok('23:00 全日完 → 已結束', r.text==='已結束');
-r=f.sessionStatusAt(sessions, 12*60+30);
-ok('12:30 午休 → soon', r.text==='即將開始');
-// 字串陣列支援 (kt.html 用)
-r=f.sessionStatusAt(['06:30 - 12:00','13:00 - 18:00','19:00 - 22:00'], 18*60);
-ok('kt.html 字串陣列 18:00 → soon', r.text==='即將開始', JSON.stringify(r));
+r=f.sessionStatus(f.parseRange('19:00 - 22:00'), 19*60+53);
+ok('19:53 第三節 → 營運中', r.text==='營運中', JSON.stringify(r));
 
 console.log('── poolSubStatuses 預告暫停 ──');
 sandbox.currentLang='zh';
