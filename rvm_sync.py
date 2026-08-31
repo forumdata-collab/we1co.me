@@ -65,7 +65,7 @@ def write_json(machines):
     payload = {'lastSync': now, 'machines': machines}
     with open(JSON_PATH, 'w', encoding='utf-8') as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
-    print(f"rvm_status.json: {len(machines)} machines, synced {now}")
+    # Silent on success - only errors reported
 
 
 def deploy():
@@ -91,7 +91,7 @@ if __name__ == '__main__':
         write_json(machines)
         if '--deploy' in sys.argv:
             deploy()
-        print('PASS')
+        # PASS - silent
     except Exception as e:
         print(f'FAIL: {e}', file=sys.stderr)
         import traceback

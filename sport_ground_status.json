@@ -1,5 +1,5 @@
 {
-  "lastSync": "2026-08-31 08:15",
+  "lastSync": "2026-08-31 19:16",
   "today": 31,
   "todayDate": "2026/08/31",
   "tomorrow": 1,
@@ -258,7 +258,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "08:30 - 09:00",
@@ -412,7 +412,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": false
+      "is_current": true
     },
     {
       "time": "19:30 - 20:00",
@@ -484,7 +484,7 @@
       "code": "M",
       "status_zh": "關閉",
       "status_en": "Closed",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "08:30 - 09:00",
@@ -638,7 +638,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": false
+      "is_current": true
     },
     {
       "time": "19:30 - 20:00",
@@ -710,7 +710,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "08:30 - 09:00",
@@ -864,7 +864,7 @@
       "code": "B",
       "status_zh": "預訂暫停",
       "status_en": "Closed (booking)",
-      "is_current": false
+      "is_current": true
     },
     {
       "time": "19:30 - 20:00",

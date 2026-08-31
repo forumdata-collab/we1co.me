@@ -116,36 +116,44 @@ touch-action: manipulation;
 
 <script>
 // 天氣模組 — HKO 官方 Open Data API (CORS enabled)
-let severeWarnings=[]; // 八號風球以上 / 黑雨 — 庫館用
-let thunderWarnings=[]; // 雷暴警告 — 泳池用
+let severeWarnings=[]; // 八號風球以上 / 黑雨 — 庫館用 (zh)
+let severeWarningsEn=[]; // (en)
+let thunderWarnings=[]; // 雷暴警告 — 泳池用 (zh)
+let thunderWarningsEn=[]; // (en)
+function wWarn(){ // 按 currentLang 揀警告
+  return currentLang==='en'?{severe:severeWarningsEn,thunder:thunderWarningsEn}:{severe:severeWarnings,thunder:thunderWarnings};
+}
 (function(){
   const API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
-  const WARN_API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
+  const WARN_API_TC='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc';
+  const WARN_API_EN='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=en';
   const ICON_BASE='https://d28gfsrd1pujc.cloudfront.net/frontend_images/mod_sp_weather/images/';
   function parseSevere(wd){
     const out=[];
     const warns=wd&&wd.warnings?wd.warnings:{};
     for(const k in warns){
       const w=warns[k]; if(!w) continue;
-      if(w.status && w.status.includes('取消')) continue;
+      if(w.status && (w.status.includes('取消')||w.status.includes('cancelled'))) continue;
       const name=w.name||'';
-      if(/八號|九號|十號/.test(name) || name.includes('黑色暴雨')) out.push(name);
+      if(/八號|九號|十號/.test(name) || name.includes('黑色暴雨') || /Signal No\. (8|9|10)/.test(name) || name.includes('Black Rainstorm')) out.push(name);
     }
     return out;
   }
   function parseThunder(wd){
     const out=[];
+    const en=wd&&wd.details&&wd.details.some?false:false;
     // New API format: wd.details[] with warningStatementCode
     if(wd&&wd.details&&Array.isArray(wd.details)){
       for(const d of wd.details){
         const code=d.warningStatementCode||'';
         const stmt=(d.contents&&d.contents[0])||'';
-        if(code==='WTS' || stmt.includes('雷暴')){
-          if(!stmt.includes('取消')){
-            // 提取有效時間，如「有效時間至今日下午7時正」
-            const m=stmt.match(/有效時間至([^，。]*)/);
-            const valid=m?`（${m[1]}）`:'';
-            out.push('雷暴警告'+valid);
+        if(code==='WTS' || stmt.includes('雷暴') || stmt.includes('Thunderstorm')){
+          if(!stmt.includes('取消') && !stmt.includes('cancelled')){
+            // 提取有效時間：中文「有效時間(延長)?至X」/ 英文「until (時間)」
+            const m=stmt.match(/有效時間(?:延長)?至([^，。]*)/)||stmt.match(/until ([^,;.]*(?:\.m\.)?[^,;.]*)/i);
+            const isEn=/[A-Za-z]/.test(stmt);
+            const valid=m?(isEn?` (until ${m[1]})`:`（${m[1]}）`):'';
+            out.push(isEn?('Thunderstorm Warning'+valid):('雷暴警告'+valid));
           }
         }
       }
@@ -154,9 +162,9 @@ let thunderWarnings=[]; // 雷暴警告 — 泳池用
     const warns=wd&&wd.warnings?wd.warnings:{};
     for(const k in warns){
       const w=warns[k]; if(!w) continue;
-      if(w.status && w.status.includes('取消')) continue;
+      if(w.status && (w.status.includes('取消')||w.status.includes('cancelled'))) continue;
       const name=w.name||'';
-      if(/八號|九號|十號/.test(name) || name.includes('黑色暴雨') || name.includes('雷暴')) out.push(name);
+      if(/八號|九號|十號/.test(name) || name.includes('黑色暴雨') || name.includes('雷暴') || name.includes('Thunderstorm')) out.push(name);
     }
     return out;
   }
@@ -172,12 +180,13 @@ let thunderWarnings=[]; // 雷暴警告 — 泳池用
       const el=document.getElementById('topWeather');
       if(el){
         // Build warning indicators
+        const w=wWarn();
         let warnHtml='';
-        if(severeWarnings.length){
-          warnHtml+=`<span style="margin-left:8px;color:#fecaca;background:#991b1b;padding:1px 6px;border-radius:4px;font-size:.6rem;font-weight:600">⚠ ${severeWarnings.join('、')}</span>`;
+        if(w.severe.length){
+          warnHtml+=`<span style="margin-left:8px;color:#fecaca;background:#991b1b;padding:1px 6px;border-radius:4px;font-size:.6rem;font-weight:600">⚠ ${w.severe.join('、')}</span>`;
         }
-        if(thunderWarnings.length){
-          warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#facc15;color:#713f12;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #eab308"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ${thunderWarnings.join('、')}</span>`;
+        if(w.thunder.length){
+          warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#facc15;color:#713f12;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #eab308"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ${w.thunder.join('、')}</span>`;
         }
         el.innerHTML=
           `<img src="${ICON_BASE}weather_${icon}.png" alt="" style="height:16px;vertical-align:middle;margin-right:4px">`+
@@ -189,24 +198,23 @@ let thunderWarnings=[]; // 雷暴警告 — 泳池用
       const el=document.getElementById('topWeather');
       if(el) el.textContent='天氣資料暫不可用';
     }
-    // 惡劣天氣警示（黑雨 / 八號風球以上）— 庫館用
+    // 惡劣天氣警示（黑雨 / 八號風球以上）— 庫館用 (雙語)
     try{
-      const w=await fetch(WARN_API);
-      const wd=await w.json();
-      severeWarnings=parseSevere(wd);
-    }catch(e){ severeWarnings=[]; }
-    // 雷暴警告 — 泳池用
-    try{
-      const w=await fetch(WARN_API);
-      const wd=await w.json();
-      thunderWarnings=parseThunder(wd);
-    }catch(e){ thunderWarnings=[]; }
+      const [w1,w2]=await Promise.all([fetch(WARN_API_TC),fetch(WARN_API_EN)]);
+      const [wd1,wd2]=await Promise.all([w1.json(),w2.json()]);
+      severeWarnings=parseSevere(wd1);
+      severeWarningsEn=parseSevere(wd2);
+      thunderWarnings=parseThunder(wd1);
+      thunderWarningsEn=parseThunder(wd2);
+    }catch(e){ severeWarnings=[]; severeWarningsEn=[]; thunderWarnings=[]; thunderWarningsEn=[]; }
     // 雷暴橫幅顯示/隱藏
     const banner=document.getElementById('thunderBanner');
     if(banner){
-      if(thunderWarnings.length){
+      const w=wWarn();
+      if(w.thunder.length){
         banner.style.display='block';
-        banner.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ 雷暴警告生效中 — 泳池可能暫停開放`;
+        const suffix=currentLang==='en'?' — Pools may close':' — 泳池可能暫停開放';
+        banner.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ ${w.thunder.join('、')}${currentLang==='en'?' in effect':'生效中'}${suffix}`;
         document.querySelector('.nav-bar').style.top='48px';
         document.body.style.paddingTop='100px';
       }else{
@@ -353,6 +361,7 @@ function isMaintDay(obj,date){
 }
 function parseRange(s){
 // s like "早上 9:00 - 9:45" or "下午 12:30 - 13:15" or "24小時" or "06:30 - 12:00"
+if(!s) return null;
 if(s.includes("24小時")) return {start:0,end:1440}
 let m=s.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
 if(!m) return null;
@@ -501,10 +510,17 @@ function renderPools(){
  const todayStr=now.toISOString().slice(0,10).replace(/-/g,'/');
  return FACILITIES.map(f=>{
    let st = facilityOverallStatus(f.schedule.summer.map(x=>x.time), nm);
+   // 惡劣天氣警示（八號風球以上 / 黑雨 + 雷暴）— 置頂
+   let weatherHtml='';
+   const ww=wWarn();
+   if(ww.severe.length || ww.thunder.length){
+     const allWarnings=[...ww.severe, ...ww.thunder];
+     weatherHtml=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${allWarnings.join('、')} — ${currentLang==='en'?'Pool may close':currentLang==='cn'?'泳池可能暫停開放':'泳池可能暫停開放'}</div>`;
+   }
    // 今天及未來的暫停開放公告
-   let closureHtml='';
+   let closureHtml=weatherHtml;
    if(f.closures){
-     closureHtml=f.closures.filter(c=>{if(c.date>todayStr)return true;if(c.date!==todayStr)return false;const cr=parseRange(c.time);return cr&&nm<cr.end}).map(c=>{
+     closureHtml+=f.closures.filter(c=>{if(c.date>todayStr)return true;if(c.date!==todayStr)return false;const cr=parseRange(c.time);return cr&&nm<cr.end}).map(c=>{
      const p=currentLang==='en'?(c.poolsEn||c.pools):c.pools;
      const r=currentLang==='en'?(c.reasonEn||c.reason):c.reason;
      return `<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('closure')}（${c.date} ${c.time}）：${p} — ${t('closureReason')} ${r}</div>`
@@ -514,11 +530,8 @@ function renderPools(){
    if(f.cleaning&&isCleaningDay(f.cleaning, now)){
      closureHtml+=`<div class="notice" style="background:#e0e7ff;border-color:#c7d2fe;color:#3730a3">🧹 ${t('cleaningDay')}（${f.cleaning.day}${f.cleaning.fallback?' → '+f.cleaning.fallback:''}）</div>`;
    }
-   // 惡劣天氣警示（八號風球以上 / 黑雨 + 雷暴）
-     if(severeWarnings.length || thunderWarnings.length){
-       const allWarnings=[...severeWarnings, ...thunderWarnings];
-       closureHtml+=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${allWarnings.join('、')} — ${currentLang==='en'?'Pool may close':currentLang==='cn'?'泳池可能暫停開放':'泳池可能暫停開放'}</div>`;
-     }
+   let subPools=poolSubStatuses(f, todayStr, now);
+   const subPoolAllClosed=subPools.length>0&&subPools.every(x=>x.status==='closed');
    let sessions=f.schedule.summer.map(s=>{
     let r=parseRange(s.time);
     let inRange=r && nm>=r.start && nm<r.end;
@@ -529,21 +542,17 @@ function renderPools(){
       if(f.schedule&&f.schedule.summer&&f.schedule.summer[1]){ const r2=parseRange(f.schedule.summer[1].time); if(r2) cleanEnd=r2.end; }
       if(r && r.start<cleanEnd && r.end>CLEAN_START) ss={text:t('cleaningClosed'),cls:'suspended'};
     }
-    // 公告遮罩：僅當公告已生效時覆蓋為「暫停」（未生效時保持「即將開始」）
+    // 公告遮罩：僅當公告覆蓋全部設施時，session 才顯示暫停（部分設施暫停唔影響節次狀態）
     if(f.closures){
-      for(const c of f.closures){
-        if(c.date!==todayStr) continue;
-        const cr=parseRange(c.time);
-        // session 範圍與公告範圍重疊，且公告已開始
-        if(cr && r && r.start<cr.end && r.end>cr.start && nm>=cr.start && !ss.cls.startsWith('suspended')) ss={text:t('closed_today'),cls:'suspended'};
-      }
+      const crs=f.closures.filter(c=>c.date===todayStr).map(c=>parseRange(c.time)).filter(Boolean);
+      const allAffected=crs.some(cr=>r&&r.start<cr.end&&r.end>cr.start&&nm>=cr.start&&nm<cr.end)&&subPoolAllClosed;
+      if(allAffected && !ss.cls.startsWith('suspended')) ss={text:t('closed_today'),cls:'suspended'};
     }
     return `<div class="session"><span class="session-time">${trSession(s.session,currentLang)} ${trSession(s.time,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
-  }).join("");
-   let subPools=poolSubStatuses(f, todayStr, now);
-   // 整體狀態係「即將開始」時，未暫停嘅子池都跟隨顯示「即將開始」
-   if(st.cls==="soon"||st.text===t('soon')){
-     subPools=subPools.map(x=>x.status==='open'?{...x,status:'soon'}:x);
+   }).join("");
+    // 整體狀態係「即將開始」時，未暫停嘅子池都跟隨顯示「即將開始」
+    if(st.cls==="soon"||st.text===t('soon')){
+      subPools=subPools.map(x=>x.status==='open'?{...x,status:'soon'}:x);
    }
    // Dynamic partial status: some facilities closed → partially open
    const subClosed=subPools.filter(x=>x.status==='closed').length;
@@ -594,8 +603,9 @@ function renderLibraries(){
    }).join("");
    let official=officialLink(l.officialUrl,'viewLib');
    let warnHtml='';
-   if(severeWarnings.length){
-     warnHtml=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${severeWarnings.join('、')} — ${t('libMayClose')}</div>`;
+   const lw=wWarn();
+   if(lw.severe.length){
+     warnHtml=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('weatherWarn')}：${lw.severe.join('、')} — ${t('libMayClose')}</div>`;
    }
    return `<div class="card collapsed" id="${l.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(l.id)}</div><div class="facility-address">${addr(l)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${badgeCls}">${badgeText}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('libhours')}</div>${rows}</div>${warnHtml}${official}</div></div>`
  }).join("");
@@ -700,12 +710,23 @@ function renderRVM(){
  const syncTime=rvmData?rvmData.lastSync:now.toLocaleString('zh-HK',{hour12:false}).replace(/\//g,'-');
  return `<div class="rvm-card"><div class="rvm-grid">${items}</div><div class="rvm-sync">${t('sync')}：${syncTime}</div><div style="text-align:center;margin-top:8px"><a href="https://www.hkrvms3.com.hk/hk/" target="_blank" rel="noopener" style="font-size:.75rem;color:#1e3a8a;text-decoration:underline">hkrvms3.com.hk — ${t("rvmOfficialMap")} ↗</a></div></div>`;
 }
+function safeRender(elId, fn){
+  const el=document.getElementById(elId);
+  if(!el) return;
+  try{
+    el.innerHTML=fn();
+  }catch(e){
+    console.error(elId,e);
+    // 首次渲染失敗先顯示提示；已有內容則保留（避免白屏）
+    if(!el.innerHTML.trim()) el.innerHTML='<div class="notice" style="color:#b45309">⚠️ 數據暫時無法顯示，將自動重試</div>';
+  }
+}
 function renderAll(){
- try{document.getElementById('facilities').innerHTML=renderPools();}catch(e){console.error('renderPools',e);}
- try{document.getElementById('sportground-grid').innerHTML=renderSportGround();}catch(e){console.error('renderSportGround',e);}
- try{document.getElementById('playrooms').innerHTML=renderPlayrooms();}catch(e){console.error('renderPlayrooms',e);}
- try{document.getElementById('libraries').innerHTML=renderLibraries();}catch(e){console.error('renderLibraries',e);}
- try{document.getElementById('rvm-facilities').innerHTML=renderRVM();}catch(e){console.error('renderRVM',e);}
+ safeRender('facilities',renderPools);
+ safeRender('sportground-grid',renderSportGround);
+ safeRender('playrooms',renderPlayrooms);
+ safeRender('libraries',renderLibraries);
+ safeRender('rvm-facilities',renderRVM);
  updateClock();
 }
 function updateClock(){
@@ -725,7 +746,7 @@ function toggleSection(id){
 setInterval(()=>{renderAll()},60000);
 loadRVM();loadSportGround();
 // LAST_UPDATE is a static timestamp overwritten by lcsd_closures.py on each auto-sync
-const LAST_UPDATE='2026-08-31 18:50';
+const LAST_UPDATE='2026-08-31 19:35';
 document.getElementById('lastUpdate').textContent=LAST_UPDATE;
 // Live "X分鐘前同步"
 function updateSyncAgo(){
@@ -787,6 +808,12 @@ document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>
  // 收合提示文字
  document.querySelectorAll('.card').forEach(c=>c.classList.toggle('collapsed',c.classList.contains('collapsed')));
  renderAll();
+ // 切語言後重繪雷暴橫幅
+ const ww=wWarn();
+ const banner=document.getElementById('thunderBanner');
+ if(banner&&ww.thunder.length){
+   banner.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ ${ww.thunder.join('、')}${currentLang==='en'?' in effect':'生效中'}${currentLang==='en'?' — Pools may close':' — 泳池可能暫停開放'}`;
+ }
 }));
 </script>
 </body>
