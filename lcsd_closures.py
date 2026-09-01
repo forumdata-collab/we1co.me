@@ -341,7 +341,7 @@ if __name__ == "__main__":
             all_data[pid] = pool_data(swp)
             if pid != list(POOLS.keys())[-1]:
                 time.sleep(random.uniform(0.8, 2.5))
-        patch_html(all_data)
+        patch_configs(all_data)
         if "--deploy" in sys.argv:
             deploy()
         print("PASS")
