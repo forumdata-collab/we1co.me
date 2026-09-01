@@ -8,6 +8,8 @@ const NAME_L10N={
  ktswim:{zh:"觀塘游泳池",en:"Kwun Tong Swimming Pool",cn:"观塘游泳池"},
  ltswim:{zh:"藍田游泳池",en:"Lam Tin Swimming Pool",cn:"蓝田游泳池"},
  jvswim:{zh:"佐敦谷游泳池",en:"Jordan Valley Swimming Pool",cn:"佐敦谷游泳池"},
+ "ct-kb":{zh:"九龍灣公園單車場",en:"Kowloon Bay Park Cycling Track",cn:"九龙湾公园单车场"},
+ "ct-klt":{zh:"功樂道遊樂場單車場",en:"Kung Lok Road Recreation Ground Cycling Track",cn:"功乐道游乐场单车场"},
  "sc-cwr":{zh:"彩榮路體育館",en:"Choi Wing Road Sports Centre",cn:"彩荣路体育馆"},
  "sc-chd":{zh:"振華道體育館",en:"Chun Wah Road Sports Centre",cn:"振华道体育馆"},
  "sc-hks":{zh:"曉光街體育館",en:"Hiu Kwong Street Sports Centre",cn:"晓光街体育馆"},
@@ -119,7 +121,7 @@ function renderCyclingTracks(){
    const now=hkNow(), nm=hkMinutes(now);
    const st=facilityOverallStatus([f.hours], nm);
    const a=currentLang==='en'?(f.addrEn||f.addr):(currentLang==='cn'?(f.addrCn||f.addr):f.addr);
-   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${f.name}</div><div class="facility-address">${a}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="detail-row"><span class="detail-label">${t('hours')}</span><span>${f.hours}</span></div><div class="detail-row"><span class="detail-label">${currentLang==='en'?'Phone':currentLang==='cn'?'电话':'電話'}</span><span>${f.phone}</span></div><div class="detail-row"><span class="detail-label">${currentLang==='en'?'Facilities':currentLang==='cn'?'設施':'設施'}</span><span>${f.facilities}</span></div></div></div>`
+   return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${a}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="detail-row"><span class="detail-label">${t('hours')}</span><span>${f.hours}</span></div><div class="detail-row"><span class="detail-label">${currentLang==='en'?'Phone':currentLang==='cn'?'电话':'電話'}</span><span>${f.phone}</span></div><div class="detail-row"><span class="detail-label">${currentLang==='en'?'Facilities':currentLang==='cn'?'設施':'設施'}</span><span>${f.facilities}</span></div></div></div>`
  }).join("");
 }
 
