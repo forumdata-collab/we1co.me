@@ -16,8 +16,9 @@ import urllib.request
 from datetime import date, datetime, timezone, timedelta
 
 POOLS = {"tkoswim": 35, "ktswim": 18, "ltswim": 42, "jvswim": 17}
-HTML_PATHS = ["/home/ubuntu/we1co.me/index.html", "/home/ubuntu/we1co.me/kt.html"]
-HTML_PATH = HTML_PATHS[0]  # backward compat for external imports
+CONFIG_PATHS = ["/home/ubuntu/we1co.me/districts/sk.js", "/home/ubuntu/we1co.me/districts/kt.js"]
+HTML_PATH = CONFIG_PATHS[0]  # backward compat for external imports
+COMMON_JS = "/home/ubuntu/we1co.me/common.js"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; LCSD-closure-bot/1.0)"}
 
 
@@ -29,7 +30,7 @@ def _cf_token():
     for p in ["/home/ubuntu/.config/lcsd_proxy_token", "/tmp/cf_proxy_token.txt"]:
         try:
             with open(p) as f: return f.read().strip()
-        except: pass
+        except (FileNotFoundError, PermissionError): pass
     return ""
 def fetch(url):
     # ponytail: CF Anycast IP 隱藏 VM 固定 IP + 600s cache 降頻；fallback 直連防單點
@@ -48,29 +49,42 @@ def fetch(url):
 
 
 def parse_closures(html):
-    """暫停開放公告 (Chinese): 2026/08/29 06:30 - 2026/08/29 14:15 | 跳水池... | 救生員不足"""
+    """暫停開放公告 (Chinese): 2026/08/29 06:30 - 2026/08/29 14:15 | 跳水池... | 救生員不足 | 備註"""
     closures = []
     date_re = re.compile(
         r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*\d{4}/\d{2}/\d{2}\s+(\d{2}:\d{2})"
     )
+    seen = set()
     for m in date_re.finditer(html):
         d, t_start, t_end = m.group(1), m.group(2), m.group(3)
-        after = html[m.end():m.end() + 600]
+        after = html[m.end():m.end() + 1500]
         pools_match = re.search(r"<td>\s*([^<]{2,60}(?:池|場|台|看台)[^<]*)</td>", after)
-        # 原因：pools td 之後嘅下一個非空 td（唔限關鍵詞，如「游泳比賽」「學校水運會」）
-        reason = ""
+        reason, remarks = "", ""
         if pools_match:
             after_pools = after[pools_match.end():]
             reason_match = re.search(r"<td>\s*([^<]{2,40}?)\s*</td>", after_pools)
             if reason_match:
                 reason = reason_match.group(1).strip()
+                # 3rd column: 備註 (remarks) — skip if it's a date (next row bleeding)
+                after_reason = after_pools[reason_match.end():]
+                remarks_match = re.search(r"<td>\s*([^<]{1,40})\s*</td>", after_reason)
+                if remarks_match:
+                    rm_text = remarks_match.group(1).strip()
+                    # Skip if it looks like a date (next row bleeding through)
+                    if not re.match(r"\d{4}/\d{2}/\d{2}", rm_text):
+                        remarks = rm_text
         if pools_match:
             pools = pools_match.group(1).strip().strip(",，")
+            key = (d, f"{t_start} - {t_end}", pools)
+            if key in seen:
+                continue
+            seen.add(key)
             closures.append({
                 "date": d,
                 "time": f"{t_start} - {t_end}",
                 "pools": pools,
                 "reason": reason or "公告",
+                "remarks": remarks,
             })
     today = date.today().strftime("%Y/%m/%d")
     return [c for c in closures if c["date"] >= today]
@@ -80,26 +94,38 @@ def parse_closures_en(html):
     date_re = re.compile(
         r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*\d{4}/\d{2}/\d{2}\s+(\d{2}:\d{2})"
     )
+    seen = set()
     for m in date_re.finditer(html):
         d, t_start, t_end = m.group(1), m.group(2), m.group(3)
-        after = html[m.end():m.end() + 600]
+        after = html[m.end():m.end() + 1500]
         pools_match = re.search(
             r"<td>\s*([^<]{2,60}(?:pool|stand|area|slide)[^<]*)</td>",
             after, re.IGNORECASE,
         )
-        reason = ""
+        reason, remarks = "", ""
         if pools_match:
             after_pools = after[pools_match.end():]
             reason_match = re.search(r"<td>\s*([^<]{2,40}?)\s*</td>", after_pools)
             if reason_match:
                 reason = reason_match.group(1).strip()
+                after_reason = after_pools[reason_match.end():]
+                remarks_match = re.search(r"<td>\s*([^<]{1,40})\s*</td>", after_reason)
+                if remarks_match:
+                    rm_text = remarks_match.group(1).strip()
+                    if not re.match(r"\d{4}/\d{2}/\d{2}", rm_text):
+                        remarks = rm_text
         if pools_match:
             pools = pools_match.group(1).strip().strip(",，")
+            key = (d, f"{t_start} - {t_end}", pools)
+            if key in seen:
+                continue
+            seen.add(key)
             closures.append({
                 "date": d,
                 "time": f"{t_start} - {t_end}",
                 "pools": pools,
                 "reason": reason or "Notice",
+                "remarks": remarks,
             })
     today = date.today().strftime("%Y/%m/%d")
     return [c for c in closures if c["date"] >= today]
@@ -181,9 +207,11 @@ def pool_data(swp_id):
         if key in en_map:
             c["poolsEn"] = en_map[key]["pools"]
             c["reasonEn"] = en_map[key]["reason"]
+            c["remarksEn"] = en_map[key].get("remarks", "")
         else:
             c["poolsEn"] = c["pools"]
             c["reasonEn"] = c["reason"]
+            c["remarksEn"] = c.get("remarks", "")
     return {
         "closures": closures_tc,
         "maintenance": parse_maintenance(html_tc),
@@ -191,8 +219,20 @@ def pool_data(swp_id):
     }
 
 
-def patch_html(all_data):
-    for html_path in HTML_PATHS:
+def patch_configs(all_data):
+    # Patch LAST_UPDATE in common.js (shared across all pages)
+    if os.path.exists(COMMON_JS):
+        hkt = timezone(timedelta(hours=8))
+        sync_time = datetime.now(hkt).strftime('%Y-%m-%d %H:%M')
+        with open(COMMON_JS, encoding='utf-8') as f:
+            cjs = f.read()
+        cjs_new, n = re.subn(r"const LAST_UPDATE='[^']*'", f"const LAST_UPDATE='{sync_time}'", cjs)
+        if n > 0:
+            with open(COMMON_JS, 'w', encoding='utf-8') as f:
+                f.write(cjs_new)
+            print(f"Patched LAST_UPDATE in common.js ({sync_time})")
+    # Patch closures/maintenance/cleaning in district config files
+    for html_path in CONFIG_PATHS:
       if not os.path.exists(html_path):
         continue
       with open(html_path, encoding="utf-8") as f:
@@ -222,10 +262,7 @@ def patch_html(all_data):
                 dup_seg = html[i:nxt]
                 # only swallow if it looks like duplicate maintenance/cleaning
                 if "maintenance:" in dup_seg or "cleaning:" in dup_seg:
-                    i = nxt + 1  # +1 to keep the leading comma for flat+delim
-                    # flat already starts with closures: so we need to not double-comma
-                    # Actually flat = "closures:..." and html[i-1:] starts with ",facilities" — we want html[:c_start]+flat+html[nxt:]
-                    i = nxt
+                    i = nxt  # keep the leading comma for flat+delim
                 break
         flat = (
           "closures:" + json.dumps(data["closures"], ensure_ascii=False)
@@ -235,9 +272,6 @@ def patch_html(all_data):
         html = html[:c_start] + flat + html[i:]
         patched_any = True
       if patched_any:
-        hkt = timezone(timedelta(hours=8))
-        sync_time = datetime.now(hkt).strftime('%Y-%m-%d %H:%M')
-        html = re.sub(r"const LAST_UPDATE='[^']*'", f"const LAST_UPDATE='{sync_time}'", html)
         with open(html_path, "w", encoding="utf-8") as f:
           f.write(html)
         print(f"Patched {os.path.basename(html_path)}")
@@ -284,7 +318,7 @@ def fetch_holidays():
 def patch_holidays(days):
     if not days: return
     js = f"const HK_HOLIDAYS={json.dumps(days, ensure_ascii=False)};"
-    for html_path in HTML_PATHS:
+    for html_path in CONFIG_PATHS:
         if not os.path.exists(html_path): continue
         with open(html_path, encoding='utf-8') as f: html = f.read()
         # replace existing

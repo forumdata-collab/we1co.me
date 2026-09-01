@@ -26,18 +26,16 @@ NOTICE_COL = {"B": "date_range", "C": "facilities", "D": "reason", "E": "remarks
 
 
 def fetch_xlsx(month=None):
-    """Download XLSX for given month via CF proxy, fallback to previous month."""
+    """Download XLSX for given month via CF proxy, fallback to prev/next.
+    Primary call (month=None): always try current month first — it's today's data.
+    Secondary call (month=specific): try that month first — it's tomorrow's data."""
     now = datetime.now(timezone(timedelta(hours=8)))
     if month is None:
         month = now.strftime("%Y%m")
     prev = (now.replace(day=1) - timedelta(days=1)).strftime("%Y%m")
-    # Also try next month (for cross-month tomorrow)
     nxt = (now.replace(day=1) + timedelta(days=32)).replace(day=1).strftime("%Y%m")
-    urls = [
-        f"{BASE_URL}/{FID}_{month}.xlsx",
-        f"{BASE_URL}/{FID}_{prev}.xlsx",
-        f"{BASE_URL}/{FID}_{nxt}.xlsx",
-    ]
+    # Always try requested month first, then prev, then nxt
+    urls = [f"{BASE_URL}/{FID}_{month}.xlsx", f"{BASE_URL}/{FID}_{prev}.xlsx", f"{BASE_URL}/{FID}_{nxt}.xlsx"]
     # Try CF proxy first
     try:
         import urllib.parse as urlparse
@@ -45,7 +43,7 @@ def fetch_xlsx(month=None):
         for p in ["/home/ubuntu/.config/lcsd_proxy_token", "/tmp/cf_proxy_token.txt"]:
             try:
                 with open(p) as f: token = f.read().strip(); break
-            except: pass
+            except (FileNotFoundError, PermissionError): pass
         if not token:
             token = os.environ.get("CF_PROXY_TOKEN", "")
         proxy_base = "https://lcsd-proxy.forumdata.workers.dev/?url="
@@ -127,14 +125,68 @@ def parse_notices(ws):
     return notices
 
 
-def get_current_status(timetable, dates, notices, day_num):
-    """Get status for each time slot for given day based on A/L/B/M codes."""
+def get_current_status(timetable, dates, notices, day_num, field_type="main"):
+    """Get status for each time slot for given day based on A/L/B/M codes.
+    The XLSX codes are authoritative — they already encode closures/maintenance.
+    Notices are returned separately for display only (not applied to codes)."""
     now_hkt = datetime.now(timezone(timedelta(hours=8)))
     current_minutes = now_hkt.hour * 60 + now_hkt.minute
 
+    # Build list of notice closures for this day with parsed time ranges
+    today_str = date.today().strftime("%Y/%m/%d")
+    notice_closures = []  # [(start_min, end_min, facilities_str, reason_str)]
+    for n in notices:
+        dr = n.get("date_range", "")
+        date_part = dr.split("  ")[0] if "  " in dr else dr
+        time_part = dr.split("  ")[1] if "  " in dr else ""
+        # Parse time range from notice (e.g. "06:30-17:00" or "06:30-22:30 / 06:30-20:30")
+        tm = re.match(r"(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})", time_part)
+        if not tm:
+            continue
+        n_start = int(tm.group(1)[:2]) * 60 + int(tm.group(1)[3:5])
+        n_end = int(tm.group(2)[:2]) * 60 + int(tm.group(2)[3:5])
+        fac = n.get("facilities", "")
+        reason = n.get("reason", "")
+        # Filter by field type: only apply notices relevant to this field
+        fac_lower = fac.lower()
+        if field_type == "main" and "主場" not in fac and "main field" not in fac_lower:
+            continue  # skip notices that don't mention main field
+        elif field_type == "secondary" and "副場" not in fac and "secondary" not in fac_lower:
+            continue  # skip notices that don't mention secondary field
+        # Check if this notice matches day_num
+        date_section = date_part.split(",")[0] if "," in date_part else date_part
+        m = re.match(r"(\d{4}/\d{2}/\d{2})", date_section)
+        if m:
+            base_date = m.group(1)
+            parts = date_section.split(",")
+            for p in parts:
+                p = p.strip()
+                if re.match(r"\d{4}/\d{2}/\d{2}", p):
+                    # Full date — check if it equals today AND day matches
+                    # We need to match by day_num, not just today_str
+                    pass  # handled below via day_num comparison
+                elif re.match(r"\d{1,2}$", p):
+                    pass  # handled below
+            # Simpler: check if day_num appears in the notice's day list
+            # Extract all day numbers from the notice
+            all_days = set()
+            for p in date_section.split(","):
+                p = p.strip().split("\n")[0].strip()
+                dm = re.match(r"\d{4}/\d{2}/(\d{2})", p)
+                if dm:
+                    all_days.add(int(dm.group(1)))
+                elif re.match(r"\d{1,2}$", p):
+                    all_days.add(int(p))
+                # Handle ranges like "12-13"
+                rm = re.match(r"(\d{4}/\d{2}/(\d{2}))-(\d{2})", p)
+                if rm:
+                    for d in range(int(rm.group(2)), int(rm.group(3)) + 1):
+                        all_days.add(d)
+            if day_num in all_days:
+                notice_closures.append((n_start, n_end, fac, reason))
+
     result = []
     for time_slot, day_codes in timetable.items():
-        # Normalize time range format (some have extra spaces)
         time_slot_clean = time_slot.strip()
         m = re.match(r"(\d{2}):(\d{2})\s*-\s*(\d{2}):(\d{2})", time_slot_clean)
         if not m:
@@ -146,7 +198,6 @@ def get_current_status(timetable, dates, notices, day_num):
         code = day_codes.get(day_num, "")
         status = STATUS_MAP.get(code, {"en": "Unknown", "zh": "未知"})
 
-        # Check if in current time window
         is_current = start_min <= current_minutes < end_min
 
         result.append({
@@ -157,46 +208,75 @@ def get_current_status(timetable, dates, notices, day_num):
             "is_current": is_current,
         })
 
-    # Check notices for today's closures
-    today_str = date.today().strftime("%Y/%m/%d")
+    # Build closure list for display
     closures = []
-    for n in notices:
-        dr = n.get("date_range", "")
-        # Match date patterns like "2026/09/07,14,21,28  06:30-22:30"
-        date_part = dr.split("  ")[0] if "  " in dr else dr
-        time_part = dr.split("  ")[1] if "  " in dr else ""
-
-        # Extract individual dates
-        date_section = date_part.split(",")[0] if "," in date_part else date_part
-        # Check if today matches any pattern
-        m = re.match(r"(\d{4}/\d{2}/\d{2})", date_section)
-        if m:
-            base_date = m.group(1)
-            # Check comma-separated days: "2026/09/07,14,21,28"
-            parts = date_section.split(",")
-            for p in parts:
-                p = p.strip()
-                # Could be "2026/09/07" or just "14" (day within same month)
-                if re.match(r"\d{4}/\d{2}/\d{2}", p):
-                    if p == today_str:
-                        closures.append({
-                            "facilities": n.get("facilities", ""),
-                            "reason": n.get("reason", ""),
-                            "time": time_part,
-                        })
-                        break
-                elif re.match(r"\d{1,2}$", p):
-                    # Day number within current month
-                    expected = f"{base_date[:7]}/{int(p):02d}"
-                    if expected == today_str:
-                        closures.append({
-                            "facilities": n.get("facilities", ""),
-                            "reason": n.get("reason", ""),
-                            "time": time_part,
-                        })
-                        break
+    for n_start, n_end, fac, reason in notice_closures:
+        closures.append({
+            "date": today_str,
+            "facilities": fac,
+            "reason": reason,
+            "time": f"{n_start//60:02d}:{n_start%60:02d}-{n_end//60:02d}:{n_end%60:02d}",
+        })
 
     return result, closures
+
+
+def _dedupe_closures(closures):
+    """Remove duplicate closure notices (e.g. 主場及副場 appearing for both fields)."""
+    seen, out = set(), []
+    for c in closures:
+        k = (c.get("date", ""), c.get("time", ""), c.get("facilities", "").strip())
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(c)
+    return out
+
+
+def _notice_weekdays(closure):
+    """Return weekday numbers (0=Mon..6=Sun) covered by a 場地保養 closure notice.
+    Only maintenance notices (reason contains 保養) count."""
+    reason = closure.get("reason", "")
+    if "保養" not in reason:
+        return set()
+    d = closure.get("date", "")
+    if not d:
+        return set()
+    try:
+        dt = datetime.strptime(d, "%Y/%m/%d")
+        return {dt.weekday()}
+    except (ValueError, TypeError):
+        return set()
+
+
+def _maint_summary(notices, field):
+    """Human-readable maintenance summary from 場地保養 notices, e.g. '逢星期一'."""
+    wd_cn = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    wds = set()
+    for n in notices:
+        reason = n.get("reason", "")
+        fac = n.get("facilities", "")
+        if "保養" not in reason:
+            continue
+        if field == "main" and "主場" not in fac and "main field" not in fac.lower():
+            continue
+        if field == "secondary" and "副場" not in fac and "secondary" not in fac.lower():
+            continue
+        dr = n.get("date_range", "")
+        date_part = dr.split("  ")[0] if "  " in dr else dr
+        # weekday of the first date in the notice
+        m = re.search(r"(\d{4}/\d{2}/\d{2})", date_part)
+        if m:
+            try:
+                dt = datetime.strptime(m.group(1), "%Y/%m/%d")
+                wds.add(dt.weekday())
+            except ValueError:
+                pass
+    if not wds:
+        return ""
+    if len(wds) == 1:
+        return f"逢{wd_cn[min(wds)]}"
+    return "、".join(f"逢{wd_cn[w]}" for w in sorted(wds))
 
 
 def main():
@@ -212,12 +292,16 @@ def main():
         today_day = date.today().day
 
         # Also try next month XLSX for cross-month tomorrow
-        nxt = (datetime.now(timezone(timedelta(hours=8))).replace(day=1) + timedelta(days=32)).replace(day=1).strftime("%Y%m")
+        now_hkt = datetime.now(timezone(timedelta(hours=8)))
+        tomorrow = now_hkt + timedelta(days=1)
+        cross_month = tomorrow.month != now_hkt.month
         wb2 = None
-        try:
-            nxt_path = fetch_xlsx(nxt)
-            if nxt_path: wb2 = openpyxl.load_workbook(nxt_path)
-        except: pass
+        if cross_month:
+            try:
+                tomorrow_month = tomorrow.strftime("%Y%m")
+                nxt_path = fetch_xlsx(tomorrow_month)
+                if nxt_path: wb2 = openpyxl.load_workbook(nxt_path)
+            except (FileNotFoundError, PermissionError): pass
 
         # Parse both sheets
         main_ws = wb[wb.sheetnames[0]]
@@ -275,43 +359,44 @@ def main():
             tomorrow_day = 1  # wrap to next month (day 1)
 
         # Today
-        main_status, main_closures = get_current_status(main_timetable, main_dates, notices, today_day)
-        sec_status, sec_closures = get_current_status(sec_timetable, sec_dates, notices, today_day)
+        main_status, main_closures = get_current_status(main_timetable, main_dates, notices, today_day, "main")
+        sec_status, sec_closures = get_current_status(sec_timetable, sec_dates, notices, today_day, "secondary")
 
         # Tomorrow
-        main_status_tm, _ = get_current_status(main_timetable, main_dates, notices, tomorrow_day)
-        sec_status_tm, _ = get_current_status(sec_timetable, sec_dates, notices, tomorrow_day)
+        main_status_tm, _ = get_current_status(main_timetable, main_dates, notices, tomorrow_day, "main")
+        sec_status_tm, _ = get_current_status(sec_timetable, sec_dates, notices, tomorrow_day, "secondary")
 
-        # Maintenance overrides — ponytail: hardcode fid=1060 weekly closure
-        # Correct weekday: Mon=0 ... Sun=6 in Python
+        # Maintenance overrides — XLSX is authoritative (already has M codes).
+        # Only fill M into slots WITHOUT a valid code, and only on days where a
+        # 場地保養 notice exists — never blanket by weekday (maintenance days vary).
         _wd = now_hkt.weekday()
-        is_main_maint = _wd == 0
-        is_sec_maint = _wd == 4
-        # Maintenance: only fill M into slots WITHOUT a valid XLSX code (A/B/L).
-        # XLSX is authoritative — don't override existing bookings or open slots.
+        maint_days_main = {_d for _c in main_closures for _d in _notice_weekdays(_c)}
+        maint_days_sec = {_d for _c in sec_closures for _d in _notice_weekdays(_c)}
+        is_main_maint = _wd in maint_days_main
+        is_sec_maint = _wd in maint_days_sec
         if is_main_maint:
             for s in main_status:
                 if s["code"] not in ("A", "B", "L"):
                     s["code"] = "M"
                     s["status_zh"] = "關閉"
                     s["status_en"] = "Closed"
-                s["is_current"] = False
+                    s["is_current"] = False
         if is_sec_maint:
             for s in sec_status:
                 if s["code"] not in ("A", "B", "L"):
                     s["code"] = "M"
                     s["status_zh"] = "關閉"
                     s["status_en"] = "Closed"
-                s["is_current"] = False
+                    s["is_current"] = False
         # Also check tomorrow's maintenance for tomorrow slots
         _wd_tom = (now_hkt + timedelta(days=1)).weekday()
-        if _wd_tom == 0:
+        if _wd_tom in maint_days_main:
             for s in main_status_tm:
                 if s["code"] not in ("A", "B", "L"):
                     s["code"] = "M"
                     s["status_zh"] = "關閉"
                     s["status_en"] = "Closed"
-        if _wd_tom == 4:
+        if _wd_tom in maint_days_sec:
             for s in sec_status_tm:
                 if s["code"] not in ("A", "B", "L"):
                     s["code"] = "M"
@@ -353,8 +438,8 @@ def main():
             "secondaryField": sec_status,
             "mainFieldTomorrow": main_status_tm,
             "secondaryFieldTomorrow": sec_status_tm,
-            "closures": main_closures,
-            "maintenance": {"main": "逢星期一", "sec": "逢星期五"},
+            "closures": _dedupe_closures(main_closures + sec_closures),
+            "maintenance": {"main": _maint_summary(notices, "main"), "sec": _maint_summary(notices, "secondary")},
             "noticeUrl": f"https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?fid={FID}",
             "xlsxUrl": f"{BASE_URL}/{FID}_{(now_hkt + timedelta(days=1)).strftime('%Y%m') if tomorrow_day == 1 else now_hkt.strftime('%Y%m')}.xlsx",
             "xlsxDate": (lambda d: (lambda m: f"{m[1]}年{str(int(m[2])+1).zfill(2)}月" if int(m[2])<12 else f"{int(m[1])+1}年01月")(re.match(r"(\d{4})年(\d{1,2})月", d)))(xlsx_date) if tomorrow_day == 1 and re.match(r"\d{4}年\d{1,2}月", xlsx_date) else xlsx_date,

@@ -1,25 +1,22 @@
 #!/usr/bin/env node
-// we1co.me sanity test v2 — 只測 top-level 函數 + regex 抽 parseThunder
+// we1co.me sanity test v3 — reads common.js (post-refactor)
 const fs = require('fs');
 const vm = require('vm');
-const file = process.argv[2] || 'index.html';
-const html = fs.readFileSync(file, 'utf-8');
-const scripts = html.match(/<script>([\s\S]*?)<\/script>/g).map(s=>s.replace(/<\/?script>/g,''));
-const code = scripts.join('\n');
+const district = process.argv[2] || 'sk';
+const code = fs.readFileSync('common.js', 'utf-8');
 
-// 抽 top-level 函數: 行掃描, 搵 'function X(' 開頭, 收集到配對大括號
+// Extract top-level functions: scan lines for 'function X(' at column 0, collect to matching brace
 const funcs = {};
 const lines = code.split('\n');
 for(let i=0;i<lines.length;i++){
   const m = lines[i].match(/^\s*function\s+(\w+)\(/);
   if(!m) continue;
   const name = m[1];
-  // 用縮排判斷 top-level: 行首冇縮排
+  // top-level only: no leading whitespace
   if(lines[i].startsWith(' ') || lines[i].startsWith('\t')) continue;
   let depth=0, body=[], started=false;
   for(let j=i;j<lines.length;j++){
     const l = lines[j];
-    // count braces ignoring strings roughly
     for(const ch of l){
       if(ch==='{'){ depth++; started=true; }
       if(ch==='}') depth--;
@@ -30,11 +27,11 @@ for(let i=0;i<lines.length;i++){
   funcs[name]=body.join('\n');
   i += body.length-1;
 }
-// parseThunder 喺 IIFE 內, 用 regex 抽出 function body
-const ptm = code.match(/  function parseThunder\(wd\)\{[\s\S]*?\n  \}/);
-if(ptm) funcs.parseThunder = ptm[0];
+// parseWarnings inside IIFE — regex extract
+const pwm = code.match(/  function parseWarnings\(wd\)\{[\s\S]*?\n  \}/);
+if(pwm) funcs.parseWarnings = pwm[0];
 
-const need = ['parseRange','sessionStatus','poolSubStatuses','facilityOverallStatus','renderPools','parseThunder','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
+const need = ['parseRange','sessionStatus','poolSubStatuses','facilityOverallStatus','renderPools','parseWarnings','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
 const missing = need.filter(n=>!funcs[n]);
 if(missing.length){ console.log('MISSING funcs:', missing); process.exit(1); }
 
@@ -51,14 +48,22 @@ const sandbox = {console, Date, Math, Set, JSON, t, tl, trSession, trDay, FSTATU
   hkMinutes:(d)=>d.getHours()*60+d.getMinutes(),
   isCleaningDay:funcs.isCleaningDay, inMaintenance:funcs.inMaintenance,
   parseMaintNote:funcs.parseMaintNote,
-  lname:(id)=>id, addr:()=>'', officialLink:()=>'', trTime:()=>'', LDAY:{}};
+  lname:(id)=>id, addr:()=>'', officialLink:()=>'', trTime:()=>'', LDAY:{},
+  // stubs needed by renderPools
+  window:{}, globalThis:{},
+  document:{getElementById:()=>({innerHTML:'',textContent:'',classList:{toggle:()=>{},contains:()=>false}}),querySelectorAll:()=>[],querySelector:()=>({style:{}}),documentElement:{},title:'',body:{style:{}}},
+  navigator:{}, location:{href:''}, setTimeout, setInterval:()=>0, clearInterval:()=>{}, addEventListener:()=>{},
+  // I18N stubs needed by t/lname/tl
+  I18N:{zh:{open:'營運中',soon:'即將開始',done:'已結束',closed_today:'暫停開放',partial:'部分開放',maint:'維修中',cleaningClosed:'暫停清潔中',hours:'開放時段',hours45:'開放時段 (每節 45-60分)',view:'查看康文署官網 →',expand:'[展開 +]',collapse:'[收合 −]',closure:'暫停開放公告',closedNote:'今日暫停',cleaningNote:'x',weatherWarn:'天氣警示'},en:{},cn:{}},
+  NAME_L10N:{}, SUB_L10N:{},
+};
 vm.createContext(sandbox);
-// 依賴順序: parseRange → sessionStatusAt → poolSubStatuses → facilityOverallStatus → renderPools
+// Load in dependency order
 const depOrder = ['parseRange','sessionStatus','isCleaningDay','inMaintenance','parseMaintNote','poolSubStatuses','facilityOverallStatus','renderPools'];
 const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatus,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote};';
 vm.runInContext(codeToRun, sandbox);
-// parseThunder 單獨跑 (只用 t 唔依賴其他)
-try{ vm.runInContext(funcs.parseThunder + '\n;__f.parseThunder=parseThunder;', sandbox); }catch(e){ console.log('parseThunder load fail:', e.message); }
+// parseWarnings standalone
+try{ vm.runInContext(funcs.parseWarnings + '\n;__f.parseWarnings=parseWarnings;', sandbox); }catch(e){ console.log('parseWarnings load fail:', e.message); }
 const f = sandbox.__f;
 
 let pass=0, fail=0;
@@ -106,24 +111,27 @@ const now23=new Date('2026-08-31T23:30:00+08:00');
 let subs3=f.poolSubStatuses(TKO,'2026/08/31',now23);
 ok('23:30 公告已完結 → 跳水池恢復', subs3.find(x=>x.name==='跳水池').status==='open');
 
-console.log('── parseThunder (新格式) ──');
-if(f.parseThunder){
-  const wd1={details:[{warningStatementCode:'WTS',contents:['天文台在8月31日下午5時07分發出雷暴警告，有效時間至今日下午7時正，預料狂風雷暴。']}]};
-  let th=f.parseThunder(wd1);
-  ok('WTS 提取 + 有效時間', th.length===1 && th[0].includes('雷暴警告') && th[0].includes('下午7時正'), JSON.stringify(th));
-  const wd2={details:[{warningStatementCode:'WTS',contents:['天文台在8月31日下午5時07分發出之雷暴警告，有效時間延長至今日下午9時正，預料局部狂風雷暴。']}]};
-  th=f.parseThunder(wd2);
-  ok('「延長至」提取', th.length===1 && th[0].includes('今日下午9時正'), JSON.stringify(th));
-  const wd3={details:[{warningStatementCode:'WTS',contents:['天文台取消雷暴警告。']}]};
-  th=f.parseThunder(wd3);
-  ok('取消 → 唔顯示', th.length===0);
-  const wd4={details:[{warningStatementCode:'WTCSGNL',contents:['一號戒備信號']}]};
-  th=f.parseThunder(wd4);
-  ok('熱帶氣旋唔入 thunder', th.length===0);
-  const wd5={details:[{warningStatementCode:'WTS',contents:['雷暴警告']}]};
-  th=f.parseThunder(wd5);
-  ok('無有效時間 → 只有警告名', th.length===1 && th[0]==='雷暴警告');
-} else ok('parseThunder 可執行', false);
+console.log('── parseWarnings (warnsum 新格式) ──');
+if(f.parseWarnings){
+  const wd1={WTCSGNL:{name:'熱帶氣旋警告信號',code:'TC1',actionCode:'ISSUE',type:'一號戒備信號'}};
+  let r=f.parseWarnings(wd1);
+  ok('T1 → severe 有一號戒備信號', r.severe.length===1 && r.severe[0]==='一號戒備信號', JSON.stringify(r));
+  ok('T1 → thunder 為空（無雷暴）', r.thunder.length===0, JSON.stringify(r.thunder));
+  const wd2={WTS:{name:'雷暴警告',code:'THUNDER',actionCode:'ISSUE',type:'雷暴警告'}};
+  r=f.parseWarnings(wd2);
+  ok('WTS → thunder 有雷暴警告', r.thunder.length===1 && r.thunder[0]==='雷暴警告', JSON.stringify(r));
+  const wd3={WTS:{name:'雷暴警告',code:'THUNDER',actionCode:'CANCEL',type:'雷暴警告'}};
+  r=f.parseWarnings(wd3);
+  ok('CANCEL → 唔顯示', r.thunder.length===0 && r.severe.length===0, JSON.stringify(r));
+  const wd4={WTCSGNL:{name:'熱帶氣旋警告信號',code:'TC8',actionCode:'ISSUE',type:'八號烈風或暴風信號'},WTS:{name:'雷暴警告',code:'THUNDER',actionCode:'ISSUE',type:'雷暴警告'}};
+  r=f.parseWarnings(wd4);
+  ok('T8+雷暴 → 分開兩組', r.severe[0]==='八號烈風或暴風信號' && r.thunder[0]==='雷暴警告', JSON.stringify(r));
+  const wd5={WTCSGNL:{name:'Tropical Cyclone Warning Signal',code:'TC1',actionCode:'ISSUE',type:'Standby Signal No. 1'}};
+  r=f.parseWarnings(wd5);
+  ok('EN T1 → Standby Signal No. 1', r.severe[0]==='Standby Signal No. 1', JSON.stringify(r));
+  r=f.parseWarnings(null);
+  ok('null 輸入 → 空陣列', r.severe.length===0 && r.thunder.length===0);
+} else ok('parseWarnings 可執行', false);
 
-console.log(`\n===== RESULT: ${pass} pass, ${fail} fail (${file}) =====`);
+console.log(`\n===== RESULT: ${pass} pass, ${fail} fail (common.js) =====`);
 process.exit(fail>0?1:0);

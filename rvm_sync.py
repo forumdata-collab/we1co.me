@@ -5,7 +5,6 @@ Runs at 09:00/12:00/17:00 via cron.
 """
 import json
 import os
-import re
 import subprocess
 import sys
 import urllib.request
@@ -70,10 +69,8 @@ def write_json(machines):
 
 def deploy():
     env = {
-        'CLOUDFLARE_API_TOKEN': subprocess.check_output(
-            ['bash', '-lc', 'echo -n $CF_WORKERS_TOKEN']).decode(),
-        'CLOUDFLARE_ACCOUNT_ID': subprocess.check_output(
-            ['bash', '-lc', 'echo -n $CF_ACCOUNT_ID']).decode(),
+        'CLOUDFLARE_API_TOKEN': os.environ.get('CF_WORKERS_TOKEN', ''),
+        'CLOUDFLARE_ACCOUNT_ID': os.environ.get('CF_ACCOUNT_ID', ''),
     }
     r = subprocess.run(
         ['wrangler', 'pages', 'deploy', '/home/ubuntu/we1co.me',

@@ -1,3 +1,8 @@
 __pycache__/
 .wrangler/
 lcsd_closures.log
+backup-*/
+rvm_status.json
+sport_ground_status.json
+rvm_sync.log
+sport_ground_sync.log
