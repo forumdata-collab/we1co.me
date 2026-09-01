@@ -238,22 +238,22 @@ function poolSubStatuses(f, todayStr, now){
   let closedSet=new Set();
   let reasonMap={};
   const nm=hkMinutes(now);
+  const alias=f.id==='ktswim'?{'戶外泳池':['副池','日光浴場'],'室內泳池':['主池','訓練池','習泳池 1&2']}:(f.id==='jvswim'?{'嬉水池 (2)':['嬉水池 2&3'],'嬉水池 (3)':['嬉水池 2&3']}:{});
   if(f.closures){
-    f.closures.filter(c=>c.date===todayStr).forEach(c=>{
+    f.closures.filter(c=>c.date<=todayStr && (c.dateEnd||c.date)>=todayStr).forEach(c=>{
       // 公告有時間範圍：只要公告未完結（end > now），即使未開始都預告暫停
       const r=parseRange(c.time);
       if(r && nm<r.end){
         const reason=currentLang==='en'?(c.reasonEn||c.reason):c.reason;
         c.pools.split(/[,，]/).map(s=>s.trim()).forEach(p=>{
-          closedSet.add(p);
-          reasonMap[p]=reason;
+          const targets=alias[p]||[p];
+          targets.forEach(t=>{closedSet.add(t);reasonMap[t]=reason;});
         });
       }
     });
   }
   // 每年維修
   if(f.maintenance){
-    const alias=f.id==='ktswim'?{'戶外泳池':['副池','日光浴場'],'室內泳池':['主池','訓練池','習泳池 1&2']}:{};
     // ltswim/jvswim 全場維修 (kt.html)
     if(f.id==='ltswim'||f.id==='jvswim') alias['全場']=f.facilities?f.facilities.map(x=>x.name):[];
     f.maintenance.forEach(m=>{
@@ -308,12 +308,19 @@ function renderPools(){
    }
    let closureHtml=weatherHtml;
    if(f.closures){
-     closureHtml+=f.closures.filter(c=>{if(c.date>todayStr)return true;if(c.date!==todayStr)return false;const cr=parseRange(c.time);return cr&&nm<cr.end}).map(c=>{
+     closureHtml+=f.closures.filter(c=>{
+       const end=c.dateEnd||c.date;
+       if(end<todayStr)return false;   // 已過期唔顯示
+       if(c.date>todayStr)return true; // 未來預告
+       const cr=parseRange(c.time);
+       return cr&&nm<cr.end;
+     }).map(c=>{
      const p=currentLang==='en'?(c.poolsEn||c.pools):c.pools;
      const r=currentLang==='en'?(c.reasonEn||c.reason):c.reason;
      const rm=currentLang==='en'?(c.remarksEn||c.remarks||''):(c.remarks||'');
      const rmHtml=rm?` <span style="opacity:.8">（${rm}）</span>`:'';
-     return `<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('closure')}（${c.date} ${c.time}）：${p} — ${t('closureReason')} ${r}${rmHtml}</div>`
+     const dRange=(c.dateEnd&&c.dateEnd!==c.date)?`${c.date} - ${c.dateEnd}`:c.date;
+     return `<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('closure')}（${dRange} ${c.time}）：${p} — ${t('closureReason')} ${r}${rmHtml}</div>`
      }).join('');
    }
    if(f.cleaning&&isCleaningDay(f.cleaning, now)){
@@ -330,7 +337,7 @@ function renderPools(){
       if(r && r.start<cleanEnd && r.end>CLEAN_START) ss={text:t('cleaningClosed'),cls:'suspended'};
     }
     if(f.closures){
-      const crs=f.closures.filter(c=>c.date===todayStr).map(c=>parseRange(c.time)).filter(Boolean);
+      const crs=f.closures.filter(c=>c.date<=todayStr && (c.dateEnd||c.date)>=todayStr).map(c=>parseRange(c.time)).filter(Boolean);
       const allAffected=crs.some(cr=>r&&r.start<cr.end&&r.end>cr.start&&nm>=cr.start&&nm<cr.end)&&subPoolAllClosed;
       if(allAffected && !ss.cls.startsWith('suspended')) ss={text:t('closed_today'),cls:'suspended'};
     }
@@ -405,7 +412,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-01 19:15';
+const LAST_UPDATE='2026-09-01 21:02';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);

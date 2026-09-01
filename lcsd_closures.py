@@ -49,14 +49,14 @@ def fetch(url):
 
 
 def parse_closures(html):
-    """暫停開放公告 (Chinese): 2026/08/29 06:30 - 2026/08/29 14:15 | 跳水池... | 救生員不足 | 備註"""
+    """暫停開放公告 (Chinese): 2026/09/01 06:30 - 2026/09/30 12:00 | 嬉水池 (2)... | 其他 | 備註"""
     closures = []
     date_re = re.compile(
-        r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*\d{4}/\d{2}/\d{2}\s+(\d{2}:\d{2})"
+        r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})"
     )
     seen = set()
     for m in date_re.finditer(html):
-        d, t_start, t_end = m.group(1), m.group(2), m.group(3)
+        d, t_start, d_end, t_end = m.group(1), m.group(2), m.group(3), m.group(4)
         after = html[m.end():m.end() + 1500]
         pools_match = re.search(r"<td>\s*([^<]{2,60}(?:池|場|台|看台)[^<]*)</td>", after)
         reason, remarks = "", ""
@@ -65,38 +65,45 @@ def parse_closures(html):
             reason_match = re.search(r"<td>\s*([^<]{2,40}?)\s*</td>", after_pools)
             if reason_match:
                 reason = reason_match.group(1).strip()
-                # 3rd column: 備註 (remarks) — skip if it's a date (next row bleeding)
+                # 3rd column: 備註 (remarks) — full <td>...</td> content, strip HTML
                 after_reason = after_pools[reason_match.end():]
-                remarks_match = re.search(r"<td>\s*([^<]{1,40})\s*</td>", after_reason)
-                if remarks_match:
-                    rm_text = remarks_match.group(1).strip()
-                    # Skip if it looks like a date (next row bleeding through)
-                    if not re.match(r"\d{4}/\d{2}/\d{2}", rm_text):
+                rm_m = re.search(r"<td>(.*?)</td>", after_reason, re.S)
+                if rm_m:
+                    rm_text = re.sub(r"<[^>]+>", "", rm_m.group(1))
+                    rm_text = re.sub(r"&nbsp;?|&amp;", " ", rm_text)
+                    rm_text = re.sub(r"\s+", " ", rm_text).strip()
+                    if rm_text and not re.match(r"^\d{4}/\d{2}/\d{2}", rm_text):
                         remarks = rm_text
         if pools_match:
             pools = pools_match.group(1).strip().strip(",，")
-            key = (d, f"{t_start} - {t_end}", pools)
+            key = (d, d_end, f"{t_start} - {t_end}", pools)
             if key in seen:
                 continue
             seen.add(key)
+            # 原因「其他」→ 由備註提取「由於X/因X」實質原因
+            if reason == "其他" and remarks:
+                m2 = re.search(r"(?:由於|因)([^，。;]{2,24})", remarks)
+                if m2:
+                    reason = m2.group(1).strip()
             closures.append({
                 "date": d,
+                "dateEnd": d_end,
                 "time": f"{t_start} - {t_end}",
                 "pools": pools,
                 "reason": reason or "公告",
                 "remarks": remarks,
             })
     today = date.today().strftime("%Y/%m/%d")
-    return [c for c in closures if c["date"] >= today]
+    return [c for c in closures if c["dateEnd"] >= today]
 def parse_closures_en(html):
     """English closures: same date format, English pool names and reasons"""
     closures = []
     date_re = re.compile(
-        r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*\d{4}/\d{2}/\d{2}\s+(\d{2}:\d{2})"
+        r"(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})\s*-\s*(\d{4}/\d{2}/\d{2})\s+(\d{2}:\d{2})"
     )
     seen = set()
     for m in date_re.finditer(html):
-        d, t_start, t_end = m.group(1), m.group(2), m.group(3)
+        d, t_start, d_end, t_end = m.group(1), m.group(2), m.group(3), m.group(4)
         after = html[m.end():m.end() + 1500]
         pools_match = re.search(
             r"<td>\s*([^<]{2,60}(?:pool|stand|area|slide)[^<]*)</td>",
@@ -109,26 +116,33 @@ def parse_closures_en(html):
             if reason_match:
                 reason = reason_match.group(1).strip()
                 after_reason = after_pools[reason_match.end():]
-                remarks_match = re.search(r"<td>\s*([^<]{1,40})\s*</td>", after_reason)
-                if remarks_match:
-                    rm_text = remarks_match.group(1).strip()
-                    if not re.match(r"\d{4}/\d{2}/\d{2}", rm_text):
+                rm_m = re.search(r"<td>(.*?)</td>", after_reason, re.S)
+                if rm_m:
+                    rm_text = re.sub(r"<[^>]+>", "", rm_m.group(1))
+                    rm_text = re.sub(r"&nbsp;?|&amp;", " ", rm_text)
+                    rm_text = re.sub(r"\s+", " ", rm_text).strip()
+                    if rm_text and not re.match(r"^\d{4}/\d{2}/\d{2}", rm_text):
                         remarks = rm_text
         if pools_match:
             pools = pools_match.group(1).strip().strip(",，")
-            key = (d, f"{t_start} - {t_end}", pools)
+            key = (d, d_end, f"{t_start} - {t_end}", pools)
             if key in seen:
                 continue
             seen.add(key)
+            if reason in ("Others", "其他") and remarks:
+                m2 = re.search(r"(?:due to|owing to|because of)\s+(.{2,24}?)(?:[,，;.]|$)", remarks, re.I)
+                if m2:
+                    reason = m2.group(1).strip()
             closures.append({
                 "date": d,
+                "dateEnd": d_end,
                 "time": f"{t_start} - {t_end}",
                 "pools": pools,
                 "reason": reason or "Notice",
                 "remarks": remarks,
             })
     today = date.today().strftime("%Y/%m/%d")
-    return [c for c in closures if c["date"] >= today]
+    return [c for c in closures if c["dateEnd"] >= today]
 
 
 
@@ -200,10 +214,10 @@ def pool_data(swp_id):
     html_en = fetch(url_en)
     closures_tc = parse_closures(html_tc)
     closures_en = parse_closures_en(html_en)
-    # Merge: match by (date, time) to add English fields
-    en_map = {(c["date"], c["time"]): c for c in closures_en}
+    # Merge: match by (date, dateEnd, time) to add English fields
+    en_map = {(c["date"], c["dateEnd"], c["time"]): c for c in closures_en}
     for c in closures_tc:
-        key = (c["date"], c["time"])
+        key = (c["date"], c["dateEnd"], c["time"])
         if key in en_map:
             c["poolsEn"] = en_map[key]["pools"]
             c["reasonEn"] = en_map[key]["reason"]
