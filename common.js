@@ -44,7 +44,7 @@ function wWarn(){ // 按 currentLang 揀警告
       warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#991b1b;color:#fecaca;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #7f1d1d">⚠ ${normal.join('、')}</span>`;
     }
     if(w.thunder.length){
-      warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#facc15;color:#713f12;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #eab308">⚡ ${w.thunder.join('、')}</span>`;
+      warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#eab308;color:#422006;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #ca8a04">⚡ ${w.thunder.join('、')}</span>`;
     }
     el.innerHTML=
       `<img src="${ICON_BASE}weather_${icon}.png" alt="" style="height:16px;vertical-align:middle;margin-right:4px">`+
