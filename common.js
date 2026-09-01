@@ -101,7 +101,7 @@ fetchWeather();
 })();
 
 
-var currentLang='zh';
+
 const t=k=>I18N[currentLang][k]||I18N.zh[k]||k;
 const lname=id=>(NAME_L10N[id]&&NAME_L10N[id][currentLang])||id;
 const tl=(cat,k)=>{if(currentLang==='zh')return k;const m=SUB_L10N[cat];return (m&&m[k])||k;};
@@ -388,7 +388,7 @@ function renderAll(){
    if(fn) safeRender(r[0], fn);
  });
  const cards=document.querySelectorAll('.card');
- cards.forEach((c,i)=>{ c.style.animationDelay=(i*0.06)+'s'; c.style.animation='cardIn .35s ease both'; });
+
  updateClock();
 }
 function updateClock(){
@@ -405,7 +405,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-01 14:26';
+const LAST_UPDATE='2026-09-01 19:15';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);
