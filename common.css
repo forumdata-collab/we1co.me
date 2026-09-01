@@ -12,9 +12,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Micr
 .top-bar span{white-space:nowrap}
 .thunder-banner{display:none;position:fixed;top:24px;left:0;right:0;background:linear-gradient(135deg,#facc15,#f97316);color:#422006;font-weight:700;font-size:.78rem;padding:6px 16px;z-index:1003;text-align:center;animation:thunder-flash 3s ease-in-out infinite;overflow-wrap:break-word;word-wrap:break-word;white-space:normal;line-height:1.4}
 body.has-thunder .nav-bar{top:60px}
-body.has-thunder{padding-top:116px}
-body.has-thunder .index-grid{top:116px}
-body.has-thunder section{scroll-margin-top:116px}
+body.has-thunder{padding-top:102px}
+body.has-thunder .index-grid{top:102px}
+body.has-thunder section{scroll-margin-top:102px}
 @keyframes thunder-flash{0%,100%{opacity:1}50%{opacity:.85}}
 .nav-bar{position:fixed;top:24px;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);z-index:1001;padding:6px 16px;min-height:36px}
 section{scroll-margin-top:70px}
@@ -81,7 +81,7 @@ header p{color:var(--text-2);font-size:.85rem;margin-top:4px}
 .collapsible.collapsed .section-content{display:none}
 .collapsible.collapsed .section-title .toggle::after{content:attr(data-expand)}
 .collapsible .section-title .toggle::after{content:attr(data-collapse)}
-.index-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;position:sticky;top:66px;z-index:900;background:rgba(248,250,252,.95);backdrop-filter:blur(6px);padding:8px 0;border-radius:12px}
+.index-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;position:sticky;top:72px;z-index:900;background:rgba(248,250,252,.95);backdrop-filter:blur(6px);padding:8px 0;border-radius:12px}
 .index-item{padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:8px;font-size:.82rem;color:var(--brand);text-decoration:none;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);transition:transform .15s ease,box-shadow .15s ease}
 .index-item:hover{background:var(--brand);color:#fff;transform:translateY(-2px);box-shadow:0 4px 10px rgba(30,58,138,.25)}
 .rvm-card{background:var(--bg-card);border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin:12px 0;padding:16px;border:1px solid var(--border);transition:transform .18s ease,box-shadow .18s ease}
@@ -101,7 +101,7 @@ header p{color:var(--text-2);font-size:.85rem;margin-top:4px}
 .updated{text-align:center;color:#94a3b8;font-size:.7rem;margin:12px 0 16px}
 .back-to-top{position:fixed;bottom:20px;right:16px;width:44px;height:44px;border-radius:50%;background:var(--brand);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 12px rgba(30,58,138,.4);display:none;align-items:center;justify-content:center;z-index:999}
 .back-to-top.visible{display:flex}
-@media(max-width:640px){.index-grid{grid-template-columns:1fr 1fr;top:70px}.facility-header{padding:12px}.facility-body{padding:10px 12px}.rvm-item{flex-direction:column}}
+@media(max-width:640px){.index-grid{grid-template-columns:1fr 1fr;top:72px}.facility-header{padding:12px}.facility-body{padding:10px 12px}.rvm-item{flex-direction:column}}
 
 .refresh-btn {
   display: inline-block;
