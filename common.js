@@ -44,7 +44,7 @@ function wWarn(){ // 按 currentLang 揀警告
       warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#991b1b;color:#fecaca;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #7f1d1d">⚠ ${normal.join('、')}</span>`;
     }
     if(w.thunder.length){
-      warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#facc15;color:#713f12;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #eab308"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ${w.thunder.join('、')}</span>`;
+      warnHtml+=`<span style="margin-left:8px;display:inline-flex;align-items:center;gap:3px;background:#facc15;color:#713f12;padding:2px 8px;border-radius:4px;font-size:.65rem;font-weight:700;border:1px solid #eab308">⚡ ${w.thunder.join('、')}</span>`;
     }
     el.innerHTML=
       `<img src="${ICON_BASE}weather_${icon}.png" alt="" style="height:16px;vertical-align:middle;margin-right:4px">`+
