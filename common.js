@@ -87,8 +87,12 @@ function wWarn(){ // 按 currentLang 揀警告
         banner.style.display='block';
         const suffix=currentLang==='en'?' — Pools may close':' — 泳池可能暫停開放';
         banner.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ ${w.thunder.join('、')}${currentLang==='en'?' in effect':'生效中'}${suffix}`;
-        const _bh=banner.offsetHeight;document.querySelector('.nav-bar').style.top=_bh+'px';
-        document.body.style.paddingTop=(_bh+24)+'px';
+        // Defer height calc to next frame so browser finishes layout
+        requestAnimationFrame(()=>{
+          const _bh=banner.offsetHeight||32;
+          document.querySelector('.nav-bar').style.top=_bh+'px';
+          document.body.style.paddingTop=(_bh+24)+'px';
+        });
       }else{
         banner.style.display='none';
         document.querySelector('.nav-bar').style.top='24px';
@@ -407,7 +411,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-08-31 21:15';
+const LAST_UPDATE='2026-09-01 10:27';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);
