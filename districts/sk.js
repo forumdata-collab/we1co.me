@@ -91,7 +91,7 @@ function renderSportGround(){
    if(!cur) return 'closed'; // 無現行時段 = 是日已結束
    return(cur.code==='A'||cur.code==='L')?'open':'closed';
  }
- // 下一個未開始嘅開放時段（A/L）start minutes — 用嚟開場前顯示「即將開始」（同泳池一致）
+ // 下一個未開始嘅開放時段（A/L）start minutes — 用嚟開場前顯示「即將開始」（同泳池一致，≤1小時先顯示）
  function fieldNextStart(slots){
    if(!slots||!slots.length) return null;
    const nowM=hkNow().getHours()*60+hkNow().getMinutes();
@@ -100,7 +100,7 @@ function renderSportGround(){
      const m=x.time.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
      if(!m) continue;
      const s=parseInt(m[1])*60+parseInt(m[2]);
-     if(s>nowM && (x.code==='A'||x.code==='L') && (next===null || s<next)) next=s;
+     if(s>nowM && s-nowM<=60 && (x.code==='A'||x.code==='L') && (next===null || s<next)) next=s;
    }
    return next;
  }

@@ -179,7 +179,12 @@ return {start:start,end:end}
 }
 function sessionStatus(range, nowM){
 if(!range) return {text:"—",cls:"done"};
-if(nowM < range.start) return {text:t('soon'),cls:"soon"};
+// 未開始：距離開場 ≤1 小時 → 即將開始；否則 → 休館
+if(nowM < range.start){
+  const lead = range.start - nowM;
+  if(lead <= 60) return {text:t('soon'),cls:"soon"};
+  return {text:t('closed'),cls:"closed"};
+}
 if(nowM >= range.start && nowM < range.end) return {text:t('open'),cls:"open"};
 return {text:t('done'),cls:"done"};
 }
@@ -412,7 +417,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-06 06:45';
+const LAST_UPDATE='2026-09-06 09:15';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);
