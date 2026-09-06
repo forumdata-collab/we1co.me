@@ -99,9 +99,11 @@ function renderSportsCentres(){
    if(f.maintNote){
      notice=`<div class="notice">🔧 ${currentLang==='en'?'Maintenance':currentLang==='cn'?'保养':'保養'}：${f.maintNote}</div>`;
    }
+  let doneAll=facilityDone(f.sessions, nm);
    let sessions=f.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
+     if(doneAll && ss.cls==='done') ss={text:t('closed'),cls:'closed'}; // 成個館收檔 → 休館（深色）
      return `<div class="session"><span class="session-time">${s}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
    return `<div class="card collapsed" id="${f.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(f.id)}</div><div class="facility-address">${addr(f)}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours')}</div>${sessions}</div>${notice}</div></div>`

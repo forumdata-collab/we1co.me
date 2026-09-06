@@ -179,14 +179,20 @@ return {start:start,end:end}
 }
 function sessionStatus(range, nowM){
 if(!range) return {text:"—",cls:"done"};
-// 未開始：距離開場 ≤1 小時 → 即將開始；否則 → 休館
+// 未開始：凌晨 05:00 前 → 休館；05:00 起未開始 → 即將開始
 if(nowM < range.start){
-  const lead = range.start - nowM;
-  if(lead <= 60) return {text:t('soon'),cls:"soon"};
-  return {text:t('closed'),cls:"closed"};
+  if(nowM < 300) return {text:t('closed'),cls:"closed"};
+  return {text:t('soon'),cls:"soon"};
 }
 if(nowM >= range.start && nowM < range.end) return {text:t('open'),cls:"open"};
+// 時段已結束 → 已結束（成個館收檔先轉休館，喺 renderer 用 facilityDone 覆蓋）
 return {text:t('done'),cls:"done"};
+}
+// 成個館真正收檔：所有時段都已完結（最後一節結束後先轉休館）
+function facilityDone(sessions, nowM){
+ const list=(sessions||[]).map(parseRange).filter(Boolean);
+ if(!list.length) return true;
+ return list.every(r=>nowM>=r.end);
 }
 function facilityOverallStatus(sessions, nowM){
 let hasOpen=false, hasSoon=false;
@@ -333,6 +339,7 @@ function renderPools(){
    }
    let subPools=poolSubStatuses(f, todayStr, now);
    const subPoolAllClosed=subPools.length>0&&subPools.every(x=>x.status==='closed');
+  let doneAll=facilityDone(sessList(f).map(sessTime), nm);
    let sessions=sessList(f).map(s=>{
     let r=parseRange(sessTime(s));
     let ss=sessionStatus(r,nm);
@@ -346,6 +353,7 @@ function renderPools(){
       const allAffected=crs.some(cr=>r&&r.start<cr.end&&r.end>cr.start&&nm>=cr.start&&nm<cr.end)&&subPoolAllClosed;
       if(allAffected && !ss.cls.startsWith('suspended')) ss={text:t('closed_today'),cls:'suspended'};
     }
+    if(doneAll && ss.cls==='done') ss={text:t('closed'),cls:'closed'}; // 成個館收檔 → 休館（深色）
     return `<div class="session"><span class="session-time">${sessLabel(s)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
     if(st.cls==="soon"||st.text===t('soon')){
@@ -373,11 +381,13 @@ function renderPlayrooms(){
    let isMaint=isMaintDay(maint);
    let maintNow=isMaint && nm < maint.shift;
    let st=maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
-   let html=p.sessions.map(s=>{
-     let r=parseRange(s);
-     let ss=sessionStatus(r,nm);
-     if(isMaint && r && r.start<maint.shift){ss={text:t('maint'),cls:'maint'};}
-     return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
+   let doneAll=facilityDone(p.sessions, nm);
+      let html=p.sessions.map(s=>{
+       let r=parseRange(s);
+       let ss=sessionStatus(r,nm);
+       if(isMaint && r && r.start<maint.shift){ss={text:t('maint'),cls:'maint'};}
+       if(doneAll && ss.cls==='done') ss={text:t('closed'),cls:'closed'}; // 成個館收檔 → 休館（深色）
+           return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
    let official=officialLink(p.officialUrl,'view');
    return `<div class="card collapsed" id="${p.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(p.id)}</div><div class="facility-address">${addr(p)} · ${tl('pool',p.theme)} · ${p.area}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours45')}</div>${html}</div><div class="notice">${tl('note',p.note)}</div>${official}</div></div>`
@@ -417,7 +427,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-06 09:15';
+const LAST_UPDATE='2026-09-06 19:15';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);

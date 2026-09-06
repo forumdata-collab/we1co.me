@@ -67,7 +67,7 @@ header p{color:var(--text-2);font-size:.85rem;margin-top:4px}
 .session-status.soon{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;animation:breathe 2s ease-in-out infinite}
 .session-status.open{background:#166534;color:#fff}
 .session-status.maint{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
-.session-status.done{background:#f1f5f9;color:#94a3b8}
+.session-status.done{background:#f1f5f9;color:#94a3b8}.session-status.closed{background:#cbd5e1;color:#334155}
 .session-status.suspended{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
 /* 泳池時間軸色條 */
 .session-bar{height:4px;border-radius:2px;margin-top:4px;width:100%;background:#f1f5f9}

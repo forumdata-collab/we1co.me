@@ -31,11 +31,11 @@ for(let i=0;i<lines.length;i++){
 const pwm = code.match(/  function parseWarnings\(wd\)\{[\s\S]*?\n  \}/);
 if(pwm) funcs.parseWarnings = pwm[0];
 
-const need = ['parseRange','sessionStatus','poolSubStatuses','facilityOverallStatus','renderPools','parseWarnings','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
+const need = ['parseRange','sessionStatus','facilityDone','poolSubStatuses','facilityOverallStatus','renderPools','parseWarnings','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
 const missing = need.filter(n=>!funcs[n]);
 if(missing.length){ console.log('MISSING funcs:', missing); process.exit(1); }
 
-const t = (k)=>({soon:'即將開始',open:'營運中',done:'已結束',closed_today:'暫停開放',closureReason:'因',cleaningClosed:'暫停清潔中',cleaningNote:'x',closedNote:'今日暫停',partial:'部分開放'}[k]||k);
+const t = (k)=>({soon:'即將開始',open:'營運中',done:'已結束',closed:'休館',closed_today:'暫停開放',closureReason:'因',cleaningClosed:'暫停清潔中',cleaningNote:'x',closedNote:'今日暫停',partial:'部分開放'}[k]||k);
 let currentLang='zh';
 const tl=(a,b)=>b;
 const trSession=(s)=>s;
@@ -59,8 +59,8 @@ const sandbox = {console, Date, Math, Set, JSON, t, tl, trSession, trDay, FSTATU
 };
 vm.createContext(sandbox);
 // Load in dependency order
-const depOrder = ['parseRange','sessionStatus','isCleaningDay','inMaintenance','parseMaintNote','poolSubStatuses','facilityOverallStatus','renderPools'];
-const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatus,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote};';
+const depOrder = ['parseRange','sessionStatus','facilityDone','isCleaningDay','inMaintenance','parseMaintNote','poolSubStatuses','facilityOverallStatus','renderPools'];
+const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatus,facilityDone,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote};';
 vm.runInContext(codeToRun, sandbox);
 // parseWarnings standalone
 try{ vm.runInContext(funcs.parseWarnings + '\n;__f.parseWarnings=parseWarnings;', sandbox); }catch(e){ console.log('parseWarnings load fail:', e.message); }
@@ -94,6 +94,12 @@ r=f.sessionStatus(f.parseRange('06:30 - 12:00'), 23*60);
 ok('23:00 全日完 → 已結束', r.text==='已結束');
 r=f.sessionStatus(f.parseRange('19:00 - 22:00'), 19*60+53);
 ok('19:53 第三節 → 營運中', r.text==='營運中', JSON.stringify(r));
+r=f.sessionStatus(f.parseRange('06:30 - 12:00'), 4*60);
+ok('04:00 未開始 → 休館(5點前)', r.text==='休館' && r.cls==='closed', JSON.stringify(r));
+r=f.sessionStatus(f.parseRange('06:30 - 12:00'), 5*60);
+ok('05:00 未開始 → 即將開始(5點整)', r.text==='即將開始' && r.cls==='soon', JSON.stringify(r));
+r=f.sessionStatus(f.parseRange('06:30 - 12:00'), 5*60+30);
+ok('05:30 未開始 → 即將開始', r.text==='即將開始' && r.cls==='soon');
 
 console.log('── poolSubStatuses 預告暫停 ──');
 sandbox.currentLang='zh';
