@@ -1,156 +1,156 @@
 {
-  "lastSync": "2026-08-31 19:16",
-  "today": 31,
-  "todayDate": "2026/08/31",
-  "tomorrow": 1,
-  "tomorrowDate": "2026/09/01",
+  "lastSync": "2026-09-06 06:16",
+  "today": 6,
+  "todayDate": "2026/09/06",
+  "tomorrow": 7,
+  "tomorrowDate": "2026/09/07",
   "overall": "partial",
   "mainField": [
     {
       "time": "06:30 - 07:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "07:00 - 07:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "07:30 - 08:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "08:00 - 08:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "08:30 - 09:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "09:00 - 09:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "09:30 - 10:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "10:00 - 10:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "10:30 - 11:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "11:00 - 11:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "11:30 - 12:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "12:00 - 12:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "12:30 - 13:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "13:00 - 13:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "13:30 - 14:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "14:00 - 14:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "14:30 - 15:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "15:00 - 15:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "15:30 - 16:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "16:00 - 16:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "16:30 - 17:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
@@ -218,16 +218,16 @@
     },
     {
       "time": "21:30 - 22:00",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "22:00 - 22:30",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     }
   ],
@@ -412,7 +412,7 @@
       "code": "A",
       "status_zh": "開放",
       "status_en": "Open",
-      "is_current": true
+      "is_current": false
     },
     {
       "time": "19:30 - 20:00",
@@ -444,16 +444,16 @@
     },
     {
       "time": "21:30 - 22:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "22:00 - 22:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     }
   ],
@@ -607,65 +607,65 @@
     },
     {
       "time": "17:00 - 17:30",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "17:30 - 18:00",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "18:00 - 18:30",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "18:30 - 19:00",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "19:00 - 19:30",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
-      "is_current": true
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
+      "is_current": false
     },
     {
       "time": "19:30 - 20:00",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "20:00 - 20:30",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "20:30 - 21:00",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
       "time": "21:00 - 21:30",
-      "code": "A",
-      "status_zh": "開放",
-      "status_en": "Open",
+      "code": "B",
+      "status_zh": "預訂暫停",
+      "status_en": "Closed (booking)",
       "is_current": false
     },
     {
@@ -833,65 +833,65 @@
     },
     {
       "time": "17:00 - 17:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "17:30 - 18:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "18:00 - 18:30",
-      "code": "B",
-      "status_zh": "預訂暫停",
-      "status_en": "Closed (booking)",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "18:30 - 19:00",
-      "code": "B",
-      "status_zh": "預訂暫停",
-      "status_en": "Closed (booking)",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "19:00 - 19:30",
-      "code": "B",
-      "status_zh": "預訂暫停",
-      "status_en": "Closed (booking)",
-      "is_current": true
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
+      "is_current": false
     },
     {
       "time": "19:30 - 20:00",
-      "code": "B",
-      "status_zh": "預訂暫停",
-      "status_en": "Closed (booking)",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "20:00 - 20:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "20:30 - 21:00",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
       "time": "21:00 - 21:30",
-      "code": "M",
-      "status_zh": "關閉",
-      "status_en": "Closed",
+      "code": "A",
+      "status_zh": "開放",
+      "status_en": "Open",
       "is_current": false
     },
     {
@@ -909,13 +909,20 @@
       "is_current": false
     }
   ],
-  "closures": [],
+  "closures": [
+    {
+      "date": "2026/09/06",
+      "facilities": "主場  Main Field",
+      "reason": "足球比賽\nFootball Match",
+      "time": "06:30-22:30"
+    }
+  ],
   "maintenance": {
-    "main": "逢星期一",
+    "main": "逢星期一、逢星期二",
     "sec": "逢星期五"
   },
   "noticeUrl": "https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?fid=1060",
   "xlsxUrl": "https://www.lcsd.gov.hk/file_upload_clpss/leisure_facilities/lsb/jogging/1060_202609.xlsx",
-  "xlsxDate": "2026年09月",
-  "xlsxFileDate": "2026-08-23"
+  "xlsxDate": "2026年9月",
+  "xlsxFileDate": "2026-08-31"
 }

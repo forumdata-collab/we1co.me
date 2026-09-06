@@ -17,6 +17,7 @@ from datetime import date, datetime, timezone, timedelta
 
 POOLS = {"tkoswim": 35, "ktswim": 18, "ltswim": 42, "jvswim": 17}
 CONFIG_PATHS = ["/home/ubuntu/we1co.me/districts/sk.js", "/home/ubuntu/we1co.me/districts/kt.js"]
+HTML_PATHS = ["/home/ubuntu/we1co.me/index.html", "/home/ubuntu/we1co.me/kt.html"]
 HTML_PATH = CONFIG_PATHS[0]  # backward compat for external imports
 COMMON_JS = "/home/ubuntu/we1co.me/common.js"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; LCSD-closure-bot/1.0)"}
@@ -245,6 +246,19 @@ def patch_configs(all_data):
             with open(COMMON_JS, 'w', encoding='utf-8') as f:
                 f.write(cjs_new)
             print(f"Patched LAST_UPDATE in common.js ({sync_time})")
+    # Bump ?v= in all HTML files — force browser to fetch fresh JS/CSS after deploy
+    # Without this, CF edge cache + browser cache serve stale JS/CSS indefinitely
+    epoch = str(int(datetime.now(timezone.utc).timestamp()))
+    for html_path in HTML_PATHS:
+        if not os.path.exists(html_path):
+            continue
+        with open(html_path, encoding='utf-8') as f:
+            html = f.read()
+        new_html, n = re.subn(r'\?v=\d+', f'?v={epoch}', html)
+        if n > 0:
+            with open(html_path, 'w', encoding='utf-8') as f:
+                f.write(new_html)
+            print(f"Bumped ?v= in {os.path.basename(html_path)} → {epoch}")
     # Patch closures/maintenance/cleaning in district config files
     for html_path in CONFIG_PATHS:
       if not os.path.exists(html_path):

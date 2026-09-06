@@ -1,53 +1,47 @@
 {
-  "lastSync": "2026-08-31 19:20",
+  "lastSync": "2026-09-06 08:20",
   "machines": {
     "彩明商場": {
       "status": ">40%",
       "cat": "operating",
       "service_hour": "Mon-Sun & Public Holiday : 6 am to 12 am",
-      "last_emptied": "2026-08-31T19:09:45+08:00"
+      "last_emptied": "2026-09-06T07:38:50+08:00"
     },
     "新都城中心三期": {
       "status": ">40%",
-      "cat": "operating",
+      "cat": "maintenance",
       "service_hour": "Mon-Sun & Public Holiday : 10 am to 10 pm",
-      "last_emptied": "2026-08-31T19:01:25+08:00"
+      "last_emptied": "2026-09-05T17:27:57+08:00"
     },
     "PopCorn": {
-      "status": "<=40%",
+      "status": ">40%",
       "cat": "operating",
       "service_hour": "Mon-Sun & Public Holiday : 6 am to 12 am",
-      "last_emptied": "2026-08-31T16:39:14+08:00"
+      "last_emptied": "2026-09-06T07:55:11+08:00"
     },
     "寶林商場": {
-      "status": ">40%",
-      "cat": "operating",
+      "status": "Full",
+      "cat": "full",
       "service_hour": "Mon-Sun & Public Holiday : 7 am to 12 am",
-      "last_emptied": "2026-08-31T18:07:40+08:00"
+      "last_emptied": "2026-09-05T17:18:36+08:00"
     },
     "The LOHAS": {
-      "status": "<=40%",
-      "cat": "operating",
+      "status": "<=20%",
+      "cat": "maintenance",
       "service_hour": "Mon-Sun & Public Holiday : 24 Hours",
-      "last_emptied": "2026-08-31T14:11:44+08:00"
+      "last_emptied": "2026-09-05T19:07:39+08:00"
     },
     "TKO Spot": {
-      "status": "<=40%",
-      "cat": "operating",
-      "service_hour": "Mon-Sun & Public Holiday : 9 am to 10 pm",
-      "last_emptied": "2026-08-31T16:22:34+08:00"
-    },
-    "怡明邨": {
       "status": ">40%",
-      "cat": "operating",
-      "service_hour": "Mon-Sun & Public Holiday: 7 am to 10 pm",
-      "last_emptied": "2026-08-31T17:19:04+08:00"
+      "cat": "maintenance",
+      "service_hour": "Mon-Sun & Public Holiday : 9 am to 10 pm",
+      "last_emptied": "2026-09-05T19:57:39+08:00"
     },
     "海悅豪園商場": {
       "status": ">40%",
       "cat": "operating",
       "service_hour": "Mon-Sun & Public Holiday : 24 Hours",
-      "last_emptied": "2026-08-31T14:36:17+08:00"
+      "last_emptied": "2026-09-06T08:09:49+08:00"
     }
   }
 }

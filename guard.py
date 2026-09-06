@@ -33,7 +33,7 @@ for path in js_files:
 # Mirrors poolSubStatuses alias logic — catches LCSD renaming pools silently breaking status
 ALIAS_MAP = {
     'ktswim': {'戶外泳池': ['副池', '日光浴場'], '室內泳池': ['主池', '訓練池', '習泳池 1&2']},
-    'jvswim': {'嬉水池 (2)': ['嬉水池 2&3'], '嬉水池 (3)': ['嬉水池 2&3']},
+    'jvswim': {'嬉水池 (2)': ['嬉水池 2&3'], '嬉水池 (3)': ['嬉水池 2&3'], '嬉水池 (4)': ['嬉水池 4']},
 }
 # 公告有時會提及非 sub-pool 設施（看台/觀眾席），唔係狀態追蹤對象，忽略
 IGNORE_POOLS = {'觀眾看台', '看台', '觀眾席'}

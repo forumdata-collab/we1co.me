@@ -238,7 +238,7 @@ function poolSubStatuses(f, todayStr, now){
   let closedSet=new Set();
   let reasonMap={};
   const nm=hkMinutes(now);
-  const alias=f.id==='ktswim'?{'戶外泳池':['副池','日光浴場'],'室內泳池':['主池','訓練池','習泳池 1&2']}:(f.id==='jvswim'?{'嬉水池 (2)':['嬉水池 2&3'],'嬉水池 (3)':['嬉水池 2&3']}:{});
+  const alias=f.id==='ktswim'?{'戶外泳池':['副池','日光浴場'],'室內泳池':['主池','訓練池','習泳池 1&2']}:(f.id==='jvswim'?{'嬉水池 (2)':['嬉水池 2&3'],'嬉水池 (3)':['嬉水池 2&3'],'嬉水池 (4)':['嬉水池 4']}:{});
   if(f.closures){
     f.closures.filter(c=>c.date<=todayStr && (c.dateEnd||c.date)>=todayStr).forEach(c=>{
       // 公告有時間範圍：只要公告未完結（end > now），即使未開始都預告暫停
@@ -412,7 +412,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-01 21:02';
+const LAST_UPDATE='2026-09-06 06:45';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);
