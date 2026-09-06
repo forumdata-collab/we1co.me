@@ -172,3 +172,13 @@ Symptom: 將軍澳運動場開場前（如 01:00）badge 顯示「休館」，�
 Root cause: `renderSportGround` 嘅 `fieldNow()` 只睇「現行時段」（nowM 落入 A/L slot 先算 open），冇任何「下一個開放時段」預告 → 開場前永遠 `status-closed`。泳池/遊戲室/圖書館用 `sessionStatus`（`nowM < range.start` → 即將開始）所以有提前預告，運動場係唯一冇嘅。
 Fix (districts/sk.js): 加 `fieldNextStart(slots)` — 搵今日下一個未開始嘅 A/L slot start minutes；overall 邏輯改為：兩場都 closed 但 `mNext||sNext` 存在 → `{text:t('soon'),cls:'status-upcoming'}`（即「即將開始」，同泳池一致）；否則先係休館。
 Note: A/L 先算「開放時段」（B=預訂暫停、M=關閉 唔當）；驗證用 live browser 覆寫 `hkNow`：05:30→即將開始、07:00→部分開放、23:30→休館，三態正確。
+
+## 「即將開始」1 小時 lead-time 規則 (2026-09-06 修訂)
+
+Symptom: 用戶要求「臨開場前1小時顯示即將開始，否則顯示休館」— 即「即將開始」只喺距離開場 ≤1 小時內顯示，更早（如凌晨）顯示休館。
+First attempt (wrong): 運動場加 fieldNextStart 但任何未來 A/L 時段都當即將開始 → 成晚顯示即將開始，方向錯咗。
+Correct fix:
+- `common.js sessionStatus()`: `nowM < range.start` 時 `lead=range.start-nowM`；`lead<=60` → soon（即將開始），否則 `{text:t('closed'),cls:'closed'}`（休館）。KT 頁共用 common.js 自動生效。
+- `districts/sk.js fieldNextStart()`: 加 `s-nowM<=60` 條件，運動場同規則。
+- 驗證：live browser 覆寫 hkNow — 無閉館通告嘅池 05:00→休館、05:30→即將開始、06:00→即將開始、08:00→營運中、23:00→休館，五態正確。
+- ⚠️ 部分開放 badge 可能覆蓋即將開始/休館：若今日有 sub-pool 閉館通告（如跳水池 救生員不足），badge 顯示「部分開放」係正確（預告暫停），唔係 bug。
