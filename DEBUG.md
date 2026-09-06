@@ -163,3 +163,12 @@ PATH=/home/ubuntu/.npm-global/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/
 | 16 6,9,12,15,18,19,21 + 46 12 + 45 6 | `sport_ground_sync.py --deploy` | 运动场状态 |
 | 20 7-22 | `rvm_sync.py --deploy` | 回收机状态 |
 | 0 8,11,14,17,20,23 | `we1co-watchdog`（Hermes cron） | 状态检查 |
+
+---
+
+## 運動場 badge 開場前唔顯示「即將開始」(2026-09-06 fixed)
+
+Symptom: 將軍澳運動場開場前（如 01:00）badge 顯示「休館」，臨開場先見到狀態變化 — 用戶報告「臨開館前1小時才顯示即將開始」。
+Root cause: `renderSportGround` 嘅 `fieldNow()` 只睇「現行時段」（nowM 落入 A/L slot 先算 open），冇任何「下一個開放時段」預告 → 開場前永遠 `status-closed`。泳池/遊戲室/圖書館用 `sessionStatus`（`nowM < range.start` → 即將開始）所以有提前預告，運動場係唯一冇嘅。
+Fix (districts/sk.js): 加 `fieldNextStart(slots)` — 搵今日下一個未開始嘅 A/L slot start minutes；overall 邏輯改為：兩場都 closed 但 `mNext||sNext` 存在 → `{text:t('soon'),cls:'status-upcoming'}`（即「即將開始」，同泳池一致）；否則先係休館。
+Note: A/L 先算「開放時段」（B=預訂暫停、M=關閉 唔當）；驗證用 live browser 覆寫 `hkNow`：05:30→即將開始、07:00→部分開放、23:30→休館，三態正確。
