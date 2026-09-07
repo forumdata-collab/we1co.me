@@ -138,13 +138,19 @@ function addrRVM(r){
 function hkNow(){return new Date()} // server already HKT, no +8h
 function hkMinutes(d){return d.getHours()*60+d.getMinutes()}
 // parseMaintNote: 保養日(每月第N及第M個星期X HH:MM-HH:MM)首節改 HH:MM
+// Also handles sports-centre format: 每月第1及第3個星期一 09:00–15:00 (Arabic numerals, EN dash, no wrapper)
 function parseMaintNote(note){
-  const m=note.match(/保養日\(每月(.+?)及(.+?)個(.+?) ([0-9:]+)-([0-9:]+)\)首節改 ([0-9:]+)/);
-  if(!m)return null;
-  const ord={第一:1,第二:2,第三:3,第四:4};
-  const wd={星期一:1,星期二:2,星期三:3,星期四:4,星期五:5,星期六:6,星期日:0};
+  if(!note) return null;
   const toMin=s=>{const[h,mm]=s.split(':').map(Number);return h*60+mm;};
-  return{weeks:[ord[m[1]],ord[m[2]]],weekday:wd[m[3]],winEnd:toMin(m[5]),shift:toMin(m[6])};
+  const ord={第一:1,第二:2,第三:3,第四:4,'1':1,'2':2,'3':3,'4':4};
+  const wd={星期一:1,星期二:2,星期三:3,星期四:4,星期五:5,星期六:6,星期日:0};
+  // Format A: 保養日(每月第二及第四個星期一 07:00-13:00)首節改 14:15
+  let m=note.match(/保養日\(每月(.+?)及(.+?)個(.+?) ([0-9:]+)[-–]([0-9:]+)\)首節改 ([0-9:]+)/);
+  if(m) return{weeks:[ord[m[1]],ord[m[2]]],weekday:wd[m[3]],winEnd:toMin(m[5]),shift:toMin(m[6])};
+  // Format B: 每月第1及第3個星期一 09:00–15:00 (sports centres — no shift, maint window = winEnd)
+  m=note.match(/每月第?(.+?)及第?(.+?)個(.+?) ([0-9:]+)[-–]([0-9:]+)/);
+  if(m) return{weeks:[ord[m[1]],ord[m[2]]],weekday:wd[m[3]],winEnd:toMin(m[5]),shift:null};
+  return null;
 }
 // isMaintDay: 今日係咪某個保養日（第N個星期X）？date預設今日
 function isMaintDay(obj,date){
@@ -379,13 +385,15 @@ function renderPlayrooms(){
  return (DISTRICT.playrooms||[]).map(p=>{
    let maint=parseMaintNote(p.note);
    let isMaint=isMaintDay(maint);
-   let maintNow=isMaint && nm < maint.shift;
+   // Format A (playrooms): shift = first session start; Format B (sports centres): shift=null, use winEnd
+   let maintEnd=maint?(maint.shift||maint.winEnd):0;
+   let maintNow=isMaint && nm < maintEnd;
    let st=maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
    let doneAll=facilityDone(p.sessions, nm);
       let html=p.sessions.map(s=>{
        let r=parseRange(s);
        let ss=sessionStatus(r,nm);
-       if(isMaint && r && r.start<maint.shift){ss={text:t('maint'),cls:'maint'};}
+       if(isMaint && r && r.start<maintEnd){ss={text:t('maint'),cls:'maint'};}
        if(doneAll && ss.cls==='done') ss={text:t('closed'),cls:'closed'}; // 成個館收檔 → 休館（深色）
            return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
@@ -427,7 +435,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-06 19:15';
+const LAST_UPDATE='2026-09-07 09:15';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);

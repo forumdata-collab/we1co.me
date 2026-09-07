@@ -94,15 +94,19 @@ const OTHER_FACILITIES=[
 function renderSportsCentres(){
  const now=hkNow(), nm=hkMinutes(now);
  return SPORTS_CENTRES.map(f=>{
-   let st = facilityOverallStatus(f.sessions, nm);
+   let maint=parseMaintNote(f.maintNote);
+   let isMaint=maint?isMaintDay(maint):false;
+   let maintNow=isMaint && nm < maint.winEnd;
+   let st=maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(f.sessions, nm);
    let notice='';
    if(f.maintNote){
-     notice=`<div class="notice">🔧 ${currentLang==='en'?'Maintenance':currentLang==='cn'?'保养':'保養'}：${f.maintNote}</div>`;
+     notice=`<div class="notice">🔧 ${currentLang==='en'?'Maintenance':currentLang==='cn'?'保养':'保養'}：${tl('note',f.maintNote)||f.maintNote}</div>`;
    }
   let doneAll=facilityDone(f.sessions, nm);
    let sessions=f.sessions.map(s=>{
      let r=parseRange(s);
      let ss=sessionStatus(r,nm);
+     if(isMaint && r && r.start < maint.winEnd) ss={text:t('maint'),cls:'maint'};
      if(doneAll && ss.cls==='done') ss={text:t('closed'),cls:'closed'}; // 成個館收檔 → 休館（深色）
      return `<div class="session"><span class="session-time">${s}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
