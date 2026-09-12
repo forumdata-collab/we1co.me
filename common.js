@@ -382,23 +382,36 @@ function renderPools(){
 
 function renderPlayrooms(){
  const now=hkNow(), nm=hkMinutes(now);
+ const todayStr=`${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}`;
  return (DISTRICT.playrooms||[]).map(p=>{
+   // 暫停開放通告（PLAYROOM_CLOSURES，scraper 自動維護）
+   const pc=(typeof PLAYROOM_CLOSURES!=='undefined')?PLAYROOM_CLOSURES[p.id]:null;
+   const closureNow=pc&&pc.date<=todayStr&&todayStr<=pc.dateEnd;
    let maint=parseMaintNote(p.note);
-   let isMaint=isMaintDay(maint);
+   let isMaint=maint && !closureNow;               // 暫停期間唔顯示保養日
    // Format A (playrooms): shift = first session start; Format B (sports centres): shift=null, use winEnd
    let maintEnd=maint?(maint.shift||maint.winEnd):0;
    let maintNow=isMaint && nm < maintEnd;
-   let st=maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm);
+   let st=closureNow?{text:t('closed_today'),cls:'status-suspended'}:(maintNow?{text:t('maint'),cls:'status-maint'}:facilityOverallStatus(p.sessions, nm));
    let doneAll=facilityDone(p.sessions, nm);
       let html=p.sessions.map(s=>{
        let r=parseRange(s);
        let ss=sessionStatus(r,nm);
-       if(isMaint && r && r.start<maintEnd){ss={text:t('maint'),cls:'maint'};}
+       if(closureNow){ss={text:t('closed_today'),cls:'suspended'};}
+       else if(isMaint && r && r.start<maintEnd){ss={text:t('maint'),cls:'maint'};}
        if(doneAll && ss.cls==='done') ss={text:t('closed'),cls:'closed'}; // 成個館收檔 → 休館（深色）
            return `<div class="session"><span class="session-time">${trSession(s,currentLang)}</span><span class="session-status ${ss.cls}">${ss.text}</span></div>`
    }).join("");
+   let closureHtml='';
+   if(pc){
+     const dRange=`${pc.date} - ${pc.dateEnd}`;
+     const reason=currentLang==='en'?(pc.reasonEn||pc.reason):pc.reason;
+     const alt=currentLang==='en'?(pc.alternateEn||''):(pc.alternate||'');
+     const altHtml=alt?` <span style="opacity:.8">（${alt}）</span>`:'';
+     closureHtml=`<div class="notice" style="background:#fee2e2;border-color:#fecaca;color:#991b1b">⚠️ ${t('closure')}（${dRange}）：${reason}${altHtml}</div>`;
+   }
    let official=officialLink(p.officialUrl,'view');
-   return `<div class="card collapsed" id="${p.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(p.id)}</div><div class="facility-address">${addr(p)} · ${tl('pool',p.theme)} · ${p.area}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours45')}</div>${html}</div><div class="notice">${tl('note',p.note)}</div>${official}</div></div>`
+   return `<div class="card collapsed" id="${p.id}"><div class="facility-header" onclick="toggleCard(this)"><div><div class="facility-name">${lname(p.id)}</div><div class="facility-address">${addr(p)} · ${tl('pool',p.theme)} · ${p.area}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span class="status-badge ${st.cls}">${st.text}</span><span class="expand-hint" data-expand="${t('expand')}" data-collapse="${t('collapse')}"></span></div></div><div class="facility-body"><div class="schedule-section"><div class="schedule-title">${t('hours45')}</div>${html}</div><div class="notice">${tl('note',p.note)}</div>${closureHtml}${official}</div></div>`
  }).join("");
 }
 
@@ -435,7 +448,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-07 09:15';
+const LAST_UPDATE='2026-09-12 17:36';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);

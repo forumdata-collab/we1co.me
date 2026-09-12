@@ -16,6 +16,14 @@ import urllib.request
 from datetime import date, datetime, timezone, timedelta
 
 POOLS = {"tkoswim": 35, "ktswim": 18, "ltswim": 42, "jvswim": 17}
+# 兒童遊戲室通告頁（ftid=15 兒童遊戲室；did=8 西貢區）。同一頁列出全區遊戲室。
+PLAYROOM_DISTRICTS = {"sk": {"tc": "https://www.lcsd.gov.hk/clpss/tc/webApp/Facility/Details.do?ftid=15&did=8&fcid=",
+                             "en": "https://www.lcsd.gov.hk/clpss/en/webApp/Facility/Details.do?ftid=15&did=8&fcid="}}
+PLAYROOM_IDS = {  # 官方場地名 → 本站 playroom id
+    "坑口體育館兒童遊戲室": "playroom-tko1",
+    "香港單車館兒童遊戲室": "playroom-tko2",
+    "調景嶺體育館兒童遊戲室": "playroom-tko3",
+}
 CONFIG_PATHS = ["/home/ubuntu/we1co.me/districts/sk.js", "/home/ubuntu/we1co.me/districts/kt.js"]
 HTML_PATHS = ["/home/ubuntu/we1co.me/index.html", "/home/ubuntu/we1co.me/kt.html"]
 HTML_PATH = CONFIG_PATHS[0]  # backward compat for external imports
@@ -234,6 +242,105 @@ def pool_data(swp_id):
     }
 
 
+def parse_playroom_closures(html_tc, html_en):
+    """兒童遊戲室通告：中文數字日期範圍（二零二六年九月十四日至二零二六年十月三十一日暫時關閉）"""
+    ZH = {'零':'0','〇':'0','一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9'}
+    def zh_to_num(s):
+        # 中文數字 → int：支援 一~九、十、十一、二十、三十一 等
+        if not s: return None
+        if '十' not in s:
+            return int(''.join(ZH.get(c, '0') for c in s))
+        parts = s.split('十')
+        tens = ZH.get(parts[0], '1') if parts[0] else '1'
+        ones = ZH.get(parts[1], '0') if len(parts) > 1 and parts[1] else '0'
+        return int(tens + '0') + int(ones)
+    def zh_date(s):
+        m = re.match(r'([零〇一二三四五六七八九]{4})年([一二三四五六七八九十]{1,2})月([一二三四五六七八九十]{1,3})日', s)
+        if not m: return None
+        year = ''.join(ZH[c] for c in m.group(1))
+        month = zh_to_num(m.group(2)); day = zh_to_num(m.group(3))
+        return f"{year}/{month:02d}/{day:02d}"
+    # Strip HTML tags, entities, whitespace → clean text for robust pattern matching
+    def clean(raw):
+        t = re.sub(r'<[^>]+>', ' ', raw)
+        t = re.sub(r'&(?:nbsp|amp|quot|rsquo|lsquo|gt|lt|#\d+);', ' ', t)
+        t = re.sub(r'\s+', ' ', t).strip()
+        return t
+    tc_clean = clean(html_tc)
+    en_clean = clean(html_en)
+    out = {}
+    # ---- Chinese notice ----
+    pat = re.compile(r'([\u4e00-\u9fff]{2,16}?)\s*將於\s*'
+                     r'([零〇一二三四五六七八九]{4})年([一二三四五六七八九十]{1,2})月([一二三四五六七八九十]{1,3})日'
+                     r'\s*至\s*'
+                     r'([零〇一二三四五六七八九]{4})年([一二三四五六七八九十]{1,2})月([一二三四五六七八九十]{1,3})日'
+                     r'\s*暫時關閉[，,]?\s*(.*?)(?=。\s*(?:不便|$)|\.\s*(?:We|I)|$)', re.S)
+    for m in pat.finditer(tc_clean):
+        name = m.group(1).strip()
+        pid = PLAYROOM_IDS.get(name)
+        if not pid: continue
+        d1 = zh_date(m.group(2) + '年' + m.group(3) + '月' + m.group(4) + '日')
+        d2 = zh_date(m.group(5) + '年' + m.group(6) + '月' + m.group(7) + '日')
+        if not d1 or not d2: continue
+        reason = '公告'
+        detail = m.group(8)
+        rm = re.search(r'(?:以便進行|進行)([^。，；]{2,24})', detail)
+        if rm: reason = rm.group(1).strip()
+        alt = ''
+        am = re.search(r'可改往[^。；]{0,30}?([香港單車館及調景嶺體育館\w]+)[^。；]*使用([^。；]{2,40})', detail)
+        if am: alt = f"可改往{am.group(1).strip()}使用{am.group(2).strip()}"
+        else:
+            am2 = re.search(r'(?:可改往|可前往|可使用)([^。；]{2,60}?(?:設施|遊戲室))', detail)
+            if am2: alt = am2.group(1).strip()
+        out[pid] = {"date": d1, "dateEnd": d2, "reason": reason,
+                    "alternate": alt if alt else ""}
+    # ---- English notice ----
+    MON = {m.lower(): i + 1 for i, m in enumerate(['January','February','March','April','May','June','July','August','September','October','November','December'])}
+    en_pat = re.compile(r'(?:The )?([\w\s&]+?)\s+will be temporarily closed\s+from\s+'
+                        r'(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})\s+to\s+'
+                        r'(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})\s+for\s+([^.]+?)\.\s*'
+                        r'During\s+the\s+closure[^.]*?([\w\s,&]+?)(?:\.|We)', re.I)
+    for m in en_pat.finditer(en_clean):
+        raw_name = m.group(1).strip()
+        # Normalize name to find matching pid
+        for zname, pid in PLAYROOM_IDS.items():
+            # Fuzzy: check core words
+            lower_raw = raw_name.lower()
+            if 'hang hau' in lower_raw and pid not in out:
+                # still fallback
+                pass
+        # Better: iterate en fields and match index order
+    # English alternate: "visit the Hong Kong Velodrome and Tiu Keng Leng Sports Centre"
+    en_alt_pat = re.compile(r'visit\s+(the\s+)?([\w\s,&]+?)\s+in\s+the\s+district\s+for\s+similar\s+facilities', re.I)
+    for m in en_alt_pat.finditer(en_clean):
+        alt_en = f"Visit {m.group(2).strip()} for similar facilities during closure"
+        # Assign to pid by index order (same as Chinese)
+        pid_list = list(out.keys())
+        if pid_list:
+            pid = pid_list[0]  # currently only one notice; when more, match by name
+            out[pid]["alternateEn"] = alt_en
+            # Also parse English reason inline
+            en_r = re.search(r'for\s+([^.]+?)\.\s*During', en_clean)
+            if en_r: out[pid]["reasonEn"] = en_r.group(1).strip().capitalize()
+    return out
+
+
+def patch_playroom_closures(all_closures):
+    """寫 PLAYROOM_CLOSURES 到 sk.js（const PLAYROOM_CLOSURES={...};）"""
+    if not all_closures: return
+    for html_path in CONFIG_PATHS:
+        if not os.path.exists(html_path): continue
+        with open(html_path, encoding='utf-8') as f: html = f.read()
+        if 'const PLAYROOM_CLOSURES=' not in html: continue
+        js = f"const PLAYROOM_CLOSURES={json.dumps(all_closures, ensure_ascii=False)};"
+        new, n = re.subn(r'const PLAYROOM_CLOSURES=\{[^;]*\};', js, html, count=1)
+        if n > 0:
+            with open(html_path, 'w', encoding='utf-8') as f: f.write(new)
+            print(f"PLAYROOM_CLOSURES patched in {os.path.basename(html_path)}: {list(all_closures.keys())}")
+        else:
+            print(f"WARN: PLAYROOM_CLOSURES 冇 match 到 {os.path.basename(html_path)}", file=sys.stderr)
+
+
 def patch_configs(all_data):
     # Patch LAST_UPDATE in common.js (shared across all pages)
     if os.path.exists(COMMON_JS):
@@ -370,6 +477,17 @@ if __name__ == "__main__":
             if pid != list(POOLS.keys())[-1]:
                 time.sleep(random.uniform(0.8, 2.5))
         patch_configs(all_data)
+        # 兒童遊戲室通告（同區一頁式，ftid=15 did=8）
+        try:
+            pr_closures = {}
+            for dist, urls in PLAYROOM_DISTRICTS.items():
+                html_tc = fetch(urls["tc"])
+                html_en = fetch(urls["en"])
+                pr_closures.update(parse_playroom_closures(html_tc, html_en))
+            if pr_closures:
+                patch_playroom_closures(pr_closures)
+        except Exception as e:
+            print(f"playroom closures skip: {e}", file=sys.stderr)
         if "--deploy" in sys.argv:
             deploy()
         print("PASS")
