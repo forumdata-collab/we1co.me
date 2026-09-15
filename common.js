@@ -388,7 +388,7 @@ function renderPlayrooms(){
    const pc=(typeof PLAYROOM_CLOSURES!=='undefined')?PLAYROOM_CLOSURES[p.id]:null;
    const closureNow=pc&&pc.date<=todayStr&&todayStr<=pc.dateEnd;
    let maint=parseMaintNote(p.note);
-   let isMaint=maint && !closureNow;               // 暫停期間唔顯示保養日
+   let isMaint=maint && !closureNow && isMaintDay(maint, now);  // 暫停期間唔顯示保養日；且今日必須真係保養日
    // Format A (playrooms): shift = first session start; Format B (sports centres): shift=null, use winEnd
    let maintEnd=maint?(maint.shift||maint.winEnd):0;
    let maintNow=isMaint && nm < maintEnd;
