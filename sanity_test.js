@@ -139,5 +139,33 @@ if(f.parseWarnings){
   ok('null 輸入 → 空陣列', r.severe.length===0 && r.thunder.length===0);
 } else ok('parseWarnings 可執行', false);
 
+console.log('── parseMaintNote 格式覆蓋 ──');
+const mA1 = f.parseMaintNote('保養日(每月第二及第四個星期二 07:00-13:00)首節改 13:30');
+ok('Format A: playroom 坑口 (第2,4週二 07:00-13:00 首節改 13:30)', 
+  mA1 && mA1.weeks[0]===2 && mA1.weeks[1]===4 && mA1.weekday===2 && mA1.winEnd===780 && mA1.shift===810,
+  JSON.stringify(mA1));
+
+const mA2 = f.parseMaintNote('保養日(每月第一及第三個星期一 09:00-15:00)首節改 15:30');
+ok('Format A: playroom 彩榮路 (第1,3週一 09:00-15:00 首節改 15:30)', 
+  mA2 && mA2.weeks[0]===1 && mA2.weeks[1]===3 && mA2.weekday===1 && mA2.winEnd===900 && mA2.shift===930);
+
+const mA3 = f.parseMaintNote('保養日(每月第二及第四個星期三 09:00-15:00)首節改 15:30');
+ok('Format A: playroom 藍田南 (第2,4週三 09:00-15:00 首節改 15:30)', 
+  mA3 && mA3.weeks[0]===2 && mA3.weeks[1]===4 && mA3.weekday===3 && mA3.winEnd===900 && mA3.shift===930);
+
+const mB1 = f.parseMaintNote('每月第1及第3個星期一 09:00–15:00');
+ok('Format B: sport centre 彩榮路 (第1,3週一 09:00–15:00 EN dash)', 
+  mB1 && mB1.weeks[0]===1 && mB1.weeks[1]===3 && mB1.weekday===1 && mB1.winEnd===900 && mB1.shift===null);
+
+const mB2 = f.parseMaintNote('每月第2及第4個星期一 09:00–15:00');
+ok('Format B: sport centre 曉光街 (第2,4週一 09:00–15:00 EN dash)', 
+  mB2 && mB2.weeks[0]===2 && mB2.weeks[1]===4 && mB2.weekday===1 && mB2.winEnd===900 && mB2.shift===null);
+
+const mNull = f.parseMaintNote(null);
+ok('null 輸入 → null', mNull===null);
+
+const mBad = f.parseMaintNote('隨意文字無匹配');
+ok('格式錯誤 → null', mBad===null);
+
 console.log(`\n===== RESULT: ${pass} pass, ${fail} fail (common.js) =====`);
 process.exit(fail>0?1:0);

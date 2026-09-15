@@ -32,7 +32,7 @@ for path in js_files:
 # Guard 3: closure pools names must resolve to facility names (direct or via alias map)
 # Mirrors poolSubStatuses alias logic — catches LCSD renaming pools silently breaking status
 ALIAS_MAP = {
-    'ktswim': {'戶外泳池': ['副池', '日光浴場'], '室內泳池': ['主池', '訓練池', '習泳池 1&2']},
+    'ktswim': {'戶外泳池': ['副池', '日光浴場'], '室內泳池': ['主池', '訓練池', '習泳池 1&2'], '習泳池 (1)': ['習泳池 1&2'], '習泳池 (2)': ['習泳池 1&2']},
     'jvswim': {'嬉水池 (2)': ['嬉水池 2&3'], '嬉水池 (3)': ['嬉水池 2&3'], '嬉水池 (4)': ['嬉水池 4']},
 }
 # 公告有時會提及非 sub-pool 設施（看台/觀眾席），唔係狀態追蹤對象，忽略
