@@ -31,7 +31,7 @@ for(let i=0;i<lines.length;i++){
 const pwm = code.match(/  function parseWarnings\(wd\)\{[\s\S]*?\n  \}/);
 if(pwm) funcs.parseWarnings = pwm[0];
 
-const need = ['parseRange','sessionStatus','facilityDone','poolSubStatuses','facilityOverallStatus','renderPools','parseWarnings','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay'];
+const need = ['parseRange','sessionStatus','facilityDone','poolSubStatuses','facilityOverallStatus','renderPools','parseWarnings','inMaintenance','parseMaintNote','hkMinutes','isCleaningDay','isMaintDay'];
 const missing = need.filter(n=>!funcs[n]);
 if(missing.length){ console.log('MISSING funcs:', missing); process.exit(1); }
 
@@ -59,8 +59,8 @@ const sandbox = {console, Date, Math, Set, JSON, t, tl, trSession, trDay, FSTATU
 };
 vm.createContext(sandbox);
 // Load in dependency order
-const depOrder = ['parseRange','sessionStatus','facilityDone','isCleaningDay','inMaintenance','parseMaintNote','poolSubStatuses','facilityOverallStatus','renderPools'];
-const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatus,facilityDone,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote};';
+const depOrder = ['parseRange','sessionStatus','facilityDone','isCleaningDay','inMaintenance','parseMaintNote','isMaintDay','poolSubStatuses','facilityOverallStatus','renderPools'];
+const codeToRun = depOrder.map(n=>funcs[n]).join('\n') + '\n;__f={parseRange,sessionStatus,facilityDone,poolSubStatuses,facilityOverallStatus,renderPools,isCleaningDay,inMaintenance,parseMaintNote,isMaintDay};';
 vm.runInContext(codeToRun, sandbox);
 // parseWarnings standalone
 try{ vm.runInContext(funcs.parseWarnings + '\n;__f.parseWarnings=parseWarnings;', sandbox); }catch(e){ console.log('parseWarnings load fail:', e.message); }
@@ -166,6 +166,28 @@ ok('null 輸入 → null', mNull===null);
 
 const mBad = f.parseMaintNote('隨意文字無匹配');
 ok('格式錯誤 → null', mBad===null);
+
+console.log('── isMaintDay 週曆命中（2026-09 實例）──');
+// Sept 2026: 1st Tue; Mondays = 7/14/21/28; Weds = 2/9/16/23
+const tue_2nd4th = f.parseMaintNote('保養日(每月第二及第四個星期二 07:00-13:00)首節改 13:30');
+ok('坑口 2nd&4th Tue: 9/8 (2nd Tue) → true', f.isMaintDay(tue_2nd4th, new Date(2026,8,8))===true);
+ok('坑口 2nd&4th Tue: 9/15 (3rd Tue) → false（唔會日日維修中）', f.isMaintDay(tue_2nd4th, new Date(2026,8,15))===false);
+ok('坑口 2nd&4th Tue: 9/22 (4th Tue) → true', f.isMaintDay(tue_2nd4th, new Date(2026,8,22))===true);
+ok('坑口 2nd&4th Tue: 9/7 (Mon 非保養日) → false', f.isMaintDay(tue_2nd4th, new Date(2026,8,7))===false);
+
+const mon_1st3rd = f.parseMaintNote('保養日(每月第一及第三個星期一 09:00-15:00)首節改 15:30');
+ok('調景嶺 1st&3rd Mon: 9/7 → true', f.isMaintDay(mon_1st3rd, new Date(2026,8,7))===true);
+ok('調景嶺 1st&3rd Mon: 9/15 (Tue) → false', f.isMaintDay(mon_1st3rd, new Date(2026,8,15))===false);
+ok('調景嶺 1st&3rd Mon: 9/14 (2nd Mon) → false', f.isMaintDay(mon_1st3rd, new Date(2026,8,14))===false);
+
+const wed_2nd4th = f.parseMaintNote('保養日(每月第二及第四個星期三 09:00-15:00)首節改 15:30');
+ok('藍田南 2nd&4th Wed: 9/9 → true', f.isMaintDay(wed_2nd4th, new Date(2026,8,9))===true);
+ok('藍田南 2nd&4th Wed: 9/16 (3rd Wed) → false', f.isMaintDay(wed_2nd4th, new Date(2026,8,16))===false);
+
+const fmtB_mon = f.parseMaintNote('每月第1及第3個星期一 09:00–15:00');
+ok('Sport centre Format B 1st&3rd Mon: 9/21 → true', f.isMaintDay(fmtB_mon, new Date(2026,8,21))===true);
+ok('Sport centre Format B 1st&3rd Mon: 9/15 (Tue) → false', f.isMaintDay(fmtB_mon, new Date(2026,8,15))===false);
+ok('isMaintDay(null) → false', f.isMaintDay(null, new Date())===false);
 
 console.log(`\n===== RESULT: ${pass} pass, ${fail} fail (common.js) =====`);
 process.exit(fail>0?1:0);
