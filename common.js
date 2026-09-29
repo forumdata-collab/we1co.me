@@ -11,6 +11,13 @@ var currentLang=window.currentLang||'zh';
 function wWarn(){ // 按 currentLang 揀警告
   return currentLang==='en'?{severe:severeWarningsEn,thunder:thunderWarningsEn}:{severe:severeWarnings,thunder:thunderWarnings};
 }
+// 雷暴橫幅 HTML（兩處共用：天氣更新 + 語言切換）
+function thunderBannerHtml(){
+  const list=wWarn().thunder;
+  if(!list.length) return '';
+  const suffix=currentLang==='en'?' — Pools may close':' — 泳池可能暫停開放';
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ ${list.join('、')}${currentLang==='en'?' in effect':'生效中'}${suffix}`;
+}
 (function(){
   const API='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc';
   const WARN_API_TC='https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc';
@@ -85,8 +92,7 @@ function wWarn(){ // 按 currentLang 揀警告
       const w=wWarn();
       if(w.thunder.length){
         banner.style.display='block';
-        const suffix=currentLang==='en'?' — Pools may close':' — 泳池可能暫停開放';
-        banner.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ ${w.thunder.join('、')}${currentLang==='en'?' in effect':'生效中'}${suffix}`;
+        banner.innerHTML=thunderBannerHtml();
         document.body.classList.add('has-thunder');
       }else{
         banner.style.display='none';
@@ -448,7 +454,7 @@ function toggleSection(id){
  document.getElementById(id).classList.toggle('collapsed');
 }
 
-const LAST_UPDATE='2026-09-15 06:45';
+const LAST_UPDATE='2026-09-29 06:45';
 function updateSyncAgo(){
   const [d,t]=LAST_UPDATE.split(' ');
   const [y,m,dd]=d.split('-').map(Number);
@@ -509,7 +515,7 @@ document.querySelectorAll('.lang-btn').forEach(b=>b.addEventListener('click',e=>
  const ww=wWarn();
  const banner=document.getElementById('thunderBanner');
  if(banner&&ww.thunder.length){
-   banner.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px"><path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><polyline points="13 11 9 17 15 17 11 23"/></svg> ⛈ ${ww.thunder.join('、')}${currentLang==='en'?' in effect':'生效中'}${currentLang==='en'?' — Pools may close':' — 泳池可能暫停開放'}`;
+   banner.innerHTML=thunderBannerHtml();
  }
 }));
 // async data loaders（由 district config 提供 loadRVM/loadSportGround）
